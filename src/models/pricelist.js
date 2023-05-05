@@ -8,6 +8,9 @@ const sequelize = getDB();
 
 class PriceList extends Model {
    //association
+   static associate(Usage) {
+    PriceList.hasOne(Usage);
+  }
   }
 
   PriceList.init({

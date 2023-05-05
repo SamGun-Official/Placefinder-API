@@ -8,6 +8,14 @@ const sequelize = getDB();
 
 class Usage extends Model {
    //association
+   static associate(D_trans) {
+    Usage.hasOne(D_trans);
+  }
+
+  static associate(PriceList) {
+    Usage.belongsTo(PriceList);
+  }
+
   }
 
   Usage.init({

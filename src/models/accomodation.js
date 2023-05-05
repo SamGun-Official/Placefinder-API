@@ -5,7 +5,14 @@ const sequelize = getDB();
 
 
 class Accomodation extends Model {
-   //association
+  static associate(User) {
+    Accomodation.belongsTo(User);
+  }
+
+  static associate(Notification){
+    Accomodation.hasMany(Notification);
+  }
+
   }
   Accomodation.init({
     id: {

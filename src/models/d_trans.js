@@ -9,6 +9,14 @@ const sequelize = getDB();
 
 class D_trans extends Model {
    //association
+   static associate(H_trans) {
+    D_trans.belongsTo(H_trans);
+  }
+
+  static associate(Usage) {
+    D_trans.belongsTo(Usage);
+  }
+
   }
 
   D_trans.init({

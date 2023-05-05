@@ -4,7 +4,18 @@ const sequelize = getDB();
 
 
 class User extends Model {
-   //association
+  static associate(Accomodation) {
+    User.hasMany(Accomodation);
+  }
+
+  static associate(Notification) {
+    User.hasMany(Notification);
+  }
+
+  static associate(H_trans) {
+    User.hasMany(H_trans);
+  }
+
   }
   User.init({
     id: {

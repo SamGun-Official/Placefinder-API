@@ -6,7 +6,14 @@ const sequelize = getDB();
 
 
 class Notification extends Model {
-   //association
+  static associate(User) {
+    Notification.belongsTo(User);
+  }
+
+  static associate(Accomodation){
+    Notification.belongsTo(Accomodation);
+  }
+
   }
   Notification.init({
     id:{
