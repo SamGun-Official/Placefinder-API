@@ -62,12 +62,17 @@ class User extends Model {
     id_card_number: {
       type:DataTypes.STRING,
       primaryKey:false,
-      allowNull:false
+      allowNull:true
     },
     is_id_card_verified:{
       type:DataTypes.INTEGER,
       primaryKey:false,
       allowNull:false
+    },
+    token: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      primaryKey:false
     },
     status: {
       type:DataTypes.INTEGER,

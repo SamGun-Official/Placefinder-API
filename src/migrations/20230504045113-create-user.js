@@ -39,11 +39,15 @@ module.exports = {
       },
       id_card_number: {
         type: Sequelize.STRING,
-        allowNull:false
+        allowNull:true
       },
       is_id_card_verified: {
         type: Sequelize.INTEGER,
         allowNull:false
+      },
+      token: {
+        type: Sequelize.STRING,
+        allowNull: false,
       },
       status: {
         type: Sequelize.INTEGER,
