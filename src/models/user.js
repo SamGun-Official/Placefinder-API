@@ -86,7 +86,9 @@ class User extends Model {
     modelName: 'User',
     paranoid:false,
     underscored:false,
-    timestamps:true
+    timestamps:true,
+    createdAt:'created_at',
+    updatedAt:'updated_at'
   });
 
 
