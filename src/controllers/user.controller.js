@@ -3,7 +3,8 @@ const app = express();
 app.use(express.json())
 app.use(express.urlencoded({extended: true}))
 
-const transaction = require('../models/transaction');
+const d_trans = require('../models/d_trans');
+const h_trans = require('../models/d_trans');
 const notification = require('../models/notification');
 const accomodation = require('../models/accomodation');
 
