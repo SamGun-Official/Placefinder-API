@@ -50,10 +50,10 @@ module.exports = {
       }
 
       users.push({
-        username: faker.internet.userName(),
+        username: username,
         password: faker.internet.password(),
-        role: faker.datatype.number({ min: 1, max: 3 }),
-        saldo: faker.datatype.number({ min: 100000, max: 10000000 }),
+        name:faker.name.fullName(),
+        role: role,
         email: faker.internet.email(),
         phone_number: faker.phone.number(),
         tanggal_lahir: faker.date.between('1980-01-01', '2003-12-31'),

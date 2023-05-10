@@ -17,11 +17,11 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull:false
       },
-      role: {
-        type: Sequelize.INTEGER,
+      name: {
+        type: Sequelize.STRING,
         allowNull:false
       },
-      saldo: {
+      role: {
         type: Sequelize.INTEGER,
         allowNull:false
       },

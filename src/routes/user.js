@@ -13,9 +13,40 @@ const usage = require("../models/usage");
 const User = require("../models/user");
 const router = express.Router();
 
+const jwt = require("jsonwebtoken");
+const JWT_KEY = "secret_key";
+
 //npx sequelize-cli db:migrate:undo:all
 //npx sequelize-cli db:migrate
 //npx sequelize-cli db:seed:all
+
+function authenticate(roles, message = "Unauthorized") {
+  return (req, res, next) => {
+    const token = req.header("x-auth-token");
+    if (!token) {
+      return res.status(401).send(message);
+    }
+    const payload = jwt.verify(token, JWT_KEY);
+
+    if (roles.includes("ALL") || roles.includes(payload.role)) {
+      req.body = { ...req.body, ...payload };
+      next();
+    } else {
+      return res.status(401).send(message);
+    }
+  };
+}
+
+router.get("/", async function (req, res) {
+    const users = await self.getAll();
+    return res.status(200).send(users);
+});
+
+router.get("/:id", async function (req, res) {
+  let id = req.params.id;
+  let user = await self.getById(id);
+  return res.status(200).send(user);
+});
 
 const ROLE = ["Admin","Developer","Penyedia tempat tinggal"];
 router.post("/login", async function (req, res) {
@@ -62,7 +93,7 @@ router.post("/login", async function (req, res) {
     }
 });
 router.post("/register", async function (req, res) {
-  let { username, password, email, role, phone_number, tanggal_lahir, id_card_number } = req.body;
+  let { username, password,name, email, role, phone_number, tanggal_lahir, id_card_number } = req.body;
   //JOI validations
   const schema = Joi.object({
     username: Joi.string()
@@ -80,6 +111,7 @@ router.post("/register", async function (req, res) {
         }
       }),
     password: Joi.string().min(6).required(),
+    name: Joi.string().required(),
     email: Joi.string()
       .email()
       .required()
@@ -95,6 +127,7 @@ router.post("/register", async function (req, res) {
           throw Error("Email harus unik");
         }
       }),
+
     role: Joi.number().valid(2, 3).required(),
     phone_number: Joi.string().pattern(new RegExp("^[0-9]{10,12}$")).required(),
     tanggal_lahir: Joi.date().max("now").required().format("DD/MM/YYYY"),
@@ -130,5 +163,7 @@ router.post("/register", async function (req, res) {
     });
   }
 });
+
+
 
 module.exports = router;

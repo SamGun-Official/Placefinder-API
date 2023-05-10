@@ -16,7 +16,14 @@ let self = {};
 const jwt = require("jsonwebtoken");
 const JWT_KEY = "secret_key";
 
-self.getAll = async (req, res) => {};
+self.getAll = async () => {
+  let users = await User.findAll();
+  return users;
+};
+self.getById = async (id) => {
+  let user = await User.findByPk(id)
+  return user;
+};
 self.get = async (id) => {};
 self.login = async (req, res) => {
     let { username, password } = req.body;
@@ -29,7 +36,7 @@ self.login = async (req, res) => {
 };
 
 self.register = async (req, res) => {
-  let { username, password, email, role, phone_number, tanggal_lahir, id_card_number } = req.body;
+  let { username, password,name,email, role, phone_number, tanggal_lahir, id_card_number } = req.body;
 
   //sign
   let token = jwt.sign(
@@ -43,8 +50,8 @@ self.register = async (req, res) => {
   const newUser = User.create({
     username: username,
     password: password,
+    name:name,
     role: role,
-    saldo: 0,
     email: email,
     phone_number: phone_number,
     tanggal_lahir: moment(tanggal_lahir, "DD/MM/YYYY").format("YYYY-MM-DD"),

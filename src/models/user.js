@@ -34,12 +34,12 @@ class User extends Model {
       primaryKey: false,
       allowNull:false
     },
-    role: {
-      type:DataTypes.INTEGER,
+    name: {
+      type:DataTypes.STRING,
       primaryKey:false,
       allowNull:false
     },
-    saldo: {
+    role: {
       type:DataTypes.INTEGER,
       primaryKey:false,
       allowNull:false
