@@ -12,3 +12,6 @@ const d_trans = require('../models/d_trans');
 const pricelist = require('../models/pricelist');
 
 const router = express.Router();
+
+
+module.exports = router;

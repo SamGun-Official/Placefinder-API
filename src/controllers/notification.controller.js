@@ -4,7 +4,8 @@ app.use(express.json())
 app.use(express.urlencoded({extended: true}))
 
 const user = require('../models/user');
-const transaction = require('../models/transaction');
+const h_trans = require('../models/h_trans');
+const d_trans = require('../models/d_trans');
 const accomodation = require('../models/accomodation');
 
 const {Op} = require('sequelize');

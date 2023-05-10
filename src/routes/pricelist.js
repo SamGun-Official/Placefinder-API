@@ -12,3 +12,6 @@ const d_trans = require('../models/d_trans');
 const usage = require('../models/usage');
 
 const router = express.Router();
+
+
+module.exports = router;
