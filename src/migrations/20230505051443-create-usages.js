@@ -46,8 +46,8 @@ module.exports = {
         table: 'usages',
         field: 'id',
       },
-      onDelete: 'CASCADE',
-      onUpdate: 'CASCADE',
+      onDelete: 'NO ACTION',
+      onUpdate: 'NO ACTION',
     }));
   },
   async down(queryInterface, Sequelize) {
