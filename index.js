@@ -21,17 +21,18 @@ const D_trans =  require('./src/models/d_trans');
 const Pricelist = require('./src/models/pricelist');
 const Usage =  require('./src/models/usage');
 
-app.use("/users", users);
-app.use("/accomodations", accomodations);
-app.use("/notifications", notifications);
-app.use("/h_trans", h_trans);
-app.use("/d_trans", d_trans);
-app.use("/pricelist", pricelist);
-app.use("/usage", usage);
+app.use("/api/users", users);
+app.use("/api/accomodations", accomodations);
+app.use("/api/notifications", notifications);
+app.use("/api/h_trans", h_trans);
+app.use("/api/d_trans", d_trans);
+app.use("/api/pricelist", pricelist);
+app.use("/api/usage", usage);
 
 const port = 3000;
 app.listen(port, function (){
    console.log(`Listening on port ${3000}`); 
 });
+
 
 module.exports = app;

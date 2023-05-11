@@ -4,48 +4,48 @@ const { faker } = require('@faker-js/faker');
 const jwt = require("jsonwebtoken");
 const JWT_KEY = "secret_key";
 
-const getToken = (username,role) => {
-  
+const getToken = (username, role) => {
+
   let token = jwt.sign(
     {
       username: username,
-      role:role,
+      role: role,
     },
     JWT_KEY
   );
   return token;
 };
 
-function checkIDCard(users, idcard){
-    
-  const result = users.find(p=>p.id_card_number==idcard);
+function checkIDCard(users, idcard) {
 
-  if(!result){
-      return true;
-  }else{
-      return false;
+  const result = users.find(p => p.id_card_number == idcard);
+
+  if (!result) {
+    return true;
+  } else {
+    return false;
   }
 }
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
-  async up (queryInterface, Sequelize) {
+  async up(queryInterface, Sequelize) {
     const users = [];
     for (let i = 1; i <= 50; i++) {
       let username = faker.internet.userName();
       let role = faker.datatype.number({ min: 1, max: 3 });
-      let apikey = getToken(username,role);
-     
+      let apikey = getToken(username, role);
+
 
       let id_card_number = '32' + faker.datatype.number({ min: 10, max: 99 }) + faker.date.past(60).getFullYear().toString().slice(-2) + ('0' + faker.datatype.number({ min: 1, max: 12 })).slice(-2) + ('0' + faker.datatype.number({ min: 1, max: 28 })).slice(-2) + faker.datatype.number({ min: 1000, max: 9999 });
 
-      do{
+      do {
         id_card_number = '32' + faker.datatype.number({ min: 10, max: 99 }) + faker.date.past(60).getFullYear().toString().slice(-2) + ('0' + faker.datatype.number({ min: 1, max: 12 })).slice(-2) + ('0' + faker.datatype.number({ min: 1, max: 28 })).slice(-2) + faker.datatype.number({ min: 1000, max: 9999 });
-        
-      }while(checkIDCard(users,id_card_number)==false);
+
+      } while (checkIDCard(users, id_card_number) == false);
 
       const is_verified = faker.datatype.number({ min: 0, max: 1 });
-      if(is_verified==0){
+      if (is_verified == 0) {
         id_card_number = null;
       }
 
@@ -67,7 +67,7 @@ module.exports = {
     await queryInterface.bulkInsert('users', users, {});
   },
 
-  async down (queryInterface, Sequelize) {
+  async down(queryInterface, Sequelize) {
     await queryInterface.bulkDelete('users', null, {});
   }
 };

@@ -87,7 +87,9 @@ class Accomodation extends Model {
     tableName: 'accomodations',
     paranoid:false,
     underscored:false,
-    timestamps:true
+    timestamps:true,
+    createdAt: 'created_at',
+    updatedAt: 'updated_at'
   });
 module.exports = Accomodation;
 

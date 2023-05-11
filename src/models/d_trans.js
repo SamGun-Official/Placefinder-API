@@ -64,7 +64,9 @@ D_trans.init({
   tableName: 'd_trans',
   paranoid: false,
   underscored: false,
-  timestamps: true
+  timestamps: true,
+  createdAt: 'created_at',
+  updatedAt: 'updated_at'
 });
 
 module.exports = D_trans;
