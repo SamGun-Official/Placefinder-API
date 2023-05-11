@@ -38,8 +38,9 @@ function authenticate(roles, message = "Unauthorized") {
 }
 
 router.get("/", async function (req, res) {
-    const users = await self.getAll();
-    return res.status(200).send(users);
+  let name = req.query.name ?? "";
+  const users = await self.getAll(name);
+  return res.status(200).send(users);
 });
 
 router.get("/:id", async function (req, res) {
@@ -48,52 +49,55 @@ router.get("/:id", async function (req, res) {
   return res.status(200).send(user);
 });
 
-const ROLE = ["Admin","Developer","Penyedia tempat tinggal"];
+const ROLE = ["Admin", "Developer", "Penyedia tempat tinggal"];
 router.post("/login", async function (req, res) {
-    let { username, password } = req.body;
-    const schema = Joi.object({
-        username: Joi.string()
-          .required()
-          .external(async function () {
-            let user_with_username = await User.findOne({
-              where: {
-                username: {
-                  [Op.eq]: username,
-                },
-              },
-            });
-            if (user_with_username == null) {
-              throw Error("Username tidak ditemukan");
-            }
-            if(user_with_username.password != password){
-                throw Error("Password salah");
-            }
-          }),
-        password: Joi.string().min(6).required(),
-    });    
-    try {
-        await schema.validateAsync(req.body);
-        let user = await self.login(req, res);
-        if (user) {
-          return res.status(201).send({message:"Berhasil login!",user:{
-            username:user.username,
-            email:user.email,
-            role:ROLE[user.role],
-            token:user.token
-          }});
+  let { username, password } = req.body;
+  const schema = Joi.object({
+    username: Joi.string()
+      .required()
+      .external(async function () {
+        let user_with_username = await User.findOne({
+          where: {
+            username: {
+              [Op.eq]: username,
+            },
+          },
+        });
+        if (user_with_username == null) {
+          throw Error("Username tidak ditemukan");
         }
-
-        return res.status(400).send({
-          message: "Gagal login!",
-        });
-      } catch (e) {
-        return res.status(400).send({
-          message: e.message,
-        });
+        if (user_with_username.password != password) {
+          throw Error("Password salah");
+        }
+      }),
+    password: Joi.string().min(6).required(),
+  });
+  try {
+    await schema.validateAsync(req.body);
+    let user = await self.login(req, res);
+    if (user) {
+      return res.status(201).send({
+        message: "Berhasil login!",
+        user: {
+          username: user.username,
+          email: user.email,
+          role: ROLE[user.role],
+          token: user.token,
+        },
+      });
     }
+
+    return res.status(400).send({
+      message: "Gagal login!",
+    });
+  } catch (e) {
+    return res.status(400).send({
+      message: e.message,
+    });
+  }
 });
 router.post("/register", async function (req, res) {
-  let { username, password,name, email, role, phone_number, tanggal_lahir, id_card_number } = req.body;
+  let { username, password, name, email, role, phone_number, tanggal_lahir, id_card_number } = req.body;
   //JOI validations
   const schema = Joi.object({
     username: Joi.string()
@@ -164,6 +168,80 @@ router.post("/register", async function (req, res) {
   }
 });
 
-
+router.put("/:id/edit", async function (req, res) {
+  let id = req.params.id;
+  let { username, password, name, email, role, phone_number, tanggal_lahir, id_card_number } = req.body;
+  //JOI validations
+  const schema = Joi.object({
+    username: Joi.string()
+      .external(async function () {
+        let user_with_username = await User.findOne({
+          where: {
+            username: {
+              [Op.eq]: username,
+            },
+            id: {
+              [Op.ne]: id,
+            },
+          },
+        });
+        console.log(user_with_username);
+        if (user_with_username != null) {
+          throw Error("Username harus unik");
+        }
+      })
+      .allow("", null),
+    password: Joi.string().min(6).allow("", null),
+    name: Joi.string().allow("", null),
+    email: Joi.string()
+      .email()
+      .external(async function () {
+        let user_with_email = await User.findOne({
+          where: {
+            email: {
+              [Op.eq]: email,
+            },
+            id: {
+              [Op.ne]: id,
+            },
+          },
+        });
+        if (user_with_email != null) {
+          throw Error("Email harus unik");
+        }
+      })
+      .allow("", null),
+    role: Joi.number().valid(2, 3).allow("", null),
+    phone_number: Joi.string().pattern(new RegExp("^[0-9]{10,12}$")).allow("", null),
+    tanggal_lahir: Joi.date().max("now").format("DD/MM/YYYY").allow("", null),
+    id_card_number: Joi.string()
+      .pattern(new RegExp("^[0-9]{14}$"))
+      .external(async function () {
+        let user_with_id_card_number = await User.findOne({
+          where: {
+            id_card_number: {
+              [Op.eq]: id_card_number,
+            },
+            id: {
+              [Op.ne]: id,
+            },
+          },
+        });
+        if (user_with_id_card_number != null) {
+          throw Error("ID card number harus unik");
+        }
+      })
+      .allow("", null),
+  }).min(1);
+  try {
+    await schema.validateAsync(req.body);
+    let edited_user = await self.edit(id, req, res);
+    return res.status(400).send({ message: "Berhasil edit!", user: edited_user });
+  } catch (e) {
+    return res.status(400).send({
+      message: e.message,
+    });
+  }
+});
 
 module.exports = router;

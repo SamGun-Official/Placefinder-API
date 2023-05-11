@@ -16,8 +16,14 @@ let self = {};
 const jwt = require("jsonwebtoken");
 const JWT_KEY = "secret_key";
 
-self.getAll = async () => {
-  let users = await User.findAll();
+self.getAll = async (name) => {
+  let users = await User.findAll({
+    where:{
+      name:{
+        [Op.substring]:name
+      }
+    }
+  });
   return users;
 };
 self.getById = async (id) => {
@@ -63,6 +69,27 @@ self.register = async (req, res) => {
     return true;
   }
   return false;
+};
+self.edit = async (id,req,res) => {
+  let {username, password,name,email,role, phone_number, tanggal_lahir, id_card_number } = req.body;
+  let user = await User.findOne({
+      where: {
+        id: id,
+      },
+  });
+
+  user.username = username || user.username;
+  user.password = password || user.password;
+  user.name = name || user.name;
+  user.email = email || user.email;
+  user.role = role || user.role;
+  user.phone_number = phone_number || user.phone_number;
+  user.tanggal_lahir = tanggal_lahir || user.tanggal_lahir;
+  user.id_card_number = id_card_number || user.id_card_number;
+  
+  const updatedUser = await user.save();
+
+  return updatedUser;
 };
 self.delete = async (req, res) => {};
 self.deleteAll = async (req, res) => {};
