@@ -2,6 +2,7 @@ const express = require("express");
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use("/assets", express.static("public"));
 
 const d_trans = require("../models/d_trans");
 const h_trans = require("../models/d_trans");
@@ -15,6 +16,22 @@ let self = {};
 
 const jwt = require("jsonwebtoken");
 const JWT_KEY = "secret_key";
+
+const multer = require("multer");
+const fs = require("fs");
+
+
+const upload = multer({
+  dest: "./uploads",
+  limits: { fileSize: 1000000 },
+  fileFilter: function (req, file, cb) {
+      if (file.mimetype != "image/png") {
+          return cb(new Error("Wrong file type"), null);
+      }
+      cb(null, true);
+  },
+
+});
 
 self.getAll = async (name) => {
   let users = await User.findAll({
@@ -93,4 +110,23 @@ self.edit = async (id,req,res) => {
 };
 self.delete = async (req, res) => {};
 self.deleteAll = async (req, res) => {};
+
+self.verify = async (id,req, res) => {
+  const uploadFunc = upload.single("pp");
+  uploadFunc(req, res,async function (err) {
+      if (err) {
+          return err;
+      }
+      let user = await User.findOne({
+        where: {
+          id: id,
+        },
+      });
+      console.log(req.file);
+      const newFilename = `${user.username}.png`;
+      fs.renameSync(`./uploads/${req.file.filename}`, `./uploads/${newFilename}`);
+      return true;
+  });
+  return true;
+};
 module.exports = self;

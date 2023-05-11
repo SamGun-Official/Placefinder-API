@@ -30,7 +30,7 @@ class Accomodation extends Model {
       allowNull:false,
       primaryKey:false
     },
-    location: {
+    address: {
       type: DataTypes.STRING,
       allowNull:false,
       primaryKey:false
