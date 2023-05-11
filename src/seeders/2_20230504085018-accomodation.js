@@ -10,7 +10,7 @@ module.exports = {
     for (let i = 0; i < 10; i++) {
       accommodations.push({
         name: faker.company.name(),
-        location: faker.address.city(),
+        address: faker.address.city(),
         price: faker.datatype.number({ min: 50000, max: 200000 }),
         owner: faker.datatype.number({ min: 1, max: 10 }), // Mengambil referensi dari tabel users dengan id antara 1 sampai 10
         description: faker.lorem.paragraph(),

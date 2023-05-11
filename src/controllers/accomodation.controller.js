@@ -15,10 +15,6 @@ self.getAll = async (req, res) => {
     let accomodations = await Accomodation.findAll();
     return accomodations;
 }
-self.getAccomodationsById = async (id)=>{
-    let accomodation = await Accomodation.findByPk(id)
-    return accomodation;
-}
 self.getByName = async (id)=>{}
 self.getByAddress = async (id)=>{}
 self.delete = async (req, res) => {}
