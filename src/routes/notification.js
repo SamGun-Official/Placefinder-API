@@ -17,6 +17,7 @@ const Accomodation = require('../models/accomodation');
 
 const router = express.Router();
 
+//endpoints for admin:
 router.post('/admin/create', async function (req,res){
    const description = req.body.description;
    const id_user = req.body.id_user;
@@ -73,18 +74,19 @@ router.post('/admin/create', async function (req,res){
     }
     
    
-     await notification.create({
-        description: description,
-        id_user: id_user,
-        id_accomodation: id_accomodation,
-    });
-
-    return res.status(200).send({
-        message: `berhasil membuat notifikasi untuk ${user.username}`,
-        description: description,
-        id_user: id_user,
-        id_accomodation: id_accomodation
-    });
+    const insert_new_notification = await self.post(description, id_user, id_accomodation); 
+    if(insert_new_notification=="success"){
+        return res.status(200).send({
+            message: `berhasil membuat notifikasi untuk ${user.username}`,
+            description: description,
+            id_user: id_user,
+            id_accomodation: id_accomodation
+        });
+    }else{
+        return res.status(500).send({
+            message: insert_new_notification
+        });
+    }
 });
 
 router.get('/admin', async function (req,res){
@@ -101,7 +103,9 @@ router.get('/admin', async function (req,res){
             name: p.name
         }
     }));
-    return res.status(200).send(notif_result);
+    return res.status(200).send({
+        notification: notif_result
+    });
 });
 
 //get by id 
@@ -120,26 +124,38 @@ router.get('/admin/:id?', async function (req,res){
         name: notification.name
     }
    }
-   return res.status(200).send(notif_result);
+   return res.status(200).send({
+    notification: notif_result
+   });
 });
 
 //get by id user 
 router.get('/admin/user/:id_user?', async function (req,res){
     const id_user = req.params.id_user;
-    let notif = await self.getByUser(id_user);
-    const notif_result = {
-        id: notif.id,
-        user:{
-            id: notif.id_user,
-            username: notif.username
-        },
-        message: notif.description,
-        accomodation:{
-            id: notif.id,
-            name: notif.name
-        }
-       }
-    return res.status(200).send(notif_result);
+    let notifs = await self.getByUser(id_user);
+    const notif_result = [];
+    for(let i=0;i<notifs.length;i++){
+        notif_result.push({
+            id: notifs[i].id,
+            user:{
+                id: notifs[i].id_user,
+                username: notifs[i].username
+            },
+            message: notifs[i].description,
+            accomodation:{
+                id: notifs[i].id,
+                name: notifs[i].name
+            }
+           });
+    }
+    return res.status(200).send({
+        notification: notif_result
+    });
+});
+
+//untuk penyedia tempat tinggal
+router.get('/provider', async function(req,res){
+    
 });
 
 module.exports = router;

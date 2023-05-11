@@ -14,6 +14,19 @@ const notification = require('../models/notification');
 const {Op} = require('sequelize');
 let self = {};
 
+self.post = async (description, id_user, id_accomodation) => {
+    try{
+        await notification.create({
+            description: description,
+            id_user: id_user,
+            id_accomodation: id_accomodation,
+        });
+        return "success";
+    }catch(e){
+        return e.toString();
+    }
+}
+
 self.getAll = async (req, res) => {
     let notifications = await notification.findAll({
         attributes: ['id', 'description', 'id_user', 'id_accomodation', 'status'],
@@ -48,7 +61,7 @@ self.get = async (id)=>{
 }
 
 self.getByUser = async (id_user) =>{
-    let notif = notification.findOne({
+    let notif = notification.findAll({
         where:{
             id_user:{
                 [Op.eq]:id_user
