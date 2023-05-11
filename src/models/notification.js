@@ -57,7 +57,9 @@ class Notification extends Model {
     tableName: 'notifications',
     paranoid:false,
     underscored:false,
-    timestamps:true
+    timestamps:true,
+    createdAt: 'created_at',
+    updatedAt: 'updated_at'
   });
 
 module.exports = Notification;

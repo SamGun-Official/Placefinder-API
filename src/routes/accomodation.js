@@ -14,8 +14,8 @@ const usage = require('../models/usage');
 const router = express.Router();
 
 
-router.get('/accomodations', async function (req,res){
-   let accomodations=  self.getAll();
+router.get('/', async function (req,res){
+   let accomodations=  await self.getAll();
    return res.status(200).send(accomodations); 
 });
 
