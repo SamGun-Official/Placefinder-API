@@ -70,7 +70,9 @@ class H_trans extends Model {
     tableName: 'h_trans',
     paranoid:false,
     underscored:false,
-    timestamps:true
+    timestamps:true,
+    createdAt: 'created_at',
+    updatedAt: 'updated_at'
   });
 
 module.exports = H_trans;

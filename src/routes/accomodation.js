@@ -14,14 +14,19 @@ const usage = require('../models/usage');
 
 const router = express.Router();
 
-async function isAccomodationExistById(id){
-    if(Accomodation.findByPk(id)){
+async function isAccomodationExistById(id) {
+    if (Accomodation.findByPk(id)) {
         return true;
     }
     throw Error('Accomodation not found!');
 }
 
-router.get('/accomodations', async function (req, res) {
+router.get('/', async function (req, res) {
+    let accomodations = await self.getAll();
+    return res.status(200).send(accomodations);
+});
+
+router.get('/', async function (req, res) {
     let { id, name, address } = req.query;
     if (id) {
         const schema = Joi.object({
@@ -33,5 +38,7 @@ router.get('/accomodations', async function (req, res) {
         });
     }
 });
+
+
 
 module.exports = router;

@@ -10,8 +10,11 @@ const H_trans = require('../models/h_trans');
 const Accomodation = require('../models/accomodation');
 
 const {Op} = require('sequelize');
-let self = {};
-self.getAll = async (req, res) => {}
+let self = {};  
+self.getAll = async (req, res) => {
+    let accomodations = await Accomodation.findAll();
+    return accomodations;
+}
 self.getAccomodationsById = async (id)=>{
     let accomodation = await Accomodation.findByPk(id)
     return accomodation;

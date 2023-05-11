@@ -50,7 +50,9 @@ class PriceList extends Model {
     tableName: 'pricelists',
     paranoid:false,
     underscored:false,
-    timestamps:true
+    timestamps:true,
+    createdAt: 'created_at',
+    updatedAt: 'updated_at'
   });
 
 module.exports = PriceList;
