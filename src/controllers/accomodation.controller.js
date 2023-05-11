@@ -11,7 +11,6 @@ const Accomodation = require('../models/accomodation');
 
 const {Op} = require('sequelize');
 let self = {};
-
 self.getAll = async (req, res) => {}
 self.getAccomodationsById = async (id)=>{
     let accomodation = await Accomodation.findByPk(id)
