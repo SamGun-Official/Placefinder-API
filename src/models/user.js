@@ -5,15 +5,21 @@ const sequelize = getDB();
 
 class User extends Model {
   static associate(Accomodation) {
-    User.hasMany(Accomodation);
+    User.hasMany(Accomodation,{
+      foreignKey: owner
+    });
   }
 
   static associate(Notification) {
-    User.hasMany(Notification);
+    User.hasMany(Notification,{
+      foreignKey: 'id_user'
+    });
   }
 
   static associate(H_trans) {
-    User.hasMany(H_trans);
+    User.hasMany(H_trans,{
+      foreignKey: 'id_user'
+    });
   }
 
   }

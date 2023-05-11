@@ -6,11 +6,15 @@ const sequelize = getDB();
 
 class Accomodation extends Model {
   static associate(User) {
-    Accomodation.belongsTo(User);
+    Accomodation.belongsTo(User,{
+      foreignKey: 'id_user'
+    });
   }
 
   static associate(Notification){
-    Accomodation.hasMany(Notification);
+    Accomodation.hasMany(Notification,{
+      foreignKey: 'id_accomodation'
+    });
   }
 
   }

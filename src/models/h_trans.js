@@ -8,11 +8,15 @@ const sequelize = getDB();
 class H_trans extends Model {
    //association
    static associate(User) {
-    H_trans.belongsTo(User);
+    H_trans.belongsTo(User,{
+      foreignKey: 'id_user'
+    });
   }
 
   static associate(D_trans) {
-    H_trans.hasMany(D_trans);
+    H_trans.hasMany(D_trans,{
+      foreignKey: 'id_htrans'
+    });
   }
 
   }

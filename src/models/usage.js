@@ -9,11 +9,15 @@ const sequelize = getDB();
 class Usage extends Model {
    //association
    static associate(D_trans) {
-    Usage.hasOne(D_trans);
+    Usage.hasOne(D_trans,{
+      foreignKey: 'id_usage'
+    });
   }
 
   static associate(PriceList) {
-    Usage.belongsTo(PriceList);
+    Usage.belongsTo(PriceList,{
+      foreignKey: 'id_pricelist'
+    });
   }
 
   }

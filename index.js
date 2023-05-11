@@ -21,6 +21,28 @@ const D_trans =  require('./src/models/d_trans');
 const Pricelist = require('./src/models/pricelist');
 const Usage =  require('./src/models/usage');
 
+User.associate(Notification);
+Notification.associate(User);
+
+Notification.associate(Accomodation);
+Accomodation.associate(Notification);
+
+User.associate(Accomodation);
+Accomodation.associate(User);
+
+User.associate(H_trans);
+H_trans.associate(User);
+
+H_trans.associate(D_trans);
+D_trans.associate(H_trans);
+
+D_trans.associate(Usage);
+Usage.associate(D_trans);
+
+Usage.associate(Pricelist);
+Pricelist.associate(Usage);
+
+
 app.use("/api/users", users);
 app.use("/api/accomodations", accomodations);
 app.use("/api/notifications", notifications);

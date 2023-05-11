@@ -1,17 +1,21 @@
 const {Model,DataTypes, Op} = require('sequelize');
 const { getDB } = require("../config/sequelize");
-const Accomodation = require('./accomodation');
-const User = require('./user');
+const Accomodation = require('../models/accomodation');
+const User = require('../models/user');
 const sequelize = getDB();
 
 
 class Notification extends Model {
   static associate(User) {
-    Notification.belongsTo(User);
+    Notification.belongsTo(User,{
+      foreignKey: 'id_user'
+    });
   }
 
   static associate(Accomodation){
-    Notification.belongsTo(Accomodation);
+    Notification.belongsTo(Accomodation,{
+      foreignKey: 'id_accomodation'
+    });
   }
 
   }
