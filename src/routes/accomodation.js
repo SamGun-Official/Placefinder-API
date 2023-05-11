@@ -13,6 +13,12 @@ const usage = require('../models/usage');
 
 const router = express.Router();
 
+
+router.get('/accomodations', async function (req,res){
+   let accomodations=  self.getAll();
+   return res.status(200).send(accomodations); 
+});
+
 router.get('/accomodations', async function (req, res) {
     let { id, name, address } = req.query;
     if (id) {
@@ -22,5 +28,7 @@ router.get('/accomodations', async function (req, res) {
         });
     }
 });
+
+
 
 module.exports = router;
