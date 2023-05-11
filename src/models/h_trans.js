@@ -1,9 +1,9 @@
 const {Model,DataTypes, Op} = require('sequelize');
-const { getDB } = require("../config/sequelize");
 const Accomodation = require('./accomodation');
 const User = require('./user');
-const sequelize = getDB();
 
+const db = require('../config/sequelize');
+const sequelize = db.sequelize;
 
 class H_trans extends Model {
    //association

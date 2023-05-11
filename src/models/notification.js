@@ -1,9 +1,8 @@
 const {Model,DataTypes, Op} = require('sequelize');
-const { getDB } = require("../config/sequelize");
 const Accomodation = require('../models/accomodation');
 const User = require('../models/user');
-const sequelize = getDB();
-
+const db = require('../config/sequelize');
+const sequelize = db.sequelize;
 
 class Notification extends Model {
   static associate(User) {

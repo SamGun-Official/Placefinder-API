@@ -1,10 +1,9 @@
 const {Model,DataTypes, Op} = require('sequelize');
-const { getDB } = require("../config/sequelize");
 const Accomodation = require('./accomodation');
 const User = require('./user');
 const H_trans = require('./h_trans');
-const sequelize = getDB();
-
+const db = require('../config/sequelize');
+const sequelize = db.sequelize;
 
 class PriceList extends Model {
    //association

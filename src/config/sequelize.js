@@ -1,5 +1,6 @@
 const Sequelize = require('sequelize');
-const db = new Sequelize(
+const db = {}
+const sequelize = new Sequelize(
     'project_web_service',
     'root',
     '',
@@ -12,11 +13,7 @@ const db = new Sequelize(
     }
 )
 
-module.exports = {
-    initDB: () => {
-        return db.authenticate();
-    },
-    getDB: () => {
-        return db;
-    }
-}
+db.sequelize = sequelize
+db.Sequelize = Sequelize
+
+module.exports = db

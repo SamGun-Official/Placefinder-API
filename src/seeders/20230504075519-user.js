@@ -31,9 +31,28 @@ function checkIDCard(users, idcard){
 module.exports = {
   async up (queryInterface, Sequelize) {
     const users = [];
-    for (let i = 1; i <= 50; i++) {
+
+    const is_verified = faker.datatype.number({ min: 0, max: 1 });
+    if(is_verified==0){
+      id_card_number = null;
+    }
+    
+    const admin_apikey = getToken('admin',1);
+
+    users.push({
+      username: 'admin',
+      password: 'admin',
+      role: 1,
+      id_card_number: '32' + faker.datatype.number({ min: 10, max: 99 }) + faker.date.past(60).getFullYear().toString().slice(-2) + ('0' + faker.datatype.number({ min: 1, max: 12 })).slice(-2) + ('0' + faker.datatype.number({ min: 1, max: 28 })).slice(-2) + faker.datatype.number({ min: 1000, max: 9999 }),
+      is_id_card_verified: is_verified,
+      token: admin_apikey,
+      created_at: new Date(),
+      updated_at: new Date()
+    });
+
+    for (let i = 1; i <= 49; i++) {
       let username = faker.internet.userName();
-      let role = faker.datatype.number({ min: 1, max: 3 });
+      let role = faker.datatype.number({ min: 2, max: 3 });
       let apikey = getToken(username,role);
      
 

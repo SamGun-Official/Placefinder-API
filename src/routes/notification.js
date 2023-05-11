@@ -1,9 +1,8 @@
 const self = require('../controllers/notification.controller');
-const {response} = require("express");
-const { query } = require("express");
 const express = require("express");
 const { Op, DATE } = require("sequelize");
 const Joi = require("joi").extend(require("@joi/date"));
+const db = require('../config/sequelize');
 
 //Models:
 const user = require('../models/user');
@@ -13,13 +12,12 @@ const d_trans = require('../models/d_trans');
 const pricelist = require('../models/pricelist');
 const usage = require('../models/usage');
 const notification = require('../models/notification');
-const sequelize = require('../config/sequelize');
 const User = require('../models/user');
 const Accomodation = require('../models/accomodation');
 
 const router = express.Router();
 
-router.post('/create', async function (req,res){
+router.post('/admin/create', async function (req,res){
    const description = req.body.description;
    const id_user = req.body.id_user;
    const id_accomodation = req.body.id_accomodation;
@@ -30,7 +28,7 @@ router.post('/create', async function (req,res){
           }),
         id_user: Joi.number().min(1).required().external(
             async function (){
-                let[result, metadata] = await sequelize.query("SELECT * FROM  USERS WHERE id = ?", {
+                let[result, metadata] = await db.sequelize.query("SELECT * FROM USERS WHERE id = ?", {
                     replacements:[id_user]
                 });  
                 if(result.length<=0){
@@ -44,7 +42,7 @@ router.post('/create', async function (req,res){
         }),
         id_accomodation: Joi.number().min(1).required().external(
             async function () {
-           let[result, metadata] = await sequelize.query("SELECT * FROM ACCOMODATIONS where id = ?", {
+           let[result, metadata] = await db.sequelize.query("SELECT * FROM ACCOMODATIONS where id = ?", {
             replacements: [id_accomodation]
            });
            if(result.length<=0){
@@ -64,24 +62,32 @@ router.post('/create', async function (req,res){
         });
     }
 
-    const user = await User.findByPk(id_user);
-    const accomodation = await Accomodation.findByPk(id_accomodation);
+    const user = await User.findByPk(id_user,{
+        attributes: ['id', 'username'],
+    });
     
-    await Accomodation.create({
+    if(user.role==1){
+        return res.status(400).send({
+            message: "role hanya bisa penyedia tempat tinggal dan developer!"
+        });
+    }
+    
+   
+     await notification.create({
         description: description,
         id_user: id_user,
         id_accomodation: id_accomodation,
     });
 
     return res.status(200).send({
-        message: `berhasil membuat notifikasi untuk${user.username}`,
+        message: `berhasil membuat notifikasi untuk ${user.username}`,
         description: description,
         id_user: id_user,
         id_accomodation: id_accomodation
     });
 });
 
-router.get('/', async function (req,res){
+router.get('/admin', async function (req,res){
     let notifications = await self.getAll();
     const notif_result = notifications.map(p=>({
         id: p.id,
@@ -90,9 +96,50 @@ router.get('/', async function (req,res){
             username: p.username
         },
         message: p.description,
+        accomodation:{
+            id: p.id_accomodation,
+            name: p.name
+        }
     }));
-    return res.status(200).send(notifications);
+    return res.status(200).send(notif_result);
 });
 
+//get by id 
+router.get('/admin/:id?', async function (req,res){
+   const id = req.params.id;
+   let notification = await self.get(id);
+   const notif_result = {
+    id: notification.id,
+    user:{
+        id: notification.id_user,
+        username: notification.username
+    },
+    message: notification.description,
+    accomodation:{
+        id: notification.id,
+        name: notification.name
+    }
+   }
+   return res.status(200).send(notif_result);
+});
+
+//get by id user 
+router.get('/admin/user/:id_user?', async function (req,res){
+    const id_user = req.params.id_user;
+    let notif = await self.getByUser(id_user);
+    const notif_result = {
+        id: notif.id,
+        user:{
+            id: notif.id_user,
+            username: notif.username
+        },
+        message: notif.description,
+        accomodation:{
+            id: notif.id,
+            name: notif.name
+        }
+       }
+    return res.status(200).send(notif_result);
+});
 
 module.exports = router;

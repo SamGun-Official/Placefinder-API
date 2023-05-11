@@ -1,13 +1,13 @@
 const {Model,DataTypes, Op} = require('sequelize');
-const { getDB } = require("../config/sequelize");
-const sequelize = getDB();
+const db = require('../config/sequelize');
+const sequelize = db.sequelize;
 
 
 
 class User extends Model {
   static associate(Accomodation) {
     User.hasMany(Accomodation,{
-      foreignKey: owner
+      foreignKey: 'owner'
     });
   }
 
