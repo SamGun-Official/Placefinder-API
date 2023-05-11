@@ -268,10 +268,10 @@ router.post("/:id/verify", async function (req, res) {
     await schema.validateAsync(req.params);
     let verifyResult = await self.verify(id,req,res);
     if (verifyResult) {
-      return res.status(201).send({ message: "Berhasil verify!" });
+      return res.status(201).send({ message: "Berhasil upload!" });
     }
     return res.status(400).send({
-      message: "Gagal verify!",
+      message: "Gagal upload!",
     });
   } catch (e) {
     return res.status(400).send({
