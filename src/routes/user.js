@@ -244,4 +244,40 @@ router.put("/:id/edit", async function (req, res) {
   }
 });
 
+router.post("/:id/verify", async function (req, res) {
+  let id = req.params.id;
+  console.log(id);
+  const schema = Joi.object({
+    id: Joi.number()
+      .required()
+      .external(async function () {
+        let user_with_id = await User.findOne({
+          where: {
+            id: {
+              [Op.eq]: id,
+            },
+          },
+        });
+        if (user_with_id == null) {
+          throw Error("ID tidak ditemukan");
+        }
+      }),
+  });
+
+  try {
+    await schema.validateAsync(req.params);
+    let verifyResult = await self.verify(id,req,res);
+    if (verifyResult) {
+      return res.status(201).send({ message: "Berhasil verify!" });
+    }
+    return res.status(400).send({
+      message: "Gagal verify!",
+    });
+  } catch (e) {
+    return res.status(400).send({
+      message: e.message,
+    });
+  }
+});
+
 module.exports = router;

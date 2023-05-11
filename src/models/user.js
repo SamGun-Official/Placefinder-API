@@ -3,6 +3,7 @@ const { getDB } = require("../config/sequelize");
 const sequelize = getDB();
 
 
+
 class User extends Model {
   static associate(Accomodation) {
     User.hasMany(Accomodation);
