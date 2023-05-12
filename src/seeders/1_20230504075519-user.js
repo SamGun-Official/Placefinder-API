@@ -30,12 +30,27 @@ function checkIDCard(users, idcard) {
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    const users = [];
-    for (let i = 1; i <= 50; i++) {
+    const users = []; 
+    const admin_apikey = getToken('admin',1);
+
+    users.push({
+      username: 'admin',
+      password: 'admin',
+      role: 0,
+      email: 'admin@gmail.com',
+      phone_number: faker.phone.number(),
+      tanggal_lahir: faker.date.between('1980-01-01', '2003-12-31'),
+      id_card_number: null,
+      is_id_card_verified: 0,
+      token: admin_apikey,
+      created_at: new Date(),
+      updated_at: new Date()
+    });
+
+    for (let i = 1; i <= 49; i++) {
       let username = faker.internet.userName();
       let role = faker.datatype.number({ min: 1, max: 3 });
       let apikey = getToken(username, role);
-
 
       let id_card_number = '32' + faker.datatype.number({ min: 10, max: 99 }) + faker.date.past(60).getFullYear().toString().slice(-2) + ('0' + faker.datatype.number({ min: 1, max: 12 })).slice(-2) + ('0' + faker.datatype.number({ min: 1, max: 28 })).slice(-2) + faker.datatype.number({ min: 1000, max: 9999 });
 

@@ -129,4 +129,15 @@ self.verify = async (id,req, res) => {
   });
   return true;
 };
+
+
+self.getByUsername = async(username) =>{
+  let user = await User.findOne({
+    where:{
+      username: username
+    }
+  });
+  return user;
+}
+
 module.exports = self;

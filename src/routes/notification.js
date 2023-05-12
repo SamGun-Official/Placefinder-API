@@ -1,24 +1,46 @@
 const self = require('../controllers/notification.controller');
+const userController = require('../controllers/user.controller');
 const express = require("express");
 const { Op, DATE } = require("sequelize");
 const Joi = require("joi").extend(require("@joi/date"));
 const db = require('../config/sequelize');
 
 //Models:
-const user = require('../models/user');
-const accomodation = require('../models/accomodation');
-const h_trans = require('../models/h_trans');
-const d_trans = require('../models/d_trans');
-const pricelist = require('../models/pricelist');
-const usage = require('../models/usage');
-const notification = require('../models/notification');
+const User = require('../models/user');
+const Accomodation = require('../models/accomodation');
+const H_trans = require('../models/h_trans');
+const D_trans = require('../models/d_trans');
+const Pricelist = require('../models/pricelist');
+const Usage = require('../models/usage');
+const Notification = require('../models/notification');
 const User = require('../models/user');
 const Accomodation = require('../models/accomodation');
 
 const router = express.Router();
 
+//middleware :
+function authenticate(role,message="Unauthorized"){
+
+    return (req,res,next)=>{
+        const token = req.header("x-auth-token");
+        if(!token){
+            return res.status(401).send("Unauthorized");
+        }
+        const payload = jwt.verify(token,AUTHTOKEN);
+
+        console.log(payload.role)
+        if(role == "ALL" || role == payload.role){
+            req.body = {...req.body,...payload};
+            next();
+        }
+        else {
+            return res.status(401).send(message);
+        }
+    }
+}
+
 //endpoints for admin:
-router.post('/admin/create', async function (req,res){
+router.post('/admin/create',[authenticate(0,"role tidak sesuai")], async function (req,res){
    const description = req.body.description;
    const id_user = req.body.id_user;
    const id_accomodation = req.body.id_accomodation;
@@ -89,7 +111,7 @@ router.post('/admin/create', async function (req,res){
     }
 });
 
-router.get('/admin', async function (req,res){
+router.get('/admin',[authenticate(0,"role tidak sesuai")],async function (req,res){
     let notifications = await self.getAll();
     const notif_result = notifications.map(p=>({
         id: p.id,
@@ -109,7 +131,7 @@ router.get('/admin', async function (req,res){
 });
 
 //get by id 
-router.get('/admin/:id?', async function (req,res){
+router.get('/admin/:id?',[authenticate(0,"role tidak sesuai")], async function (req,res){
    const id = req.params.id;
    let notification = await self.get(id);
    const notif_result = {
@@ -130,7 +152,7 @@ router.get('/admin/:id?', async function (req,res){
 });
 
 //get by id user 
-router.get('/admin/user/:id_user?', async function (req,res){
+router.get('/admin/user/:id_user?',[authenticate(0,"role tidak sesuai")], async function (req,res){
     const id_user = req.params.id_user;
     let notifs = await self.getByUser(id_user);
     const notif_result = [];
@@ -154,8 +176,33 @@ router.get('/admin/user/:id_user?', async function (req,res){
 });
 
 //untuk penyedia tempat tinggal
-router.get('/provider', async function(req,res){
-    
+router.get('/provider',[authenticate(2,"role tidak sesuai")], async function(req,res){
+    const username = req.body.username;
+
+    const user = await userController.getByUsername(username);
+
+    let notifs = await self.getByUser(user.id);
+
+    const notif_result = [];
+    for(let i=0;i<notifs.length;i++){
+        notif_result.push({
+            id: notifs[i].id,
+            user:{
+                id: notifs[i].id_user,
+                username: notifs[i].username
+            },
+            message: notifs[i].description,
+            accomodation:{
+                id: notifs[i].id,
+                name: notifs[i].name
+            }
+           });
+    }
+    return res.status(200).send({
+        notification: notif_result
+    });
 });
+
+
 
 module.exports = router;
