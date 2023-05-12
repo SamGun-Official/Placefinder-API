@@ -13,8 +13,7 @@ const D_trans = require('../models/d_trans');
 const Pricelist = require('../models/pricelist');
 const Usage = require('../models/usage');
 const Notification = require('../models/notification');
-const User = require('../models/user');
-const Accomodation = require('../models/accomodation');
+
 
 const router = express.Router();
 
