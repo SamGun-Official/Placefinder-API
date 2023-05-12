@@ -1,6 +1,8 @@
 'use strict';
 const { faker } = require('@faker-js/faker');
 const User = require('../models/user');
+const PriceList = require('../models/pricelist');
+const db = require('../config/sequelize');
 
 
 /** @type {import('sequelize-cli').Migration} */
@@ -20,12 +22,21 @@ module.exports = {
         }
       });
     }while(user==null);
+    
+    const id_pricelist = faker.datatype.number({ min: 1, max: 20 });
+
+    let[result, metadata] = await db.sequelize.query("SELECT * FROM PRICELISTS WHERE id = ?",{
+      replacements: [id_pricelist]
+    });
+
+    const subtotal = result[0].price;
+    
       const newUsage = {
-        id_pricelist: faker.datatype.number({ min: 1, max: 20 }),
+        id_pricelist: id_pricelist,
         id_user: user.id,
         date: faker.date.between('2022-01-01', '2022-12-31'),
-        subtotal: faker.datatype.number({ min: 100, max: 500 }),
-        status: faker.datatype.number({ min: 0, max: 3 }),
+        subtotal: subtotal,
+        status: faker.datatype.number({ min: 0, max: 1}),
         created_at: new Date(),
         updated_at: new Date()
       };

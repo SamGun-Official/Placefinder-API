@@ -12,7 +12,7 @@ module.exports = {
           feature_name: faker.lorem.words(2),
           url_endpoint: faker.internet.url(),
           price: faker.datatype.number({ min: 10, max: 100 }),
-          status: faker.datatype.number({ min: 0, max: 1 }),
+          status: 1,
           created_at: new Date(),
           updated_at: new Date()
         };

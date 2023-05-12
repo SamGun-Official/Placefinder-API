@@ -18,12 +18,18 @@ let self = {};
 
 self.getAllUserUsage = async(id)=>{
     let usages = Usage.findAll({
-      
-    },{
-
+      where:{
+        id_user: id
+      }
     });
+
+    return usages;
 }
 
+
+self.getUsageTotal = async(id)=>{
+    
+}
 
 
 module.exports = self;
