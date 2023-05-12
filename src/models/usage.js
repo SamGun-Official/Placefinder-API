@@ -4,6 +4,7 @@ const User = require('./user');
 const H_trans = require('./h_trans');
 
 const db = require('../config/sequelize');
+const PriceList = require('./pricelist');
 const sequelize = db.sequelize;
 
 class Usage extends Model {
@@ -20,6 +21,12 @@ class Usage extends Model {
     });
   }
 
+  static associate(User){
+    Usage.belongsTo(User,{
+      foreignKey: 'id_user'
+    });
+  }
+
   }
 
   Usage.init({
@@ -33,7 +40,21 @@ class Usage extends Model {
       type: DataTypes.INTEGER,
       allowNull: false,
       primaryKey:false,
-      autoIncrement:false
+      autoIncrement:false,
+      references:{
+        model: PriceList,
+        key: 'id'
+      }
+    },
+    id_user:{
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      primaryKey:false,
+      autoIncrement:false,
+      references:{
+        model: User,
+        key: 'id'
+      }
     },
     date: {
       type: DataTypes.DATE,

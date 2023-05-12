@@ -42,6 +42,9 @@ Usage.associate(D_trans);
 Usage.associate(Pricelist);
 Pricelist.associate(Usage);
 
+User.associate(Usage);
+Usage.associate(User);
+
 
 app.use("/api/users", users);
 app.use("/api/accomodations", accomodations);

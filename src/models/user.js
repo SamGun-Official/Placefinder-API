@@ -23,6 +23,12 @@ class User extends Model {
     });
   }
 
+  static associate(Usage){
+    User.hasMany(Usage,{
+      foreignKey: 'id_user'
+    });
+  }
+
   }
   User.init({
     id: {

@@ -89,7 +89,7 @@ router.post('/admin/create',[authenticate(0,"role tidak sesuai")], async functio
         attributes: ['id', 'username'],
     });
     
-    if(user.role==1){
+    if(user.role==0){
         return res.status(400).send({
             message: "role hanya bisa penyedia tempat tinggal dan developer!"
         });
@@ -203,6 +203,33 @@ router.get('/provider',[authenticate(2,"role tidak sesuai")], async function(req
     });
 });
 
+//select all notifications for developer
+router.get('/developer',[authenticate(1,"role tidak sesuai")], async function (req,res){
+   const username = req.body.username;
+   
+   const user = await userController.getByUsername(username);
+
+   let notifs = await self.getByUser(user.id);
+
+   const notif_result = [];
+   for(let i=0;i<notifs.length;i++){
+       notif_result.push({
+           id: notifs[i].id,
+           user:{
+               id: notifs[i].id_user,
+               username: notifs[i].username
+           },
+           message: notifs[i].description,
+           accomodation:{
+               id: notifs[i].id,
+               name: notifs[i].name
+           }
+          });
+   }
+   return res.status(200).send({
+       notification: notif_result
+   });
+});
 
 
 module.exports = router;
