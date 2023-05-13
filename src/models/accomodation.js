@@ -7,7 +7,7 @@ const sequelize = db.sequelize;
 class Accomodation extends Model {
   static associate(User) {
     Accomodation.belongsTo(User,{
-      foreignKey: 'id_user'
+      foreignKey: 'owner'
     });
   }
 

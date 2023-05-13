@@ -31,7 +31,7 @@ function checkIDCard(users, idcard) {
 module.exports = {
   async up(queryInterface, Sequelize) {
     const users = []; 
-    const admin_apikey = getToken('admin',1);
+    const admin_apikey = getToken('admin',0);
 
     users.push({
       username: 'admin',
