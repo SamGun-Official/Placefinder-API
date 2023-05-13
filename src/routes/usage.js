@@ -116,6 +116,7 @@ router.get('/developer/total',[authenticate(1,"role tidak sesuai")], async funct
     }
 });
 
+//get specify usage 
 router.get('/developer/:id?',[authenticate(1,"role tidak sesuai")], async function (req,res){
     const id = req.params.id;
     const username = req.body.username;
@@ -145,7 +146,5 @@ router.get('/developer/:id?',[authenticate(1,"role tidak sesuai")], async functi
         
     }
 });
-
-//get specify usage 
 
 module.exports = router;

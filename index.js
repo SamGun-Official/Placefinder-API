@@ -33,7 +33,7 @@ const usage = require("./src/routes/usage");
 app.use("/api/users", users);
 app.use("/api/accomodations", accomodations);
 app.use("/api/notifications", notifications);
-app.use("/api/h_trans", h_trans);
+app.use("/api/transactions", h_trans);
 app.use("/api/d_trans", d_trans);
 app.use("/api/pricelists", pricelists);
 app.use("/api/usages", usage);
