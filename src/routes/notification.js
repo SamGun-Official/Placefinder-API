@@ -183,9 +183,8 @@ router.get('/admin/:id?',[authenticate(0,"role tidak sesuai")], async function (
 //untuk penyedia tempat tinggal
 router.get('/provider',[authenticate(2,"role tidak sesuai")], async function(req,res){
     const username = req.body.username;
-
-    const user = await userController.getByUsername(username);
-
+    const user = userController.getByUsername(username);
+    console.log("USER: "+ username);
     let notifs = await self.getByUser(user.id);
 
     const notif_result = [];
