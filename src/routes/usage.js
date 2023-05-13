@@ -1,10 +1,11 @@
 const self = require('../controllers/usage.controller');
-const jwt = require('jsonwebtoken');
 const {response} = require("express");
 const express = require("express");
 const { Op, DATE } = require("sequelize");
 const db = require('../config/sequelize');
 const Joi = require("joi").extend(require("@joi/date"));
+
+const jwt = require('jsonwebtoken');
 const JWT_KEY = "secret_key";
 
 

@@ -41,10 +41,13 @@ module.exports = {
           });
 
           usages = result;
+
+          if(usages.length>0){
+            break;
+          }
         }while(usages.length==0);
 
         var randomIndex = Math.floor(Math.random() * usages.length);
-
         const usage = usages[randomIndex];
 
         const newD_trans = {
