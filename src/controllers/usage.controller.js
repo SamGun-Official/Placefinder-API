@@ -17,7 +17,7 @@ let self = {};
 
 
 self.getAllUserUsage = async(id)=>{
-    let usages = Usage.findAll({
+    let usages = await Usage.findAll({
       where:{
         id_user: id
       }
@@ -28,8 +28,32 @@ self.getAllUserUsage = async(id)=>{
 
 
 self.getUsageTotal = async(id)=>{
-    
+    let usages = await Usage.sum('subtotal', {
+        where: {
+            id_user: id,
+        }
+    });
+    return usages;
 }
 
+self.getUsageTotalPaid = async(id) => {
+    let usages = await Usage.sum('subtotal', {
+        where: {
+            id_user: id,
+            status: 0
+        }
+    });
+    return usages;
+}
+
+self.getUsageTotalUnpaid = async(id) => {
+    let usages = await Usage.sum('subtotal', {
+        where: {
+            id_user: id,
+            status: 1
+        }
+    });
+    return usages;
+}
 
 module.exports = self;

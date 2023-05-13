@@ -3,6 +3,7 @@ const {response} = require("express");
 const express = require("express");
 const { Op, DATE } = require("sequelize");
 const db = require('../config/sequelize');
+const Joi = require("joi").extend(require("@joi/date"));
 
 
 //Models:
@@ -54,6 +55,9 @@ router.get('/developer',[authenticate(1,"role tidak sesuai")], async function (r
 });
 
 router.get('/developer/total',[authenticate(1,"role tidak sesuai")], async function (req,res) {
+
+    const status = req.query.status;
+    //hanya ada paid dan unpaid 
     const username = req.body.username;
     const user = await User.findOne({
         where:{
@@ -61,9 +65,35 @@ router.get('/developer/total',[authenticate(1,"role tidak sesuai")], async funct
         }
     });
 
-    const usages = await self.getAllUserUsage(user.id);
+    if(!status){
+        const usages = await self.getAllUserUsage(user.id);
+        const subtotal = await self.getUsageTotal(user.id);
+        const result_usages =[];
+        for(let i=0;i<usages.length;i++){
+            result_usages.push(usages[i]);
+        }
+        
+        return res.status(200).send({
+            subtotal: subtotal,
+            usages: result_usages
+        });
+    }else{
 
-    
+        const validator = Joi.string().valid('paid','unpaid');
+        const validate = validator.validate(status);
+
+        if(validate.error){
+            return res.status(400).send({
+                message: validate.error.message.toString()
+            });
+        }
+
+        if(status=="paid"){
+            
+        }else if(status=="unpaid"){
+            
+        }
+    }
 
 });
 

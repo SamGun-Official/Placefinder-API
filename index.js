@@ -51,8 +51,8 @@ app.use("/api/accomodations", accomodations);
 app.use("/api/notifications", notifications);
 app.use("/api/h_trans", h_trans);
 app.use("/api/d_trans", d_trans);
-app.use("/api/pricelist", pricelist);
-app.use("/api/usage", usage);
+app.use("/api/pricelists", pricelist);
+app.use("/api/usages", usage);
 
 const port = 3000;
 app.listen(port, function (){
