@@ -201,7 +201,8 @@ router.get('/provider',[authenticate(2,"role tidak sesuai")], async function(req
             message: notifs[i].description,
             accomodation:{
                 id: notifs[i].Accomodation.id,
-                name: notifs[i].Accomodation.name
+                name: notifs[i].Accomodation.name,
+                address: notifs[i].Accomodation.address
             }
            });
     }
@@ -229,7 +230,8 @@ router.get('/developer',[authenticate(1,"role tidak sesuai")], async function (r
            message: notifs[i].description,
            accomodation:{
                id: notifs[i].Accomodation.id,
-               name: notifs[i].Accomodation.name
+               name: notifs[i].Accomodation.name,
+               address: notifs[i].Accomodation.address
            }
           });
    }
