@@ -2,57 +2,36 @@
 const db = require('../config/sequelize');
 
 const { faker } = require('@faker-js/faker');
+const H_trans = require('../models/h_trans');
+const Usage = require('../models/usage');
+
+
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up (queryInterface, Sequelize) {
 
     try {
     const d_trans = [];
+    const h_transCount = await H_trans.count();
+    const usageCount = await Usage.count();
+    const h_transIds = await H_trans.findAll({ attributes: ['id'] });
+   
   
       for (let i = 0; i < 20; i++) {
-        
-        let usages = [];
-        let id_htrans = faker.datatype.number({ min: 1, max: 10 });
+       
+        const randomHtransId = h_transIds[faker.datatype.number(h_transCount - 1)].id;
+        const h_trans =  await H_trans.findOne({where:{
+          id: randomHtransId
+        }});
+        const id_user = h_trans.id_user;
+        const usageIds = await Usage.findAll({where:{id_user:id_user}},{ attributes: ['id'] });
 
-        let[result, metadata] = await db.sequelize.query("SELECT * FROM H_TRANS WHERE id = ?",{
-          replacements: [id_htrans]
-        });
-
-        let h_trans = result[0];
-
-        [result, metadata] = await db.sequelize.query("SELECT * FROM USAGES WHERE id_user = ?", {
-          replacements: [h_trans.id_user]
-        });
-
-        usages = result;
-
-        do{
-         
-          id_htrans = faker.datatype.number({ min: 1, max: 10 });
-
-          [result, metadata] = await db.sequelize.query("SELECT * FROM H_TRANS WHERE id = ?",{
-            replacements: [id_htrans]
-          });
-  
-          h_trans = result[0];
-  
-          [result, metadata] = await db.sequelize.query("SELECT * FROM USAGES WHERE id_user = ?", {
-            replacements: [h_trans.id_user]
-          });
-
-          usages = result;
-
-          if(usages.length>0){
-            break;
-          }
-        }while(usages.length==0);
-
-        var randomIndex = Math.floor(Math.random() * usages.length);
-        const usage = usages[randomIndex];
+        const randomUsageId = usageIds[Math.floor(Math.random() * (usageCount-1))].id;
+        const usage = usageIds[randomIndex];
 
         const newD_trans = {
-          id_htrans: id_htrans,
-          id_usage: usage.id,
+          id_htrans: randomHtransId,
+          id_usage:usage.id,
           subtotal: usage.subtotal,
           status: faker.datatype.number({ min: 0, max: 3 }),
           created_at: new Date(),
