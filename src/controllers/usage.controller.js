@@ -56,4 +56,38 @@ self.getUsageTotalUnpaid = async(id) => {
     return usages;
 }
 
+self.getUsagePaid = async(id) =>{
+    let usages = await Usage.findAll({
+        where: {
+            id_user: id,
+            status: 0
+        }
+    },{
+
+    });
+    return usages;
+}
+
+self.getUsageUnpaid = async(id) => {
+    let usages = await Usage.findAll({
+        where: {
+            id_user: id,
+            status: 1
+        }
+    },{
+
+    });
+    return usages;
+}
+
+self.getUsageById = async(id, id_user)=>{
+    let usage = await Usage.findOne({
+        where: {
+            id_user: id_user,
+            id: id
+        }
+    });
+    return usage;
+}
+
 module.exports = self;

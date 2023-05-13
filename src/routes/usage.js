@@ -37,8 +37,8 @@ function authenticate(role,message="Unauthorized"){
     }
 }
 
-
-router.get('/developer',[authenticate(1,"role tidak sesuai")], async function (req,res){
+router.get('/developer/:id?',[authenticate(1,"role tidak sesuai")], async function (req,res){
+    const id = req.params.id;
     const username = req.body.username;
 
     const user = await User.findOne({
@@ -47,11 +47,17 @@ router.get('/developer',[authenticate(1,"role tidak sesuai")], async function (r
         }
     });
 
-    const usages = await self.getAllUserUsage(user.id);
-
-    return res.status(200).send({
-        usages: usages
-    });
+    if(!id){
+        const usages = await self.getAllUserUsage(user.id);
+        return res.status(200).send({
+            usages: usages
+        });
+    }else{
+        const usage= await self.getUsageById(id, user.id);
+        return res.status(200).send({
+            usage: usage
+        });
+    }
 });
 
 router.get('/developer/total',[authenticate(1,"role tidak sesuai")], async function (req,res) {
@@ -89,12 +95,33 @@ router.get('/developer/total',[authenticate(1,"role tidak sesuai")], async funct
         }
 
         if(status=="paid"){
+            const usages = await self.getUsagePaid(user.id);
+            const subtotal = await self.getUsageTotalPaid(user.id);
+            const result_usages =[];
+            for(let i=0;i<usages.length;i++){
+                result_usages.push(usages[i]);
+            }
             
+            return res.status(200).send({
+                subtotal: subtotal,
+                usages: result_usages
+            });
         }else if(status=="unpaid"){
+            const usages = await self.getUsageUnpaid(user.id);
+            const subtotal = await self.getUsageTotalUnpaid(user.id);
+            const result_usages =[];
+            for(let i=0;i<usages.length;i++){
+                result_usages.push(usages[i]);
+            }
             
+            return res.status(200).send({
+                subtotal: subtotal,
+                usages: result_usages
+            });
         }
     }
-
 });
+
+//get specify usage 
 
 module.exports = router;
