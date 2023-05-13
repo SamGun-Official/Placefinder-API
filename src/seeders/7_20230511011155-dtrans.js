@@ -11,48 +11,18 @@ module.exports = {
   
       for (let i = 0; i < 20; i++) {
         
-        let usages = [];
-        let id_htrans = faker.datatype.number({ min: 1, max: 25 });
+        let[result, metadata] = await db.sequelize.query("SELECT * FROM H_TRANS");
+        const h_trans = result;
+        const selected_h_trans = h_trans[Math.floor(Math.random() * h_trans.length)];
 
-        let[result, metadata] = await db.sequelize.query("SELECT * FROM H_TRANS WHERE id = ?",{
-          replacements: [id_htrans]
+        [result, metadata] = await db.sequelize.query("SELECT * FROM usages WHERE id_user = ?", {
+          replacements:[selected_h_trans.id_user]
         });
 
-        let h_trans = result[0];
-
-        [result, metadata] = await db.sequelize.query("SELECT * FROM USAGES WHERE id_user = ?", {
-          replacements: [h_trans.id_user]
-        });
-
-        usages = result;
-
-        do{
-         
-          id_htrans = faker.datatype.number({ min: 1, max: 25 });
-
-          [result, metadata] = await db.sequelize.query("SELECT * FROM H_TRANS WHERE id = ?",{
-            replacements: [id_htrans]
-          });
-  
-          h_trans = result[0];
-  
-          [result, metadata] = await db.sequelize.query("SELECT * FROM USAGES WHERE id_user = ?", {
-            replacements: [h_trans.id_user]
-          });
-
-          usages = result;
-
-          if(usages.length>0){
-            break;
-          }
-        }while(usages.length==0);
-
-        var randomIndex = Math.floor(Math.random() * usages.length);
-
-        const usage = usages[randomIndex];
+        const usage = result[0];
 
         const newD_trans = {
-          id_htrans: id_htrans,
+          id_htrans: selected_h_trans.id,
           id_usage: usage.id,
           subtotal: usage.subtotal,
           status: faker.datatype.number({ min: 0, max: 3 }),
