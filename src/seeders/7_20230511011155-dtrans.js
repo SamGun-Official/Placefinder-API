@@ -12,7 +12,7 @@ module.exports = {
       for (let i = 0; i < 20; i++) {
         
         let usages = [];
-        let id_htrans = faker.datatype.number({ min: 1, max: 10 });
+        let id_htrans = faker.datatype.number({ min: 1, max: 25 });
 
         let[result, metadata] = await db.sequelize.query("SELECT * FROM H_TRANS WHERE id = ?",{
           replacements: [id_htrans]
@@ -28,7 +28,7 @@ module.exports = {
 
         do{
          
-          id_htrans = faker.datatype.number({ min: 1, max: 10 });
+          id_htrans = faker.datatype.number({ min: 1, max: 25 });
 
           [result, metadata] = await db.sequelize.query("SELECT * FROM H_TRANS WHERE id = ?",{
             replacements: [id_htrans]
