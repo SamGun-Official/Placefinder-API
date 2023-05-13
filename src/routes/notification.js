@@ -30,7 +30,8 @@ function authenticate(role,message="Unauthorized"){
         }
         const payload = jwt.verify(token,JWT_KEY);
 
-        console.log(payload.role)
+        console.log("-=====================-");
+        console.log("ROLE:"+payload.role)
         if(role == "ALL" || role == payload.role){
             req.body = {...req.body,...payload};
             next();
@@ -183,8 +184,10 @@ router.get('/admin/:id?',[authenticate(0,"role tidak sesuai")], async function (
 //untuk penyedia tempat tinggal
 router.get('/provider',[authenticate(2,"role tidak sesuai")], async function(req,res){
     const username = req.body.username;
-    const user = userController.getByUsername(username);
+    const user = await userController.getByUsername(username);
+    console.log("=========================");
     console.log("USER: "+ username);
+    console.log("ID:" + user.id);
     let notifs = await self.getByUser(user.id);
 
     const notif_result = [];
@@ -193,12 +196,12 @@ router.get('/provider',[authenticate(2,"role tidak sesuai")], async function(req
             id: notifs[i].id,
             user:{
                 id: notifs[i].id_user,
-                username: notifs[i].username
+                username: notifs[i].User.username
             },
             message: notifs[i].description,
             accomodation:{
-                id: notifs[i].id,
-                name: notifs[i].name
+                id: notifs[i].Accomodation.id,
+                name: notifs[i].Accomodation.name
             }
            });
     }
@@ -221,12 +224,12 @@ router.get('/developer',[authenticate(1,"role tidak sesuai")], async function (r
            id: notifs[i].id,
            user:{
                id: notifs[i].id_user,
-               username: notifs[i].username
+               username: notifs[i].User.username
            },
            message: notifs[i].description,
            accomodation:{
-               id: notifs[i].id,
-               name: notifs[i].name
+               id: notifs[i].Accomodation.id,
+               name: notifs[i].Accomodation.name
            }
           });
    }
