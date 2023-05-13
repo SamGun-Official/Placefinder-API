@@ -49,7 +49,7 @@ module.exports = {
 
     for (let i = 1; i <= 49; i++) {
       let username = faker.internet.userName();
-      let role = faker.datatype.number({ min: 1, max: 3 });
+      let role = faker.datatype.number({ min: 1, max:2 });
       let apikey = getToken(username, role);
 
       let id_card_number = '32' + faker.datatype.number({ min: 10, max: 99 }) + faker.date.past(60).getFullYear().toString().slice(-2) + ('0' + faker.datatype.number({ min: 1, max: 12 })).slice(-2) + ('0' + faker.datatype.number({ min: 1, max: 28 })).slice(-2) + faker.datatype.number({ min: 1000, max: 9999 });
@@ -67,7 +67,7 @@ module.exports = {
       users.push({
         username: faker.internet.userName(),
         password: faker.internet.password(),
-        role: faker.datatype.number({ min: 1, max: 3 }),
+        role: faker.datatype.number({ min: 1, max: 2}),
         // saldo: faker.datatype.number({ min: 100000, max: 10000000 }),
         email: faker.internet.email(),
         phone_number: faker.phone.number(),
