@@ -5,6 +5,9 @@ const { Op, DATE } = require("sequelize");
 const Joi = require("joi").extend(require("@joi/date"));
 const db = require('../config/sequelize');
 
+const jwt = require('jsonwebtoken');
+const JWT_KEY = "secret_key";
+
 //Models:
 const User = require('../models/user');
 const Accomodation = require('../models/accomodation');
@@ -25,7 +28,7 @@ function authenticate(role,message="Unauthorized"){
         if(!token){
             return res.status(401).send("Unauthorized");
         }
-        const payload = jwt.verify(token,AUTHTOKEN);
+        const payload = jwt.verify(token,JWT_KEY);
 
         console.log(payload.role)
         if(role == "ALL" || role == payload.role){

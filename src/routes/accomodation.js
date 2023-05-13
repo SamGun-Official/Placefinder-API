@@ -4,6 +4,9 @@ const express = require("express");
 const { Op, DATE } = require("sequelize");
 const Joi = require("joi").extend(require("@joi/date"));
 
+const jwt = require('jsonwebtoken');
+const JWT_KEY = "secret_key";
+
 //Models:
 const user = require('../models/user');
 const notification = require('../models/notification');
