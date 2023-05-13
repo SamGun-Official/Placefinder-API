@@ -9,17 +9,28 @@ const sequelize = db.sequelize;
 
 class D_trans extends Model {
   //association
-  static associate(H_trans) {
-    D_trans.belongsTo(H_trans,{
+  static associate(models) {
+    this.belongsTo(models.H_trans,{
       foreignKey: 'id_htrans'
     });
-  }
 
-  static associate(Usage) {
-    D_trans.belongsTo(Usage,{
+    
+    this.belongsTo(models.Usage,{
       foreignKey: 'id_usage'
     });
   }
+
+  // static associate(H_trans) {
+  //   D_trans.belongsTo(H_trans,{
+  //     foreignKey: 'id_htrans'
+  //   });
+  // }
+
+  // static associate(Usage) {
+  //   D_trans.belongsTo(Usage,{
+  //     foreignKey: 'id_usage'
+  //   });
+  // }
 
 }
 
