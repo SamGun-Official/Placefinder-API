@@ -80,7 +80,7 @@ router.post('/admin/create',[authenticate(0,"role tidak sesuai")], async functio
     });
 
     try{
-        await validator.validateAsync(req.body);
+        await validator.validateAsync({description, id_user, id_accomodation});
     }catch(e){
         return res.status(400).send({
             message: e.message.toString().replace(/['"]/g, '')
