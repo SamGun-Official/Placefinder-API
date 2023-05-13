@@ -90,8 +90,8 @@ Usage.init(
 	},
 	{
 		sequelize,
-		modelName: "Pricelist",
-		tableName: "pricelists",
+		modelName: "Usage",
+		tableName: "usages",
 		paranoid: false,
 		underscored: false,
 		timestamps: true,
