@@ -33,7 +33,7 @@ self.getAll = async (req, res) => {
         include: [
             {
                 model: accomodation, 
-                attributes: ['name', 'location', 'id']
+                attributes: ['name', 'address', 'id']
             },
             {
                 model: user,
@@ -49,7 +49,7 @@ self.get = async (id)=>{
         include: [
             {
                 model: accomodation, 
-                attributes: ['name', 'location', 'id']
+                attributes: ['name', 'address', 'id']
             },
             {
                 model: user,
@@ -61,18 +61,12 @@ self.get = async (id)=>{
 }
 
 self.getByUser = async (id_user) =>{
-    let notif = notification.findAll({
-        where:{
-            id_user:{
-                [Op.eq]:id_user
-            }
-        }
-    },{
+    let notif = await notification.findAll({
         attributes: ['id', 'description', 'id_user', 'id_accomodation', 'status'],
         include: [
             {
                 model: accomodation, 
-                attributes: ['name', 'location', 'id']
+                attributes: ['name', 'address', 'id']
             },
             {
                 model: user,
@@ -80,7 +74,14 @@ self.getByUser = async (id_user) =>{
             }
         ],
     });
-    return notif;
+
+    let filteredNotif = [];
+    for(let i=0;i<notif.length;i++){
+        if(notif[i].id_user==id_user){
+            filteredNotif.push(notif[i]);
+        }
+    }
+    return filteredNotif;
 }
 
 self.delete = async (req, res) => {}

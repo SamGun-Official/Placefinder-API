@@ -119,14 +119,40 @@ router.get('/admin',[authenticate(0,"role tidak sesuai")],async function (req,re
         id: p.id,
         user: {
             id: p.id_user,
-            username: p.username
+            username: p.User.username
         },
         message: p.description,
         accomodation:{
             id: p.id_accomodation,
-            name: p.name
+            name: p.Accomodation.name,
+            address: p.Accomodation.address
         }
     }));
+    return res.status(200).send({
+        notification: notif_result
+    });
+});
+
+//get by id user 
+router.get('/admin/user/:id_user?',[authenticate(0,"role tidak sesuai")], async function (req,res){
+    const id_user = req.params.id_user;
+    let notifs = await self.getByUser(id_user);
+    const notif_result = [];
+    for(let i=0;i<notifs.length;i++){
+        notif_result.push({
+            id: notifs[i].id,
+            user:{
+                id: notifs[i].id_user,
+                username: notifs[i].User.username
+            },
+            message: notifs[i].description,
+            accomodation:{
+                id: notifs[i].id_accomodation,
+                name: notifs[i].Accomodation.name,
+                address: notifs[i].Accomodation.address
+            }
+           });
+    }
     return res.status(200).send({
         notification: notif_result
     });
@@ -140,41 +166,18 @@ router.get('/admin/:id?',[authenticate(0,"role tidak sesuai")], async function (
     id: notification.id,
     user:{
         id: notification.id_user,
-        username: notification.username
+        username: notification.User.username
     },
     message: notification.description,
     accomodation:{
-        id: notification.id,
-        name: notification.name
+        id: notification.id_accomodation,
+        name: notification.Accomodation.name,
+        address: notification.Accomodation.address
     }
    }
    return res.status(200).send({
     notification: notif_result
    });
-});
-
-//get by id user 
-router.get('/admin/user/:id_user?',[authenticate(0,"role tidak sesuai")], async function (req,res){
-    const id_user = req.params.id_user;
-    let notifs = await self.getByUser(id_user);
-    const notif_result = [];
-    for(let i=0;i<notifs.length;i++){
-        notif_result.push({
-            id: notifs[i].id,
-            user:{
-                id: notifs[i].id_user,
-                username: notifs[i].username
-            },
-            message: notifs[i].description,
-            accomodation:{
-                id: notifs[i].id,
-                name: notifs[i].name
-            }
-           });
-    }
-    return res.status(200).send({
-        notification: notif_result
-    });
 });
 
 //untuk penyedia tempat tinggal
