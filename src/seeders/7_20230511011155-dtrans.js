@@ -1,25 +1,31 @@
 'use strict';
 const db = require('../config/sequelize');
+const models = require('../models/models');
 
 const { faker } = require('@faker-js/faker');
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
-  async up (queryInterface, Sequelize) {
+  async up(queryInterface, Sequelize) {
 
     try {
-    const d_trans = [];
-  
+      const d_trans = [];
+
       for (let i = 0; i < 20; i++) {
-        
-        let[result, metadata] = await db.sequelize.query("SELECT * FROM H_TRANS");
-        const h_trans = result;
+
+        // let[result, metadata] = await db.sequelize.query("SELECT * FROM H_TRANS");
+        // const h_trans = result;
+        const h_trans = await models.H_trans.findAll();
         const selected_h_trans = h_trans[Math.floor(Math.random() * h_trans.length)];
 
-        [result, metadata] = await db.sequelize.query("SELECT * FROM usages WHERE id_user = ?", {
-          replacements:[selected_h_trans.id_user]
+        // [result, metadata] = await db.sequelize.query("SELECT * FROM usages WHERE id_user = ?", {
+        //   replacements:[selected_h_trans.id_user]
+        // });
+        // const usage = result[0];
+        const usage = await models.Usage.findOne({
+          where: {
+            id_user: selected_h_trans.id_user
+          }
         });
-
-        const usage = result[0];
 
         const newD_trans = {
           id_htrans: selected_h_trans.id,
@@ -29,17 +35,17 @@ module.exports = {
           created_at: new Date(),
           updated_at: new Date()
         };
-  
+
         d_trans.push(newD_trans);
       }
 
-    await queryInterface.bulkInsert('d_trans',d_trans, {});
-    }catch(e){
+      await queryInterface.bulkInsert('d_trans', d_trans, {});
+    } catch (e) {
       console.log("Error generating data: ", e);
     }
   },
 
-  async down (queryInterface, Sequelize) {
+  async down(queryInterface, Sequelize) {
     await queryInterface.bulkDelete('d_trans', null, {});
   }
 };

@@ -3,6 +3,7 @@ const { faker } = require('@faker-js/faker');
 const User = require('../models/user');
 const PriceList = require('../models/pricelist');
 const db = require('../config/sequelize');
+const models = require('../models/models');
 
 
 /** @type {import('sequelize-cli').Migration} */
@@ -25,11 +26,12 @@ module.exports = {
     
     const id_pricelist = faker.datatype.number({ min: 1, max: 20 });
 
-    let[result, metadata] = await db.sequelize.query("SELECT * FROM PRICELISTS WHERE id = ?",{
-      replacements: [id_pricelist]
-    });
-
-    const subtotal = result[0].price;
+    // let[result, metadata] = await db.sequelize.query("SELECT * FROM PRICELISTS WHERE id = ?",{
+    //   replacements: [id_pricelist]
+    // });
+    // const subtotal = result[0].price;
+    let result = await models.Pricelist.findByPk(id_pricelist);
+    const subtotal = result.price;
     
       const newUsage = {
         id_pricelist: id_pricelist,

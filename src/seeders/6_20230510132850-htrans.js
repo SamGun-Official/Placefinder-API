@@ -1,6 +1,7 @@
 'use strict';
 const { faker } = require('@faker-js/faker');
 const db = require('../config/sequelize');
+const models = require('../models/models');
 
 function generateInvoiceNumber(h_trans) {
   let invoiceNumber;
@@ -29,9 +30,9 @@ module.exports = {
       let new_date = faker.date.between('2022-01-01', '2022-12-31');
       const uniqueInvoiceNumber = generateInvoiceNumber(h_trans);
 
-      let[result, metadata] = await db.sequelize.query("SELECT * FROM USAGES");
-      const usages= result;
-     
+      // let[result, metadata] = await db.sequelize.query("SELECT * FROM USAGES");
+      // const usages= result;
+      const usages = await models.Usage.findAll();
       const usage = usages[Math.floor(Math.random() * usages.length)];
 
       h_trans.push({
