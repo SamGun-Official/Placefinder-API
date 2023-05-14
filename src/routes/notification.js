@@ -164,7 +164,7 @@ router.get('/admin/:id?', [auth.authenticate("admin", "role tidak sesuai")], asy
 });
 
 //untuk penyedia tempat tinggal
-router.get('/provider', [auth.authenticate("provider", "role tidak sesuai")], async function (req, res) {
+router.get('/', [auth.authenticate(["provider","developer"], "role tidak sesuai")], async function (req, res) {
     const username = auth.payload.username;
     const user = await userController.getByUsername(username);
     console.log("=========================");
@@ -193,34 +193,34 @@ router.get('/provider', [auth.authenticate("provider", "role tidak sesuai")], as
     });
 });
 
-//select all notifications for developer
-router.get('/developer', [auth.authenticate("developer", "role tidak sesuai")], async function (req, res) {
-    const username = auth.payload.username;
+// //select all notifications for developer
+// router.get('/developer', [auth.authenticate("developer", "role tidak sesuai")], async function (req, res) {
+//     const username = auth.payload.username;
 
-    const user = await userController.getByUsername(username);
+//     const user = await userController.getByUsername(username);
 
-    let notifs = await self.getByUser(user.id);
+//     let notifs = await self.getByUser(user.id);
 
-    const notif_result = [];
-    for (let i = 0; i < notifs.length; i++) {
-        notif_result.push({
-            id: notifs[i].id,
-            user: {
-                id: notifs[i].id_user,
-                username: notifs[i].User.username
-            },
-            message: notifs[i].description,
-            accomodation: {
-                id: notifs[i].Accomodation.id,
-                name: notifs[i].Accomodation.name,
-                address: notifs[i].Accomodation.address
-            }
-        });
-    }
-    return res.status(200).send({
-        notification: notif_result
-    });
-});
+//     const notif_result = [];
+//     for (let i = 0; i < notifs.length; i++) {
+//         notif_result.push({
+//             id: notifs[i].id,
+//             user: {
+//                 id: notifs[i].id_user,
+//                 username: notifs[i].User.username
+//             },
+//             message: notifs[i].description,
+//             accomodation: {
+//                 id: notifs[i].Accomodation.id,
+//                 name: notifs[i].Accomodation.name,
+//                 address: notifs[i].Accomodation.address
+//             }
+//         });
+//     }
+//     return res.status(200).send({
+//         notification: notif_result
+//     });
+// });
 
 
 module.exports = router;
