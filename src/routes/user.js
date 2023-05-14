@@ -39,6 +39,11 @@ const auth = require('../controllers/auth.controller');
 //   };
 // }
 
+const IS_VERIFIED = {
+  0: "not verified",
+  1: "verified"
+}
+
 router.get("/", async function (req, res) {
   let name = req.query.name ?? "";
   const users = await self.getAll(name);
@@ -280,6 +285,80 @@ router.post("/:id/verify", async function (req, res) {
       message: e.message,
     });
   }
+});
+
+router.put('/:id/verify/confirm',[auth.authenticate("admin","role tidak sesuai")],async function (req,res){
+  const id = req.params.id;
+  const validator = Joi.number().min(1).required().external(async function () {
+      let user_with_id = await User.findOne({
+        where: {
+          id: {
+            [Op.eq]: id,
+          },
+        },
+      });
+      if (user_with_id == null) {
+        throw Error("ID tidak ditemukan");
+      }
+    }
+  ).messages({
+    "any.required": "{{#label}} harus diisi",
+    "number.min": "{{#label}} minimal 1",
+})
+
+  try {
+    await validator.validateAsync(id);
+
+  } catch (e) {
+    return res.status(400).send({
+      message: e.message.toString().replace(/['"]/g, '')
+    });
+  }
+
+  const user = await User.findOne({
+    where: {
+      id: id
+    }
+  });
+  if(user.role==0){
+    return res.status(400).send({
+      message: "role tidak valid untuk dikonfirmasi"
+    });
+  }
+
+  //check apakah sudah pernah dikonfirmasi atau belum
+  if(user.is_id_card_verified==1){
+    return res.status(400).send({
+      message: "id card sudah di verifikasi"
+    });
+  }
+
+  if(user.id_card_number==null){
+    return res.status(404).send({
+      message: "id card tidak dapat ditemukan"
+    })
+  }
+
+  //verify (update)
+  await self.updateUserConfirm(user.username);
+  return res.status(200).send({
+    message: `berhasil mengkonfirmasi pengguna dengan username ${user.username}`,
+    user:{
+      id: user.id,
+      username: user.username,
+      name: user.name,
+      role: ROLE[user.role],
+      email: user.email,
+      phone_number: user.phone_number,
+      tanggal_lahir: user.tanggal_lahir,
+      id_card:{
+        number: user.id_card_number,
+        status: IS_VERIFIED[user.is_id_card_verified]
+      },
+      token: user.token,
+      status: user.status
+    }
+  });
 });
 
 module.exports = router;
