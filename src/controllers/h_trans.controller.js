@@ -55,7 +55,7 @@ self.getByIdUser = async(id_user) =>{
         include: [
             {
                 model: User,
-                attributes: ['id', 'username','phone_number','email']
+                attributes: ['id', 'username','phone_number','email', 'name']
             }
         ]
     });
@@ -63,6 +63,7 @@ self.getByIdUser = async(id_user) =>{
     //nb: total dihitung lagi karena di table itu berbeda
     let result_htrans = [];
     for(let i=0;i<h_trans.length;i++){    
+        if(h_trans[i].id_user==id_user){
         let d_trans  = await dtransController.getDtrans(h_trans[i].id);
         result_htrans.push({
             id: h_trans[i].id,
@@ -70,6 +71,7 @@ self.getByIdUser = async(id_user) =>{
             user:{
                 id: h_trans[i].User.id,
                 username: h_trans[i].User.username,
+                name: h_trans[i].User.name,
                 email: h_trans[i].User.email,
                 phone_number: h_trans[i].User.phone_number
             },
@@ -78,6 +80,7 @@ self.getByIdUser = async(id_user) =>{
             payment_status: PAYMENT_STATUS[h_trans[i].payment_status],
             transaction_detail: d_trans
         });
+        }
     }
     return result_htrans;
 }

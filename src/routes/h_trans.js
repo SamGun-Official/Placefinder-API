@@ -55,11 +55,22 @@ router.get('/developer', [authenticate(1,"role tidak sesuai")],async function (r
             [Op.eq]: username
         }
     }
-    }); 
-    console.log("=======================");
-    console.log(user);
+    });
+
+    if(!user){
+        return res.status(404).send({
+            message: "username tidak terdaftar!"
+        });
+    }
+    
     const htrans = await self.getByIdUser(user.id);
-    return res.status(200).send(htrans);
+    if(htrans.length>0){
+        return res.status(200).send(htrans);
+    }else{
+        return res.status(200).send({
+            message: "belum ada transaksi"
+        });
+    }
 });
 
 
