@@ -73,5 +73,31 @@ router.get('/developer', [authenticate(1,"role tidak sesuai")],async function (r
     }
 });
 
+router.get('/provider',[authenticate(2,"role tidak sesuai")] ,async function (req,res){
+   const username = req.body.username; 
+   const user = await User.findOne({
+    where:{
+        username: {
+            [Op.eq]: username
+        }
+    }
+    });
+
+    if(!user){
+        return res.status(404).send({
+            message: "username tidak terdaftar!"
+        });
+    }
+
+    const htrans = await self.getByIdUser(user.id);
+    if(htrans.length>0){
+        return res.status(200).send(htrans);
+    }else{
+        return res.status(200).send({
+            message: "belum ada transaksi"
+        });
+    }
+});
+
 
 module.exports = router;
