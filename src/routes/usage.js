@@ -8,7 +8,6 @@ const Joi = require("joi").extend(require("@joi/date"));
 const jwt = require('jsonwebtoken');
 const JWT_KEY = "secret_key";
 
-
 //Models:
 const User = require('../models/user');
 const Notification = require('../models/notification');
@@ -40,28 +39,12 @@ function authenticate(role,message="Unauthorized"){
     }
 }
 
-router.get('/developer/:id?',[authenticate(1,"role tidak sesuai")], async function (req,res){
-    const id = req.params.id;
-    const username = req.body.username;
 
-    const user = await User.findOne({
-        where: {
-            username: username
-        }
-    });
+function formatRupiah(amount){
+    let formattedAmount = amount.toLocaleString("id-ID", { style: "currency", currency: "IDR" });
+    return formattedAmount
+}
 
-    if(!id){
-        const usages = await self.getAllUserUsage(user.id);
-        return res.status(200).send({
-            usages: usages
-        });
-    }else{
-        const usage= await self.getUsageById(id, user.id);
-        return res.status(200).send({
-            usage: usage
-        });
-    }
-});
 
 router.get('/developer/total',[authenticate(1,"role tidak sesuai")], async function (req,res) {
 
@@ -77,17 +60,11 @@ router.get('/developer/total',[authenticate(1,"role tidak sesuai")], async funct
     if(!status){
         const usages = await self.getAllUserUsage(user.id);
         const subtotal = await self.getUsageTotal(user.id);
-        const result_usages =[];
-        for(let i=0;i<usages.length;i++){
-            result_usages.push(usages[i]);
-        }
-        
         return res.status(200).send({
             subtotal: subtotal,
-            usages: result_usages
+            usages: usages
         });
     }else{
-
         const validator = Joi.string().valid('paid','unpaid');
         const validate = validator.validate(status);
 
@@ -105,10 +82,17 @@ router.get('/developer/total',[authenticate(1,"role tidak sesuai")], async funct
                 result_usages.push(usages[i]);
             }
             
-            return res.status(200).send({
-                subtotal: subtotal,
-                usages: result_usages
-            });
+            if(result_usages.length>0){
+                return res.status(200).send({
+                    subtotal: formatRupiah(subtotal),
+                    usages: result_usages
+                });
+            }else{
+                return res.status(200).send({
+                    subtotal: formatRupiah(0),
+                    usages: result_usages
+                });
+            }
         }else if(status=="unpaid"){
             const usages = await self.getUsageUnpaid(user.id);
             const subtotal = await self.getUsageTotalUnpaid(user.id);
@@ -117,14 +101,50 @@ router.get('/developer/total',[authenticate(1,"role tidak sesuai")], async funct
                 result_usages.push(usages[i]);
             }
             
-            return res.status(200).send({
-                subtotal: subtotal,
-                usages: result_usages
-            });
+            if(result_usages.length>0){
+                return res.status(200).send({
+                    subtotal: formatRupiah(subtotal),
+                    usages: result_usages
+                });
+            }else{
+                return res.status(200).send({
+                    subtotal: formatRupiah(0),
+                    usages: result_usages
+                });
+            }
         }
     }
 });
 
 //get specify usage 
+router.get('/developer/:id?',[authenticate(1,"role tidak sesuai")], async function (req,res){
+    const id = req.params.id;
+    const username = req.body.username;
+
+    const user = await User.findOne({
+        where: {
+            username: username
+        }
+    });
+
+    if(!id){
+        const usages = await self.getAllUserUsage(user.id);
+        return res.status(200).send({
+            usages: usages
+        });
+    }else{
+        const usage= await self.getUsageById(id, user.id);
+        if(usage){
+            return res.status(200).send({
+                usage: usage
+            });
+        }else{
+            return res.status(404).send({
+                message: "tidak ada hasil pencarian"
+            });
+        }
+        
+    }
+});
 
 module.exports = router;

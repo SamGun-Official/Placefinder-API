@@ -2,33 +2,57 @@
 const { faker } = require('@faker-js/faker');
 const db = require('../config/sequelize');
 const models = require('../models/models');
+const H_trans = require('../models/h_trans');
+const { Op } = require("sequelize");
 
-function generateInvoiceNumber(h_trans) {
-  let invoiceNumber;
-  let isUnique = false;
+//functions
+function formattedStringDate(ts) {
 
-  while (!isUnique) {
-    invoiceNumber = faker.datatype.uuid().toUpperCase();
+  let date_ob = new Date(ts);
+  let date = date_ob.getDate();
+  let month = date_ob.getMonth() + 1;
+  let year = date_ob.getFullYear();
 
-    // Check if the generated invoice number already exists in h_trans
-    const existingInvoice = h_trans.find((trans) => trans.number === invoiceNumber);
-    
-    // If the invoice number doesn't exist, it is unique
-    if (!existingInvoice) {
-      isUnique = true;
+  if (month.toString().length == 1) {
+    if (date.toString().length == 1) {
+      return (year + "-0" + month + "-0" + date);
+    } else {
+      return (year + "-0" + month + "-" + date);
+    }
+  } else {
+    if (date.toString().length == 1) {
+      return (year + "-" + month + "-0" + date);
+    } else {
+      return (year + "-" + month + "-" + date);
     }
   }
+
+}
+
+
+function generateInvoiceNumber(h_trans, date) {
+  let invoiceNumber = "";
+  let clearDate = formattedStringDate(date);
+  const clear_date = clearDate.replace(/-/g, '');
+  let jumlah = 0;
+  for (let i = 0; i < h_trans.length; i++) {
+    if (h_trans[i].number.includes(clear_date)) {
+      jumlah = jumlah + 1;
+    }
+  }
+
+  invoiceNumber = clear_date + ((jumlah + 1) + "").padStart(3, "0");
 
   return invoiceNumber;
 }
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
-  async up (queryInterface, Sequelize) {
+  async up(queryInterface, Sequelize) {
     const h_trans = [];
     for (let i = 1; i <= 20; i++) {
       let new_date = faker.date.between('2022-01-01', '2022-12-31');
-      const uniqueInvoiceNumber = generateInvoiceNumber(h_trans);
+      const uniqueInvoiceNumber = generateInvoiceNumber(h_trans, new_date);
 
       // let[result, metadata] = await db.sequelize.query("SELECT * FROM USAGES");
       // const usages= result;
@@ -40,16 +64,16 @@ module.exports = {
         id_user: usage.id_user,
         date: new_date,
         total: Math.floor(Math.random() * 500000) + 100000,
-        payment_status: faker.datatype.number({ min: 0, max: 3}),
-        status:1,
+        payment_status: faker.datatype.number({ min: 0, max: 3 }),
+        status: 1,
         created_at: new Date(),
         updated_at: new Date(),
       });
-      await queryInterface.bulkInsert('h_trans',h_trans, {});
+    }
+    await queryInterface.bulkInsert('h_trans', h_trans, {});
   }
-}
-,
-  async down (queryInterface, Sequelize) {
+  ,
+  async down(queryInterface, Sequelize) {
     await queryInterface.bulkDelete('h_trans', null, {});
   }
 };

@@ -3,15 +3,47 @@ const {response} = require("express");
 const express = require("express");
 const { Op, DATE } = require("sequelize");
 
+
+const jwt = require("jsonwebtoken");
+const JWT_KEY = "secret_key";
+
+
 //Models:
-const user = require('../models/user');
-const notification = require('../models/notification');
-const accomodation = require('../models/accomodation');
-const h_trans = require('../models/h_trans');
-const pricelist = require('../models/pricelist');
-const usage = require('../models/usage');
+const User = require('../models/user');
+const Notification = require('../models/notification');
+const Accomodation = require('../models/accomodation');
+const H_trans = require('../models/h_trans');
+const Pricelist = require('../models/pricelist');
+const Usage = require('../models/usage');
 
 const router = express.Router();
+
+//middleware :
+function authenticate(role,message="Unauthorized"){
+
+    return (req,res,next)=>{
+        const token = req.header("x-auth-token");
+        if(!token){
+            return res.status(401).send("Unauthorized");
+        }
+        const payload = jwt.verify(token,JWT_KEY);
+
+        console.log(payload.role)
+        if(role == "ALL" || role == payload.role){
+            req.body = {...req.body,...payload};
+            next();
+        }
+        else {
+            return res.status(401).send(message);
+        }
+    }
+}
+
+function formatRupiah(amount){
+    let formattedAmount = amount.toLocaleString("id-ID", { style: "currency", currency: "IDR" });
+    return formattedAmount
+}
+
 
 
 module.exports = router;
