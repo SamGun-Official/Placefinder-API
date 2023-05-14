@@ -57,7 +57,7 @@ async function checkUrlEndpointAndIdInPricelist({ url_endpoint, id }) {
     throw Error("pricelist can't have the same url_endpoint");
 }
 
-router.post('/admin/add', auth.authenticate("admin"), async function (req, res) {
+router.post('/add', auth.authenticate("admin"), async function (req, res) {
     let { feature_name, url_endpoint, price } = req.body;
     const validator = Joi.object({
         feature_name: Joi.string().required(),
@@ -74,7 +74,7 @@ router.post('/admin/add', auth.authenticate("admin"), async function (req, res) 
     return res.status(201).send(await self.addPricelist(feature_name, url_endpoint, price));
 });
 
-router.put('/admin/update/:id', auth.authenticate("admin"), async function (req, res) {
+router.put('/update/:id', auth.authenticate("admin"), async function (req, res) {
     let { id } = req.params;
     let { feature_name, url_endpoint, price } = req.body;
     feature_name = feature_name == undefined ? null : feature_name;

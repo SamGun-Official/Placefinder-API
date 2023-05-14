@@ -12,10 +12,13 @@ self.authenticate = (role, message = "Unauthorized") => {
     return (req, res, next) => {
         const token = req.header("x-auth-token");
         if (!token) {
-            return res.status(401).send(message);
+            return res.status(401).send("Unauthorized");
         }
-        self.payload = jwt.verify(token, JWT_KEY);
-
+        try {
+            self.payload = jwt.verify(token, JWT_KEY);
+        } catch (error) {
+            return res.status(401).send("Unauthorized");
+        }
         if (role.includes("all") || role.includes(self.ROLE[self.payload.role])) {
             next();
         } else {

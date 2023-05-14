@@ -18,6 +18,7 @@ const Accomodation = require('../models/accomodation');
 const D_trans = require('../models/d_trans');
 const Pricelist = require('../models/pricelist');
 const Usage = require('../models/usage');
+const { now } = require('moment');
 
 const router = express.Router();
 
@@ -26,8 +27,7 @@ function formatRupiah(amount) {
     return formattedAmount
 }
 
-
-router.get('/', [auth.authenticate(["developer","admin","provider"], "role tidak sesuai")], async function (req, res) {
+router.get('/', [auth.authenticate(["developer", "admin", "provider"], "role tidak sesuai")], async function (req, res) {
     const username = auth.payload.username;
     console.log(username);
     const user = await User.findOne({
@@ -44,7 +44,7 @@ router.get('/', [auth.authenticate(["developer","admin","provider"], "role tidak
         });
     }
 
-    if(user.role!=0){
+    if (user.role != 0) {
         const htrans = await self.getByIdUser(user.id);
         if (htrans.length > 0) {
             return res.status(200).send(htrans);
@@ -53,7 +53,7 @@ router.get('/', [auth.authenticate(["developer","admin","provider"], "role tidak
                 message: "belum ada transaksi"
             });
         }
-    }else{
+    } else {
         const htrans = await self.getAll();
         if (htrans.length > 0) {
             return res.status(200).send(htrans);
@@ -65,6 +65,29 @@ router.get('/', [auth.authenticate(["developer","admin","provider"], "role tidak
     }
 });
 
-
+router.get('/search/', [auth.authenticate(["admin"])], async function (req, res) {
+    let { number, start_date, end_date } = req.query;
+    const validator = Joi.object({
+        number: Joi.string().allow("", null),
+        start_date: Joi.date().max("now").format("DD/MM/YYYY").allow("", null),
+        end_date: Joi.date().max("now").format("DD/MM/YYYY").allow("", null),
+    });
+    try {
+        await validator.validateAsync(req.query);
+    } catch (e) {
+        return res.status(400).send({
+            message: e.message.toString().replace(/['"]/g, '')
+        })
+    }
+    if (number) {
+        return res.status(200).send(await self.getByNumber(number));
+    }
+    else if (start_date || end_date) {
+        return res.status(200).send(await self.getByDate(start_date, end_date));
+    }
+    else {
+        return res.status(200).send(await self.getAll());
+    }
+});
 
 module.exports = router;

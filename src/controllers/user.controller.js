@@ -130,7 +130,6 @@ self.verify = async (id,req, res) => {
   return true;
 };
 
-
 self.getByUsername = async(username) =>{
   let user = await User.findOne({
     where:{
@@ -138,16 +137,6 @@ self.getByUsername = async(username) =>{
     }
   });
   return user;
-}
-
-self.updateUserConfirm = async(username) =>{
-  await User.update({
-    is_id_card_verified: 1
-  },{
-    where:{
-      username: username
-    }
-  });
 }
 
 module.exports = self;

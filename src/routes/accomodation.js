@@ -32,7 +32,7 @@ router.get('/', async function (req, res) {
     return res.status(200).send(accomodations);
 });
 
-router.get('/admin/search', auth.authenticate(["admin"]), async function (req, res) {
+router.get('/search', auth.authenticate(["admin"]), async function (req, res) {
     let { id, name, address } = req.query;
     if (id) {
         const schema = Joi.object({
@@ -51,7 +51,7 @@ router.get('/admin/search', auth.authenticate(["admin"]), async function (req, r
     else if (address) {
         return res.status(200).send(await self.getAccomoddationsByAddress(address));
     }
-    return res.status(400).send({ message: "Please fill field id or name or address!" });
+    return res.status(400).send({ message: "Harap isi field id or name or address!" });
 });
 
 module.exports = router;
