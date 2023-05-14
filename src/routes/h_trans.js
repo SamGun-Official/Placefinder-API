@@ -3,6 +3,8 @@ const dtransController = require('../controllers/d_trans.controller');
 const {response} = require("express");
 const express = require("express");
 const { Op, DATE } = require("sequelize");
+const db = require('../config/sequelize');
+const Joi = require("joi").extend(require("@joi/date"));
 
 const jwt = require("jsonwebtoken");
 const JWT_KEY = "secret_key";
@@ -45,15 +47,18 @@ function formatRupiah(amount){
 }
 
 router.get('/developer', [authenticate(1,"role tidak sesuai")],async function (req,res){
-   const username =req.body.username;
+   const username = req.body.username;
    const user = await User.findOne({
     where:{
-        username: username
+        username: {
+            [Op.eq]: username
+        }
     }
-
-    
-
-}); 
+    }); 
+    console.log("=======================");
+    console.log(user);
+    const htrans = await self.getByIdUser(user.id);
+    return res.status(200).send(htrans);
 });
 
 module.exports = router;

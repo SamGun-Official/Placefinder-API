@@ -36,6 +36,7 @@ module.exports = {
     users.push({
       username: 'admin',
       password: 'admin',
+      name: 'admin',
       role: 0,
       email: 'admin@gmail.com',
       phone_number: faker.phone.number(),
@@ -67,6 +68,7 @@ module.exports = {
       users.push({
         username: username,
         password: faker.internet.password(),
+        name: faker.name.firstName()+" "+faker.name.lastName(),
         role: role,
         // saldo: faker.datatype.number({ min: 100000, max: 10000000 }),
         email: faker.internet.email(),
