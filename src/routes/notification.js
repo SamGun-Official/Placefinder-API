@@ -165,7 +165,7 @@ router.get('/admin/:id?', [auth.authenticate("admin", "role tidak sesuai")], asy
 
 //untuk penyedia tempat tinggal
 router.get('/provider', [auth.authenticate("provider", "role tidak sesuai")], async function (req, res) {
-    const username = req.body.username;
+    const username = auth.payload.username;
     const user = await userController.getByUsername(username);
     console.log("=========================");
     console.log("USER: " + username);
@@ -195,7 +195,7 @@ router.get('/provider', [auth.authenticate("provider", "role tidak sesuai")], as
 
 //select all notifications for developer
 router.get('/developer', [auth.authenticate("developer", "role tidak sesuai")], async function (req, res) {
-    const username = req.body.username;
+    const username = auth.payload.username;
 
     const user = await userController.getByUsername(username);
 

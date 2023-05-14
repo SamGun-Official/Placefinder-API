@@ -31,7 +31,7 @@ router.get('/developer/total',[auth.authenticate("developer","role tidak sesuai"
 
     const status = req.query.status;
     //hanya ada paid dan unpaid 
-    const username = req.body.username;
+    const username = auth.payload.username;
     const user = await User.findOne({
         where:{
             username: username
@@ -100,7 +100,7 @@ router.get('/developer/total',[auth.authenticate("developer","role tidak sesuai"
 //get specify usage 
 router.get('/developer/:id?',[auth.authenticate("developer","role tidak sesuai")], async function (req,res){
     const id = req.params.id;
-    const username = req.body.username;
+    const username = auth.payload.username;
 
     const user = await User.findOne({
         where: {

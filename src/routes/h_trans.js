@@ -27,12 +27,9 @@ function formatRupiah(amount) {
 }
 
 
-router.get('/admin', [auth.authenticate("admin", "role tidak sesuai")], async function (req, res) {
-    return res.status(200).send(await self.getAll());
-});
-
-router.get('/developer', [auth.authenticate("developer", "role tidak sesuai")], async function (req, res) {
-    const username = req.body.username;
+router.get('/', [auth.authenticate(["developer","admin","provider"], "role tidak sesuai")], async function (req, res) {
+    const username = auth.payload.username;
+    console.log(username);
     const user = await User.findOne({
         where: {
             username: {
@@ -47,39 +44,24 @@ router.get('/developer', [auth.authenticate("developer", "role tidak sesuai")], 
         });
     }
 
-    const htrans = await self.getByIdUser(user.id);
-    if (htrans.length > 0) {
-        return res.status(200).send(htrans);
-    } else {
-        return res.status(200).send({
-            message: "belum ada transaksi"
-        });
-    }
-});
-
-router.get('/provider', [auth.authenticate("provider", "role tidak sesuai")], async function (req, res) {
-    const username = req.body.username;
-    const user = await User.findOne({
-        where: {
-            username: {
-                [Op.eq]: username
-            }
+    if(user.role!=0){
+        const htrans = await self.getByIdUser(user.id);
+        if (htrans.length > 0) {
+            return res.status(200).send(htrans);
+        } else {
+            return res.status(200).send({
+                message: "belum ada transaksi"
+            });
         }
-    });
-
-    if (!user) {
-        return res.status(404).send({
-            message: "username tidak terdaftar!"
-        });
-    }
-
-    const htrans = await self.getByIdUser(user.id);
-    if (htrans.length > 0) {
-        return res.status(200).send(htrans);
-    } else {
-        return res.status(200).send({
-            message: "belum ada transaksi"
-        });
+    }else{
+        const htrans = await self.getAll();
+        if (htrans.length > 0) {
+            return res.status(200).send(htrans);
+        } else {
+            return res.status(200).send({
+                message: "belum ada transaksi"
+            });
+        }
     }
 });
 

@@ -42,7 +42,37 @@ const PAYMENT_STATUS = {
 }
 
 self.getAll = async()=>{
-    return await H_trans.findAll();
+    let h_trans = await H_trans.findAll({
+        attributes: ['id', 'number', 'id_user', 'date', 'total', 'payment_status', 'status'],
+        include: [
+            {
+                model: User,
+                attributes: ['id', 'username','phone_number','email', 'name']
+            }
+        ]
+    });
+
+    //nb: total dihitung lagi karena di table itu berbeda
+    let result_htrans = [];
+    for(let i=0;i<h_trans.length;i++){    
+        let d_trans  = await dtransController.getDtrans(h_trans[i].id);
+        result_htrans.push({
+            id: h_trans[i].id,
+            number: h_trans[i].number,
+            user:{
+                id: h_trans[i].User.id,
+                username: h_trans[i].User.username,
+                name: h_trans[i].User.name,
+                email: h_trans[i].User.email,
+                phone_number: h_trans[i].User.phone_number
+            },
+            transaction_date: formattedStringDate(h_trans[i].date),
+            total: formatRupiah(h_trans[i].total),
+            payment_status: PAYMENT_STATUS[h_trans[i].payment_status],
+            transaction_detail: d_trans
+        });
+    }
+    return result_htrans;
 }
 
 self.getById = async() =>{
