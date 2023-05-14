@@ -26,9 +26,7 @@ function formattedStringDate(ts) {
       return (year + "-" + month + "-" + date);
     }
   }
-
 }
-
 
 function generateInvoiceNumber(h_trans, date) {
   let invoiceNumber = "";

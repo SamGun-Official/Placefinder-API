@@ -28,7 +28,7 @@ function authenticate(role, message = "Unauthorized") {
         }
         payload = jwt.verify(token, JWT_KEY);
 
-        if(role == "ALL" || role == payload.role){
+        if(role == "ALL" || role == ROLE[payload.role]){
             next();
         } else {
             return res.status(401).send(message);
@@ -36,7 +36,7 @@ function authenticate(role, message = "Unauthorized") {
     };
 }
 
-async function isAccomodationExistById(id) {
+async function checkAccomodationExistById(id) {
     if (await Accomodation.findByPk(id)) {
         return true;
     }
@@ -48,14 +48,14 @@ router.get('/', async function (req, res) {
     return res.status(200).send(accomodations);
 });
 
-router.get('/search', authenticate(0), async function (req, res) {
+router.get('/admin/search', authenticate("Admin"), async function (req, res) {
     let { id, name, address } = req.query;
     if (id) {
-        const schema_id = Joi.object({
-            id: Joi.number().external(isAccomodationExistById)
+        const schema = Joi.object({
+            id: Joi.number().external(checkAccomodationExistById)
         })
         try {
-            await schema_id.validateAsync({ id });
+            await schema.validateAsync({ id });
             return res.status(200).send(await self.getAccomodationById(id));
         } catch (e) {
             return res.status(404).send({ message: e.message });

@@ -1,22 +1,117 @@
 const self = require('../controllers/pricelist.controller');
-const {response} = require("express");
+const { response } = require("express");
 const express = require("express");
 const { Op, DATE } = require("sequelize");
+const Joi = require("joi").extend(require("@joi/date"));
 
+const jwt = require('jsonwebtoken');
+const JWT_KEY = "secret_key";
 //Models:
-const user = require('../models/user');
-const notification = require('../models/notification');
-const accomodation = require('../models/accomodation');
-const h_trans = require('../models/h_trans');
-const d_trans = require('../models/d_trans');
-const usage = require('../models/usage');
+const User = require('../models/user');
+const Notification = require('../models/notification');
+const Accomodation = require('../models/accomodation');
+const H_trans = require('../models/h_trans');
+const D_trans = require('../models/d_trans');
+const Usage = require('../models/usage');
+const Pricelist = require('../models/pricelist')
 
 const router = express.Router();
 
+let payload;
+const ROLE = ["Admin", "Developer", "Penyedia tempat tinggal"];
+function authenticate(role, message = "Unauthorized") {
+    return (req, res, next) => {
+        const token = req.header("x-auth-token");
+        if (!token) {
+            return res.status(401).send(message);
+        }
+        payload = jwt.verify(token, JWT_KEY);
 
+        if(role == "ALL" || role == ROLE[payload.role]){
+            next();
+        } else {
+            return res.status(401).send(message);
+        }
+    };
+}
 
-router.post('/add', async function(req, res){
+async function checkUrlEndpointExistInPricelist(url_endpoint) {
+    let pricelist = await Pricelist.findOne({
+        where: {
+            url_endpoint: url_endpoint
+        }
+    })
+    if (pricelist) {
+        throw Error('url_endpoint exist')
+    }
+    return true;
+}
 
-})
+async function checkIdExistInPricelist(id) {
+    let pricelist = await Pricelist.findByPk(id);
+    if (pricelist) {
+        return true;
+    }
+    throw Error("id pricelist doesn't exist");
+}
+
+async function checkUrlEndpointAndIdInPricelist({ url_endpoint, id }) {
+    let pricelists = await Pricelist.findAll({
+        where: {
+            [Op.and]: {
+                url_endpoint: url_endpoint,
+                id: {
+                    [Op.ne]: id
+                }
+            }
+        }
+    });
+    if (pricelists.length == 0) {
+        return true;
+    }
+    throw Error("pricelist can't have the same url_endpoint");
+}
+
+router.post('/admin/add', authenticate("Admin"), async function (req, res) {
+    let { feature_name, url_endpoint, price } = req.body;
+    const validator = Joi.object({
+        feature_name: Joi.string().required(),
+        url_endpoint: Joi.string().required().external(checkUrlEndpointExistInPricelist),
+        price: Joi.number().min(1).required()
+    })
+    try {
+        await validator.validateAsync(req.body);
+    } catch (e) {
+        return res.status(400).send({
+            message: e.message.toString().replace(/['"]/g, '')
+        })
+    }
+    return res.status(201).send(await self.addPricelist(feature_name, url_endpoint, price));
+});
+
+router.put('/admin/update/:id', authenticate("Admin"), async function (req, res) {
+    let { id } = req.params;
+    let { feature_name, url_endpoint, price } = req.body;
+    feature_name = feature_name == undefined ? null : feature_name;
+    url_endpoint = url_endpoint == undefined ? null : url_endpoint;
+    price = price == undefined ? null : price;
+    let url_endpoint_and_id = { url_endpoint, id }
+    const validator = Joi.object({
+        id: Joi.number().external(checkIdExistInPricelist),
+        feature_name: Joi.string().allow("", null),
+        url_endpoint: Joi.string().allow("", null),
+        price: Joi.number().min(1).allow("", null),
+        url_endpoint_and_id: Joi.any().external(checkUrlEndpointAndIdInPricelist)
+    });
+
+    try {
+        await validator.validateAsync({ id, feature_name, url_endpoint, price, url_endpoint_and_id });
+    } catch (e) {
+        return res.status(400).send({
+            message: e.message.toString().replace(/['"]/g, '')
+        })
+    }
+    return res.status(200).send({ message: 'Berhasil update pricelist', pricelist: await self.updatePricelist(id, feature_name, url_endpoint, price) });
+});
 
 module.exports = router;
