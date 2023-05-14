@@ -16,26 +16,28 @@ const router = express.Router();
 const jwt = require("jsonwebtoken");
 const JWT_KEY = "secret_key";
 
+const auth = require('../controllers/auth.controller');
+
 //npx sequelize-cli db:migrate:undo:all
 //npx sequelize-cli db:migrate
 //npx sequelize-cli db:seed:all
 
-function authenticate(roles, message = "Unauthorized") {
-  return (req, res, next) => {
-    const token = req.header("x-auth-token");
-    if (!token) {
-      return res.status(401).send(message);
-    }
-    const payload = jwt.verify(token, JWT_KEY);
+// function authenticate(roles, message = "Unauthorized") {
+//   return (req, res, next) => {
+//     const token = req.header("x-auth-token");
+//     if (!token) {
+//       return res.status(401).send(message);
+//     }
+//     const payload = jwt.verify(token, JWT_KEY);
 
-    if (roles.includes("ALL") || roles.includes(payload.role)) {
-      req.body = { ...req.body, ...payload };
-      next();
-    } else {
-      return res.status(401).send(message);
-    }
-  };
-}
+//     if (roles.includes("ALL") || roles.includes(payload.role)) {
+//       req.body = { ...req.body, ...payload };
+//       next();
+//     } else {
+//       return res.status(401).send(message);
+//     }
+//   };
+// }
 
 router.get("/", async function (req, res) {
   let name = req.query.name ?? "";

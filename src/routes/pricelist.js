@@ -6,6 +6,9 @@ const Joi = require("joi").extend(require("@joi/date"));
 
 const jwt = require('jsonwebtoken');
 const JWT_KEY = "secret_key";
+
+const auth = require('../controllers/auth.controller');
+
 //Models:
 const User = require('../models/user');
 const Notification = require('../models/notification');
@@ -16,24 +19,6 @@ const Usage = require('../models/usage');
 const Pricelist = require('../models/pricelist')
 
 const router = express.Router();
-
-let payload;
-const ROLE = ["Admin", "Developer", "Penyedia tempat tinggal"];
-function authenticate(role, message = "Unauthorized") {
-    return (req, res, next) => {
-        const token = req.header("x-auth-token");
-        if (!token) {
-            return res.status(401).send(message);
-        }
-        payload = jwt.verify(token, JWT_KEY);
-
-        if(role == "ALL" || role == ROLE[payload.role]){
-            next();
-        } else {
-            return res.status(401).send(message);
-        }
-    };
-}
 
 async function checkUrlEndpointExistInPricelist(url_endpoint) {
     let pricelist = await Pricelist.findOne({
@@ -72,7 +57,7 @@ async function checkUrlEndpointAndIdInPricelist({ url_endpoint, id }) {
     throw Error("pricelist can't have the same url_endpoint");
 }
 
-router.post('/admin/add', authenticate("Admin"), async function (req, res) {
+router.post('/admin/add', auth.authenticate("admin"), async function (req, res) {
     let { feature_name, url_endpoint, price } = req.body;
     const validator = Joi.object({
         feature_name: Joi.string().required(),
@@ -89,7 +74,7 @@ router.post('/admin/add', authenticate("Admin"), async function (req, res) {
     return res.status(201).send(await self.addPricelist(feature_name, url_endpoint, price));
 });
 
-router.put('/admin/update/:id', authenticate("Admin"), async function (req, res) {
+router.put('/admin/update/:id', auth.authenticate("admin"), async function (req, res) {
     let { id } = req.params;
     let { feature_name, url_endpoint, price } = req.body;
     feature_name = feature_name == undefined ? null : feature_name;

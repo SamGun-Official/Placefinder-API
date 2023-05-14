@@ -7,6 +7,8 @@ const Joi = require("joi").extend(require("@joi/date"));
 const jwt = require('jsonwebtoken');
 const JWT_KEY = "secret_key";
 
+const auth = require('../controllers/auth.controller');
+
 //Models:
 const User = require('../models/user');
 const Notification = require('../models/notification');
@@ -17,24 +19,6 @@ const Usage = require('../models/usage');
 const Accomodation = require('../models/accomodation');
 
 const router = express.Router();
-
-let payload;
-const ROLE = ["Admin", "Developer", "Penyedia tempat tinggal"];
-function authenticate(role, message = "Unauthorized") {
-    return (req, res, next) => {
-        const token = req.header("x-auth-token");
-        if (!token) {
-            return res.status(401).send(message);
-        }
-        payload = jwt.verify(token, JWT_KEY);
-
-        if(role == "ALL" || role == ROLE[payload.role]){
-            next();
-        } else {
-            return res.status(401).send(message);
-        }
-    };
-}
 
 async function checkAccomodationExistById(id) {
     if (await Accomodation.findByPk(id)) {
@@ -48,7 +32,7 @@ router.get('/', async function (req, res) {
     return res.status(200).send(accomodations);
 });
 
-router.get('/admin/search', authenticate("Admin"), async function (req, res) {
+router.get('/admin/search', auth.authenticate(["admin"]), async function (req, res) {
     let { id, name, address } = req.query;
     if (id) {
         const schema = Joi.object({

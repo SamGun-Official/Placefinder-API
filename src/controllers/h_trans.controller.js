@@ -41,8 +41,8 @@ const PAYMENT_STATUS = {
     3: "failed"
 }
 
-self.get = async()=>{
-
+self.getAll = async()=>{
+    return await H_trans.findAll();
 }
 
 self.getById = async() =>{

@@ -8,6 +8,8 @@ const Joi = require("joi").extend(require("@joi/date"));
 const jwt = require('jsonwebtoken');
 const JWT_KEY = "secret_key";
 
+const auth = require('../controllers/auth.controller');
+
 //Models:
 const User = require('../models/user');
 const Notification = require('../models/notification');
@@ -18,27 +20,6 @@ const Pricelist = require('../models/pricelist');
 
 const router = express.Router();
 
-//middleware :
-function authenticate(role,message="Unauthorized"){
-
-    return (req,res,next)=>{
-        const token = req.header("x-auth-token");
-        if(!token){
-            return res.status(401).send("Unauthorized");
-        }
-        const payload = jwt.verify(token,JWT_KEY);
-
-        console.log(payload.role)
-        if(role == "ALL" || role == payload.role){
-            req.body = {...req.body,...payload};
-            next();
-        }
-        else {
-            return res.status(401).send(message);
-        }
-    }
-}
-
 
 function formatRupiah(amount){
     let formattedAmount = amount.toLocaleString("id-ID", { style: "currency", currency: "IDR" });
@@ -46,7 +27,7 @@ function formatRupiah(amount){
 }
 
 
-router.get('/developer/total',[authenticate(1,"role tidak sesuai")], async function (req,res) {
+router.get('/developer/total',[auth.authenticate("developer","role tidak sesuai")], async function (req,res) {
 
     const status = req.query.status;
     //hanya ada paid dan unpaid 
@@ -117,7 +98,7 @@ router.get('/developer/total',[authenticate(1,"role tidak sesuai")], async funct
 });
 
 //get specify usage 
-router.get('/developer/:id?',[authenticate(1,"role tidak sesuai")], async function (req,res){
+router.get('/developer/:id?',[auth.authenticate("developer","role tidak sesuai")], async function (req,res){
     const id = req.params.id;
     const username = req.body.username;
 
