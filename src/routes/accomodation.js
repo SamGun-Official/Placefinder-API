@@ -8,17 +8,35 @@ const jwt = require('jsonwebtoken');
 const JWT_KEY = "secret_key";
 
 //Models:
-const user = require('../models/user');
-const notification = require('../models/notification');
-const h_trans = require('../models/h_trans');
-const d_trans = require('../models/d_trans');
-const pricelist = require('../models/pricelist');
-const usage = require('../models/usage');
+const User = require('../models/user');
+const Notification = require('../models/notification');
+const H_trans = require('../models/h_trans');
+const D_trans = require('../models/d_trans');
+const Pricelist = require('../models/pricelist');
+const Usage = require('../models/usage');
 const Accomodation = require('../models/accomodation');
 
 const router = express.Router();
 
-async function isAccomodationExistById(id) {
+let payload;
+const ROLE = ["Admin", "Developer", "Penyedia tempat tinggal"];
+function authenticate(role, message = "Unauthorized") {
+    return (req, res, next) => {
+        const token = req.header("x-auth-token");
+        if (!token) {
+            return res.status(401).send(message);
+        }
+        payload = jwt.verify(token, JWT_KEY);
+
+        if(role == "ALL" || role == ROLE[payload.role]){
+            next();
+        } else {
+            return res.status(401).send(message);
+        }
+    };
+}
+
+async function checkAccomodationExistById(id) {
     if (await Accomodation.findByPk(id)) {
         return true;
     }
@@ -30,43 +48,26 @@ router.get('/', async function (req, res) {
     return res.status(200).send(accomodations);
 });
 
-router.get('/search', async function (req, res) {
+router.get('/admin/search', authenticate("Admin"), async function (req, res) {
     let { id, name, address } = req.query;
     if (id) {
-        const schema_id = Joi.object({
-            id: Joi.number().external(isAccomodationExistById)
+        const schema = Joi.object({
+            id: Joi.number().external(checkAccomodationExistById)
         })
         try {
-            await schema_id.validateAsync({ id });
-            let accomodation = await Accomodation.findByPk(id);
-            return res.status(200).send(accomodation);
+            await schema.validateAsync({ id });
+            return res.status(200).send(await self.getAccomodationById(id));
         } catch (e) {
             return res.status(404).send({ message: e.message });
         }
     }
     else if (name) {
-        let accomodations = await Accomodation.findAll({
-            where: {
-                name: {
-                    [Op.like]: `%${name}%`
-                }
-            }
-        });
-        return res.status(200).send(accomodations);
+        return res.status(200).send(await self.getAccomodationsByName(name));
     }
     else if (address) {
-        let accomodations = await Accomodation.findAll({
-            where: {
-                address: {
-                    [Op.like]: `%${address}%`
-                }
-            }
-        });
-        return res.status(200).send(accomodations);
+        return res.status(200).send(await self.getAccomoddationsByAddress(address));
     }
-    return res.status(400).send({ message: "Wrong Input!" });
+    return res.status(400).send({ message: "Please fill field id or name or address!" });
 });
-
-
 
 module.exports = router;

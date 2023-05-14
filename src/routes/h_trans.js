@@ -1,6 +1,6 @@
 const self = require('../controllers/h_trans.controller');
 const dtransController = require('../controllers/d_trans.controller');
-const {response} = require("express");
+const { response } = require("express");
 const express = require("express");
 const { Op, DATE } = require("sequelize");
 const db = require('../config/sequelize');
@@ -21,18 +21,18 @@ const Usage = require('../models/usage');
 const router = express.Router();
 
 //middleware :
-function authenticate(role,message="Unauthorized"){
+function authenticate(role, message = "Unauthorized") {
 
-    return (req,res,next)=>{
+    return (req, res, next) => {
         const token = req.header("x-auth-token");
-        if(!token){
+        if (!token) {
             return res.status(401).send("Unauthorized");
         }
-        const payload = jwt.verify(token,JWT_KEY);
+        const payload = jwt.verify(token, JWT_KEY);
 
         console.log(payload.role)
-        if(role == "ALL" || role == payload.role){
-            req.body = {...req.body,...payload};
+        if (role == "ALL" || role == payload.role) {
+            req.body = { ...req.body, ...payload };
             next();
         }
         else {
@@ -41,10 +41,11 @@ function authenticate(role,message="Unauthorized"){
     }
 }
 
-function formatRupiah(amount){
+function formatRupiah(amount) {
     let formattedAmount = amount.toLocaleString("id-ID", { style: "currency", currency: "IDR" });
     return formattedAmount
 }
+
 
 router.get('/developer', [authenticate(1,"role tidak sesuai")],async function (req,res){
    const username = req.body.username;
@@ -60,5 +61,6 @@ router.get('/developer', [authenticate(1,"role tidak sesuai")],async function (r
     const htrans = await self.getByIdUser(user.id);
     return res.status(200).send(htrans);
 });
+
 
 module.exports = router;
