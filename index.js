@@ -1,8 +1,10 @@
 /* ===== SETUP ===== */
 const express = require("express");
+const cors = require("cors");
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cors());
 
 /* ===== ORM ===== */
 const User = require("./src/models/user");
@@ -37,6 +39,12 @@ app.use("/api/transactions", h_trans);
 app.use("/api/d_trans", d_trans);
 app.use("/api/pricelists", pricelists);
 app.use("/api/usages", usage);
+
+app.get(process.env.BASE_URL, (req, res) => {
+	return res.status(200).send({
+		message: "This request has been made successfully!",
+	});
+});
 
 /* ===== DEFAULT ===== */
 const port = 3000;
