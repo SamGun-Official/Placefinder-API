@@ -11,7 +11,7 @@ module.exports = (sequelize) => {
 				foreignKey: "id_usage",
 			});
 
-			this.belongsTo(models.Pricelist, {
+			this.belongsTo(models.PriceList, {
 				foreignKey: "id_pricelist",
 			});
 
