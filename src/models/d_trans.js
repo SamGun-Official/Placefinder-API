@@ -1,88 +1,66 @@
-const { Model, DataTypes, Op } = require('sequelize');
-const Accomodation = require('./accomodation');
-const User = require('./user');
-const H_trans = require('./h_trans');
-const Usage = require('./usage');
-const db = require('../config/sequelize');
-const sequelize = db.sequelize;
+"use strict";
 
+const { DataTypes, Model } = require("sequelize");
+const H_trans = require("./h_trans");
+const Usage = require("./usage");
 
-class D_trans extends Model {
-  //association
-  static associate(models) {
-    this.belongsTo(models.H_trans,{
-      foreignKey: 'id_htrans'
-    });
+module.exports = (sequelize) => {
+	class D_trans extends Model {
+		static associate(models) {
+			this.belongsTo(models.H_trans, {
+				foreignKey: "id_htrans",
+			});
 
-    
-    this.belongsTo(models.Usage,{
-      foreignKey: 'id_usage'
-    });
-  }
+			this.belongsTo(models.Usage, {
+				foreignKey: "id_usage",
+			});
+		}
+	}
 
-  // static associate(H_trans) {
-  //   D_trans.belongsTo(H_trans,{
-  //     foreignKey: 'id_htrans'
-  //   });
-  // }
+	D_trans.init(
+		{
+			id: {
+				type: DataTypes.INTEGER,
+				allowNull: false,
+				primaryKey: true,
+				autoIncrement: true,
+			},
+			id_htrans: {
+				type: DataTypes.INTEGER,
+				allowNull: false,
+				references: {
+					model: H_trans,
+					key: "id",
+				},
+			},
+			id_usage: {
+				type: DataTypes.INTEGER,
+				allowNull: false,
+				references: {
+					model: Usage,
+					key: "id",
+				},
+			},
+			subtotal: {
+				type: DataTypes.INTEGER,
+				allowNull: false,
+			},
+			status: {
+				type: DataTypes.INTEGER,
+				allowNull: false,
+			},
+		},
+		{
+			sequelize: sequelize,
+			modelName: "D_trans",
+			tableName: "d_trans",
+			paranoid: false,
+			underscored: false,
+			timestamps: true,
+			createdAt: "created_at",
+			updatedAt: "updated_at",
+		}
+	);
 
-  // static associate(Usage) {
-  //   D_trans.belongsTo(Usage,{
-  //     foreignKey: 'id_usage'
-  //   });
-  // }
-
-}
-
-D_trans.init({
-  id: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-    primaryKey: true,
-    autoIncrement: true
-  },
-  id_htrans: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-    primaryKey: false,
-    autoIncrement: false,
-    references: {
-      model: H_trans,
-      key: 'id'
-    }
-  },
-  id_usage: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-    primaryKey: false,
-    autoIncrement: false,
-    references: {
-      model: Usage,
-      key: 'id'
-    }
-  },
-  subtotal: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-    primaryKey: false,
-    autoIncrement: false
-  },
-  status: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-    primaryKey: false,
-    autoIncrement: false
-  }
-}, {
-  sequelize,
-  modelName: 'D_trans',
-  tableName: 'd_trans',
-  paranoid: false,
-  underscored: false,
-  timestamps: true,
-  createdAt: 'created_at',
-  updatedAt: 'updated_at'
-});
-
-module.exports = D_trans;
-
+	return D_trans;
+};

@@ -1,4 +1,7 @@
 /* ===== SETUP ===== */
+require("dotenv").config();
+
+const database = require("./src/config/sequelize");
 const express = require("express");
 const cors = require("cors");
 const app = express();
@@ -7,21 +10,21 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
 /* ===== ORM ===== */
-const User = require("./src/models/user");
-const Accomodation = require("./src/models/accomodation");
-const Notification = require("./src/models/notification");
-const H_trans = require("./src/models/h_trans");
-const D_trans = require("./src/models/d_trans");
-const Pricelist = require("./src/models/pricelist");
-const Usage = require("./src/models/usage");
+const User = require("./src/models/user")(database);
+const Accomodation = require("./src/models/accomodation")(database);
+const Notification = require("./src/models/notification")(database);
+const H_trans = require("./src/models/h_trans")(database);
+const D_trans = require("./src/models/d_trans")(database);
+const PriceList = require("./src/models/pricelist")(database);
+const Usage = require("./src/models/usage")(database);
 
 User.associate({ Notification, Accomodation, H_trans, Usage });
 Accomodation.associate({ Notification, User });
 Notification.associate({ User, Accomodation });
 H_trans.associate({ User, D_trans });
 D_trans.associate({ H_trans, Usage });
-Pricelist.associate({ Usage });
-Usage.associate({ D_trans, Pricelist, User });
+PriceList.associate({ Usage });
+Usage.associate({ D_trans, PriceList, User });
 
 /* ===== ROUTES ===== */
 const users = require("./src/routes/user");

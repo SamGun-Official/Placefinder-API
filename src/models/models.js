@@ -1,9 +1,12 @@
+const database = require("../config/sequelize");
+
 let self = {};
-self.D_trans = require('../models/d_trans');
-self.H_trans = require('../models/h_trans');
-self.Notification = require('../models/notification');
-self.Pricelist = require('../models/pricelist');
-self.Usage = require('../models/usage');
-self.User = require('../models/user');
+self.User = require("../models/user")(database);
+self.Accomodation = require("../models/accomodation")(database);
+self.Notification = require("../models/notification")(database);
+self.H_trans = require("../models/h_trans")(database);
+self.D_trans = require("../models/d_trans")(database);
+self.PriceList = require("../models/pricelist")(database);
+self.Usage = require("../models/usage")(database);
 
 module.exports = self;

@@ -1,9 +1,10 @@
 require("dotenv").config();
 
-const sequelize = require("sequelize");
-const connection = new sequelize(process.env.DB_DATABASE, process.env.DB_USERNAME, process.env.DB_PASSWORD, {
+module.exports = {
 	host: process.env.DB_HOSTNAME,
-	port: 3306,
+	database: process.env.DB_DATABASE,
+	username: process.env.DB_USERNAME,
+	password: process.env.DB_PASSWORD,
 	dialect: process.env.DB_DIALECT,
 	dialectOptions: {
 		dateStrings: true,
@@ -14,6 +15,4 @@ const connection = new sequelize(process.env.DB_DATABASE, process.env.DB_USERNAM
 		collate: "utf8mb4_general_ci",
 	},
 	timezone: process.env.DB_TIMEZONE,
-});
-
-module.exports = connection;
+};

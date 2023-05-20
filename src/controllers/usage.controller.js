@@ -1,227 +1,210 @@
+const database = require("../config/sequelize");
 const express = require("express");
+const { Op } = require("sequelize");
 const app = express();
-app.use(express.json())
-app.use(express.urlencoded({extended: true}))
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-
-//models
-const User = require('../models/user');
-const H_trans = require('../models/h_trans');
-const D_trans = require('../models/d_trans');
-const Accomodation = require('../models/accomodation');
-const Notification = require('../models/notification');
-const Usage = require('../models/usage');
-
-const {Op} = require('sequelize');
-const PriceList = require("../models/pricelist");
-let self = {};
+const User = require("../models/user")(database);
+const Accomodation = require("../models/accomodation")(database);
+const Notification = require("../models/notification")(database);
+const H_trans = require("../models/h_trans")(database);
+const D_trans = require("../models/d_trans")(database);
+const PriceList = require("../models/pricelist")(database);
+const Usage = require("../models/usage")(database);
 
 //functions
-function formattedStringDate(ts){
-
-    let date_ob = new Date(ts);
-    let date = date_ob.getDate();
-    let month = date_ob.getMonth() + 1;
-    let year = date_ob.getFullYear();
-
-    
-    return(year + "-" + month + "-" + date);
+function formattedStringDate(ts) {
+	let date_ob = new Date(ts);
+	let date = date_ob.getDate();
+	let month = date_ob.getMonth() + 1;
+	let year = date_ob.getFullYear();
+	return year + "-" + month + "-" + date;
 }
 
-
-function formatRupiah(amount){
-    let formattedAmount = amount.toLocaleString("id-ID", { style: "currency", currency: "IDR" });
-    return formattedAmount
+function formatRupiah(amount) {
+	let formattedAmount = amount.toLocaleString("id-ID", { style: "currency", currency: "IDR" });
+	return formattedAmount;
 }
 
-self.getAllUserUsage = async(id)=>{
-    let usages = await Usage.findAll({
-        attributes:['id','id_pricelist','id_user','date','subtotal','status'],
-        include:[
-            {
-                model: PriceList,
-                attributes: ['id', 'price', 'url_endpoint', 'feature_name']
+let self = {};
+self.getAllUserUsage = async (id) => {
+	let usages = await Usage.findAll({
+		attributes: ["id", "id_pricelist", "id_user", "date", "subtotal", "status"],
+		include: [
+			{
+				model: PriceList,
+				attributes: ["id", "price", "url_endpoint", "feature_name"],
+			},
+			{
+				model: User,
+				attributes: ["id", "username"],
+			},
+		],
+	});
 
-            },
-            {
-                model: User,
-                attributes: ['id', 'username']
-            }
-        ]
-    });
+	let usages_result = [];
+	for (let i = 0; i < usages.length; i++) {
+		if (usages[i].id_user == id) {
+			usages_result.push({
+				id: usages[i].id,
+				user: {
+					id: usages[i].User.id,
+					username: usages[i].User.username,
+				},
+				date: formattedStringDate(usages[i].date),
+				pricelist: {
+					id: usages[i].id_pricelist,
+					feature_name: usages[i].Pricelist.feature_name,
+					url_endpoint: usages[i].Pricelist.url_endpoint,
+					price: formatRupiah(usages[i].Pricelist.price),
+				},
+				subtotal: formatRupiah(usages[i].subtotal),
+			});
+		}
+	}
 
-    let usages_result = [];
-    for(let i=0;i<usages.length;i++){
-        if(usages[i].id_user==id){
-            usages_result.push({
-                id: usages[i].id,
-                user:{
-                    id: usages[i].User.id,
-                    username: usages[i].User.username
-                },
-                date: formattedStringDate(usages[i].date),
-                pricelist:{
-                    id: usages[i].id_pricelist,
-                    feature_name: usages[i].Pricelist.feature_name,
-                    url_endpoint: usages[i].Pricelist.url_endpoint,
-                    price: formatRupiah(usages[i].Pricelist.price),
-                },
-                subtotal:formatRupiah(usages[i].subtotal)
-            }); 
-        }
-    }
+	return usages_result;
+};
+self.getUsageTotal = async (id) => {
+	let usages = await Usage.sum("subtotal", {
+		where: {
+			id_user: id,
+		},
+	});
+	return usages;
+};
+self.getUsageTotalPaid = async (id) => {
+	let usages = await Usage.sum("subtotal", {
+		where: {
+			id_user: id,
+			status: 0,
+		},
+	});
+	return usages;
+};
+self.getUsageTotalUnpaid = async (id) => {
+	let usages = await Usage.sum("subtotal", {
+		where: {
+			id_user: id,
+			status: 1,
+		},
+	});
+	return usages;
+};
+self.getUsagePaid = async (id) => {
+	let usages = await Usage.findAll({
+		attributes: ["id", "id_pricelist", "id_user", "date", "subtotal", "status"],
+		include: [
+			{
+				model: PriceList,
+				attributes: ["id", "price", "url_endpoint", "feature_name"],
+			},
+			{
+				model: User,
+				attributes: ["id", "username"],
+			},
+		],
+	});
 
-    return usages_result;
-}
+	let usages_result = [];
+	for (let i = 0; i < usages.length; i++) {
+		if (usages[i].id_user == id && usages[i].status == 0) {
+			usages_result.push({
+				id: usages[i].id,
+				user: {
+					id: usages[i].User.id,
+					username: usages[i].User.username,
+				},
+				date: formattedStringDate(usages[i].date),
+				pricelist: {
+					id: usages[i].id_pricelist,
+					feature_name: usages[i].Pricelist.feature_name,
+					url_endpoint: usages[i].Pricelist.url_endpoint,
+					price: formatRupiah(usages[i].Pricelist.price),
+				},
+				subtotal: formatRupiah(usages[i].subtotal),
+			});
+		}
+	}
 
+	return usages_result;
+};
+self.getUsageUnpaid = async (id) => {
+	let usages = await Usage.findAll({
+		attributes: ["id", "id_pricelist", "id_user", "date", "subtotal", "status"],
+		include: [
+			{
+				model: PriceList,
+				attributes: ["id", "price", "url_endpoint", "feature_name"],
+			},
+			{
+				model: User,
+				attributes: ["id", "username"],
+			},
+		],
+	});
 
-self.getUsageTotal = async(id)=>{
-    let usages = await Usage.sum('subtotal', {
-        where: {
-            id_user: id,
-        }
-    });
-    return usages;
-}
+	let usages_result = [];
+	for (let i = 0; i < usages.length; i++) {
+		if (usages[i].id_user == id && usages[i].status == 1) {
+			usages_result.push({
+				id: usages[i].id,
+				user: {
+					id: usages[i].User.id,
+					username: usages[i].User.username,
+				},
+				date: formattedStringDate(usages[i].date),
+				pricelist: {
+					id: usages[i].id_pricelist,
+					feature_name: usages[i].Pricelist.feature_name,
+					url_endpoint: usages[i].Pricelist.url_endpoint,
+					price: formatRupiah(usages[i].Pricelist.price),
+				},
+				subtotal: formatRupiah(usages[i].subtotal),
+			});
+		}
+	}
 
-self.getUsageTotalPaid = async(id) => {
-    let usages = await Usage.sum('subtotal', {
-        where: {
-            id_user: id,
-            status: 0
-        }
-    });
-    return usages;
-}
+	return usages_result;
+};
+self.getUsageById = async (id, id_user) => {
+	let usages = await Usage.findAll({
+		attributes: ["id", "id_pricelist", "id_user", "date", "subtotal", "status"],
+		include: [
+			{
+				model: PriceList,
+				attributes: ["id", "price", "url_endpoint", "feature_name"],
+			},
+			{
+				model: User,
+				attributes: ["id", "username"],
+			},
+		],
+	});
 
-self.getUsageTotalUnpaid = async(id) => {
-    let usages = await Usage.sum('subtotal', {
-        where: {
-            id_user: id,
-            status: 1
-        }
-    });
-    return usages;
-}
+	let usages_result = {};
+	for (let i = 0; i < usages.length; i++) {
+		if (usages[i].id_user == id_user && usages[i].id == id) {
+			usages_result = {
+				id: usages[i].id,
+				user: {
+					id: usages[i].User.id,
+					username: usages[i].User.username,
+				},
+				date: formattedStringDate(usages[i].date),
+				pricelist: {
+					id: usages[i].id_pricelist,
+					feature_name: usages[i].Pricelist.feature_name,
+					url_endpoint: usages[i].Pricelist.url_endpoint,
+					price: formatRupiah(usages[i].Pricelist.price),
+				},
+				subtotal: formatRupiah(usages[i].subtotal),
+			};
+		}
+	}
 
-self.getUsagePaid = async(id) =>{
-    let usages = await Usage.findAll({
-        attributes:['id','id_pricelist','id_user','date','subtotal','status'],
-        include:[
-            {
-                model: PriceList,
-                attributes: ['id', 'price', 'url_endpoint', 'feature_name']
-
-            },
-            {
-                model: User,
-                attributes: ['id', 'username']
-            }
-        ]
-    });
-
-    let usages_result = [];
-    for(let i=0;i<usages.length;i++){
-        if(usages[i].id_user==id && usages[i].status==0){
-            usages_result.push({
-                id: usages[i].id,
-                user:{
-                    id: usages[i].User.id,
-                    username: usages[i].User.username
-                },
-                date: formattedStringDate(usages[i].date),
-                pricelist:{
-                    id: usages[i].id_pricelist,
-                    feature_name: usages[i].Pricelist.feature_name,
-                    url_endpoint: usages[i].Pricelist.url_endpoint,
-                    price: formatRupiah(usages[i].Pricelist.price),
-                },
-                subtotal:formatRupiah(usages[i].subtotal)
-            }); 
-        }
-    }
-
-    return usages_result;
-}
-
-self.getUsageUnpaid = async(id) => {
-    let usages = await Usage.findAll({
-        attributes:['id','id_pricelist','id_user','date','subtotal','status'],
-        include:[
-            {
-                model: PriceList,
-                attributes: ['id', 'price', 'url_endpoint', 'feature_name']
-
-            },
-            {
-                model: User,
-                attributes: ['id', 'username']
-            }
-        ]
-    });
-
-    let usages_result = [];
-    for(let i=0;i<usages.length;i++){
-        if(usages[i].id_user==id && usages[i].status==1){
-            usages_result.push({
-                id: usages[i].id,
-                user:{
-                    id: usages[i].User.id,
-                    username: usages[i].User.username
-                },
-                date: formattedStringDate(usages[i].date),
-                pricelist:{
-                    id: usages[i].id_pricelist,
-                    feature_name: usages[i].Pricelist.feature_name,
-                    url_endpoint: usages[i].Pricelist.url_endpoint,
-                    price: formatRupiah(usages[i].Pricelist.price),
-                },
-                subtotal:formatRupiah(usages[i].subtotal)
-            }); 
-        }
-    }
-
-    return usages_result;
-}
-
-self.getUsageById = async(id, id_user)=>{
-    let usages = await Usage.findAll({
-        attributes:['id','id_pricelist','id_user','date','subtotal','status'],
-        include:[
-            {
-                model: PriceList,
-                attributes: ['id', 'price', 'url_endpoint', 'feature_name']
-
-            },
-            {
-                model: User,
-                attributes: ['id', 'username']
-            }
-        ]
-    });
-
-    let usages_result = {};
-    for(let i=0;i<usages.length;i++){
-        if(usages[i].id_user==id_user && usages[i].id==id){
-            usages_result = {
-                id: usages[i].id,
-                user:{
-                    id: usages[i].User.id,
-                    username: usages[i].User.username
-                },
-                date: formattedStringDate(usages[i].date),
-                pricelist:{
-                    id: usages[i].id_pricelist,
-                    feature_name: usages[i].Pricelist.feature_name,
-                    url_endpoint: usages[i].Pricelist.url_endpoint,
-                    price: formatRupiah(usages[i].Pricelist.price),
-                },
-                subtotal:formatRupiah(usages[i].subtotal)
-            }; 
-        }
-    }
-
-    return usages_result;
-}
+	return usages_result;
+};
 
 module.exports = self;
