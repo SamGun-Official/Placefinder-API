@@ -1,7 +1,7 @@
 ---
 deployment:
   tasks:
-    - export DEPLOYPATH=/home/samgunof/nodejs/kpop_database/
+    - export DEPLOYPATH=/home/samgunof/nodejs/web_service_project/
     - /bin/cp -R src $DEPLOYPATH
     - /bin/cp -R uploads $DEPLOYPATH
     - /bin/cp .sequelizerc $DEPLOYPATH
