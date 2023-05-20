@@ -1,17 +1,9 @@
-const database = require("../config/sequelize");
 const express = require("express");
 const { Op } = require("sequelize");
+const models = require("../models/models");
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
-const User = require("../models/user")(database);
-const Accomodation = require("../models/accomodation")(database);
-const Notification = require("../models/notification")(database);
-const H_trans = require("../models/h_trans")(database);
-const D_trans = require("../models/d_trans")(database);
-const PriceList = require("../models/pricelist")(database);
-const Usage = require("../models/usage")(database);
 
 const dtransController = require("../controllers/d_trans.controller");
 const moment = require("moment");
@@ -21,7 +13,6 @@ function formattedStringDate(ts) {
 	let date = date_ob.getDate();
 	let month = date_ob.getMonth() + 1;
 	let year = date_ob.getFullYear();
-
 	return year + "-" + month + "-" + date;
 }
 
@@ -62,11 +53,11 @@ const PAYMENT_STATUS = {
 
 let self = {};
 self.getAll = async () => {
-	let h_trans = await H_trans.findAll({
+	let h_trans = await models.H_trans.findAll({
 		attributes: ["id", "number", "id_user", "date", "total", "payment_status", "status"],
 		include: [
 			{
-				model: User,
+				model: models.User,
 				attributes: ["id", "username", "phone_number", "email", "name"],
 			},
 		],
@@ -77,11 +68,11 @@ self.getAll = async () => {
 };
 self.getById = async () => {};
 self.getByIdUser = async (id_user) => {
-	let h_trans = await H_trans.findAll({
+	let h_trans = await models.H_trans.findAll({
 		attributes: ["id", "number", "id_user", "date", "total", "payment_status", "status"],
 		include: [
 			{
-				model: User,
+				model: models.User,
 				attributes: ["id", "username", "phone_number", "email", "name"],
 				where: {
 					id_user: id_user,
@@ -94,11 +85,11 @@ self.getByIdUser = async (id_user) => {
 	return await formattedH_trans(h_trans);
 };
 self.getByNumber = async (number) => {
-	let h_trans = await H_trans.findAll({
+	let h_trans = await models.H_trans.findAll({
 		attributes: ["id", "number", "id_user", "date", "total", "payment_status", "status"],
 		include: [
 			{
-				model: User,
+				model: models.User,
 				attributes: ["id", "username", "phone_number", "email", "name"],
 			},
 		],
@@ -114,11 +105,11 @@ self.getByDate = async (start, end) => {
 	let start_date, end_date;
 	start_date = start ? moment(start, "DD/MM/YYYY").format("YYYY-MM-DD") : "2000-01-01";
 	end_date = end ? moment(end, "DD/MM/YYYY").format("YYYY-MM-DD") : new Date();
-	let h_trans = await H_trans.findAll({
+	let h_trans = await models.H_trans.findAll({
 		attributes: ["id", "number", "id_user", "date", "total", "payment_status", "status"],
 		include: [
 			{
-				model: User,
+				model: models.User,
 				attributes: ["id", "username", "phone_number", "email", "name"],
 			},
 		],

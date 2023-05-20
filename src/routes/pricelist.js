@@ -1,26 +1,17 @@
-const database = require("../config/sequelize");
 const self = require("../controllers/pricelist.controller");
 const { response } = require("express");
 const express = require("express");
 const { Op, DATE } = require("sequelize");
 const Joi = require("joi").extend(require("@joi/date"));
+const models = require("../models/models");
 
 const jwt = require("jsonwebtoken");
 const JWT_KEY = "secret_key";
 
 const auth = require("../controllers/auth.controller");
 
-//Models:
-const User = require("../models/user")(database);
-const Accomodation = require("../models/accomodation")(database);
-const Notification = require("../models/notification")(database);
-const H_trans = require("../models/h_trans")(database);
-const D_trans = require("../models/d_trans")(database);
-const PriceList = require("../models/pricelist")(database);
-const Usage = require("../models/usage")(database);
-
 async function checkUrlEndpointExistInPricelist(url_endpoint) {
-	let pricelist = await PriceList.findOne({
+	let pricelist = await models.PriceList.findOne({
 		where: {
 			url_endpoint: url_endpoint,
 		},
@@ -32,7 +23,7 @@ async function checkUrlEndpointExistInPricelist(url_endpoint) {
 }
 
 async function checkIdExistInPricelist(id) {
-	let pricelist = await PriceList.findByPk(id);
+	let pricelist = await models.PriceList.findByPk(id);
 	if (pricelist) {
 		return true;
 	}
@@ -40,7 +31,7 @@ async function checkIdExistInPricelist(id) {
 }
 
 async function checkUrlEndpointAndIdInPricelist({ url_endpoint, id }) {
-	let pricelists = await PriceList.findAll({
+	let pricelists = await models.PriceList.findAll({
 		where: {
 			[Op.and]: {
 				url_endpoint: url_endpoint,

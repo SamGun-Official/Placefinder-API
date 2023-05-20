@@ -1,16 +1,10 @@
-const database = require("../config/sequelize");
 const express = require("express");
 const { Op } = require("sequelize");
+const models = require("../models/models");
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use("/assets", express.static("public"));
-
-const User = require("../models/user")(database);
-const Accomodation = require("../models/accomodation")(database);
-const Notification = require("../models/notification")(database);
-const H_trans = require("../models/h_trans")(database);
-const D_trans = require("../models/d_trans")(database);
 
 const jwt = require("jsonwebtoken");
 const JWT_KEY = "secret_key";
@@ -32,7 +26,7 @@ const upload = multer({
 
 let self = {};
 self.getAll = async (name) => {
-	let users = await User.findAll({
+	let users = await models.User.findAll({
 		where: {
 			name: {
 				[Op.substring]: name,
@@ -42,13 +36,13 @@ self.getAll = async (name) => {
 	return users;
 };
 self.getById = async (id) => {
-	let user = await User.findByPk(id);
+	let user = await models.User.findByPk(id);
 	return user;
 };
 self.get = async (id) => {};
 self.login = async (req, res) => {
 	let { username, password } = req.body;
-	let user = await User.findOne({
+	let user = await models.User.findOne({
 		where: {
 			username: username,
 		},
@@ -67,7 +61,7 @@ self.register = async (req, res) => {
 		JWT_KEY
 	);
 
-	const newUser = User.create({
+	const newUser = models.User.create({
 		username: username,
 		password: password,
 		name: name,
@@ -86,7 +80,7 @@ self.register = async (req, res) => {
 };
 self.edit = async (id, req, res) => {
 	let { username, password, name, email, role, phone_number, tanggal_lahir, id_card_number } = req.body;
-	let user = await User.findOne({
+	let user = await models.User.findOne({
 		where: {
 			id: id,
 		},
@@ -113,7 +107,7 @@ self.verify = async (id, req, res) => {
 		if (err) {
 			return err;
 		}
-		let user = await User.findOne({
+		let user = await models.User.findOne({
 			where: {
 				id: id,
 			},
@@ -126,7 +120,7 @@ self.verify = async (id, req, res) => {
 	return true;
 };
 self.getByUsername = async (username) => {
-	let user = await User.findOne({
+	let user = await models.User.findOne({
 		where: {
 			username: username,
 		},

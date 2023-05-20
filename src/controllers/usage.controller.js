@@ -1,17 +1,9 @@
-const database = require("../config/sequelize");
 const express = require("express");
 const { Op } = require("sequelize");
+const models = require("../models/models");
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
-const User = require("../models/user")(database);
-const Accomodation = require("../models/accomodation")(database);
-const Notification = require("../models/notification")(database);
-const H_trans = require("../models/h_trans")(database);
-const D_trans = require("../models/d_trans")(database);
-const PriceList = require("../models/pricelist")(database);
-const Usage = require("../models/usage")(database);
 
 //functions
 function formattedStringDate(ts) {
@@ -29,15 +21,15 @@ function formatRupiah(amount) {
 
 let self = {};
 self.getAllUserUsage = async (id) => {
-	let usages = await Usage.findAll({
+	let usages = await models.Usage.findAll({
 		attributes: ["id", "id_pricelist", "id_user", "date", "subtotal", "status"],
 		include: [
 			{
-				model: PriceList,
+				model: models.PriceList,
 				attributes: ["id", "price", "url_endpoint", "feature_name"],
 			},
 			{
-				model: User,
+				model: models.User,
 				attributes: ["id", "username"],
 			},
 		],
@@ -67,7 +59,7 @@ self.getAllUserUsage = async (id) => {
 	return usages_result;
 };
 self.getUsageTotal = async (id) => {
-	let usages = await Usage.sum("subtotal", {
+	let usages = await models.Usage.sum("subtotal", {
 		where: {
 			id_user: id,
 		},
@@ -75,7 +67,7 @@ self.getUsageTotal = async (id) => {
 	return usages;
 };
 self.getUsageTotalPaid = async (id) => {
-	let usages = await Usage.sum("subtotal", {
+	let usages = await models.Usage.sum("subtotal", {
 		where: {
 			id_user: id,
 			status: 0,
@@ -84,7 +76,7 @@ self.getUsageTotalPaid = async (id) => {
 	return usages;
 };
 self.getUsageTotalUnpaid = async (id) => {
-	let usages = await Usage.sum("subtotal", {
+	let usages = await models.Usage.sum("subtotal", {
 		where: {
 			id_user: id,
 			status: 1,
@@ -93,15 +85,15 @@ self.getUsageTotalUnpaid = async (id) => {
 	return usages;
 };
 self.getUsagePaid = async (id) => {
-	let usages = await Usage.findAll({
+	let usages = await models.Usage.findAll({
 		attributes: ["id", "id_pricelist", "id_user", "date", "subtotal", "status"],
 		include: [
 			{
-				model: PriceList,
+				model: models.PriceList,
 				attributes: ["id", "price", "url_endpoint", "feature_name"],
 			},
 			{
-				model: User,
+				model: models.User,
 				attributes: ["id", "username"],
 			},
 		],
@@ -135,11 +127,11 @@ self.getUsageUnpaid = async (id) => {
 		attributes: ["id", "id_pricelist", "id_user", "date", "subtotal", "status"],
 		include: [
 			{
-				model: PriceList,
+				model: models.PriceList,
 				attributes: ["id", "price", "url_endpoint", "feature_name"],
 			},
 			{
-				model: User,
+				model: models.User,
 				attributes: ["id", "username"],
 			},
 		],
@@ -169,15 +161,15 @@ self.getUsageUnpaid = async (id) => {
 	return usages_result;
 };
 self.getUsageById = async (id, id_user) => {
-	let usages = await Usage.findAll({
+	let usages = await models.Usage.findAll({
 		attributes: ["id", "id_pricelist", "id_user", "date", "subtotal", "status"],
 		include: [
 			{
-				model: PriceList,
+				model: models.PriceList,
 				attributes: ["id", "price", "url_endpoint", "feature_name"],
 			},
 			{
-				model: User,
+				model: models.User,
 				attributes: ["id", "username"],
 			},
 		],

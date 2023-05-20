@@ -1,20 +1,14 @@
-const database = require("../config/sequelize");
 const express = require("express");
 const { Op } = require("sequelize");
+const models = require("../models/models");
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-const User = require("../models/user")(database);
-const Accomodation = require("../models/accomodation")(database);
-const Notification = require("../models/notification")(database);
-const H_trans = require("../models/h_trans")(database);
-const D_trans = require("../models/d_trans")(database);
-
 let self = {};
 self.post = async (description, id_user, id_accomodation) => {
 	try {
-		await Notification.create({
+		await models.Notification.create({
 			description: description,
 			id_user: id_user,
 			id_accomodation: id_accomodation,
@@ -25,15 +19,15 @@ self.post = async (description, id_user, id_accomodation) => {
 	}
 };
 self.getAll = async (req, res) => {
-	let notifications = await Notification.findAll({
+	let notifications = await models.Notification.findAll({
 		attributes: ["id", "description", "id_user", "id_accomodation", "status"],
 		include: [
 			{
-				model: Accomodation,
+				model: models.Accomodation,
 				attributes: ["name", "address", "id"],
 			},
 			{
-				model: User,
+				model: models.User,
 				attributes: ["username"],
 			},
 		],
@@ -41,15 +35,15 @@ self.getAll = async (req, res) => {
 	return notifications;
 };
 self.get = async (id) => {
-	let notif = await Notification.findByPk(id, {
+	let notif = await models.Notification.findByPk(id, {
 		attributes: ["id", "description", "id_user", "id_accomodation", "status"],
 		include: [
 			{
-				model: Accomodation,
+				model: models.Accomodation,
 				attributes: ["name", "address", "id"],
 			},
 			{
-				model: User,
+				model: models.User,
 				attributes: ["username"],
 			},
 		],
@@ -57,15 +51,15 @@ self.get = async (id) => {
 	return notif;
 };
 self.getByUser = async (id_user) => {
-	let notif = await Notification.findAll({
+	let notif = await models.Notification.findAll({
 		attributes: ["id", "description", "id_user", "id_accomodation", "status"],
 		include: [
 			{
-				model: Accomodation,
+				model: models.Accomodation,
 				attributes: ["name", "address", "id"],
 			},
 			{
-				model: User,
+				model: models.User,
 				attributes: ["username"],
 			},
 		],

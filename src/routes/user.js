@@ -1,18 +1,9 @@
-const database = require("../config/sequelize");
 const self = require("../controllers/user.controller");
 const { response } = require("express");
 const express = require("express");
 const { Op, DATE } = require("sequelize");
 const Joi = require("joi").extend(require("@joi/date"));
-
-//Models:
-const User = require("../models/user")(database);
-const Accomodation = require("../models/accomodation")(database);
-const Notification = require("../models/notification")(database);
-const H_trans = require("../models/h_trans")(database);
-const D_trans = require("../models/d_trans")(database);
-const PriceList = require("../models/pricelist")(database);
-const Usage = require("../models/usage")(database);
+const models = require("../models/models");
 
 const jwt = require("jsonwebtoken");
 const JWT_KEY = "secret_key";
@@ -63,7 +54,7 @@ router.post("/login", async function (req, res) {
 		username: Joi.string()
 			.required()
 			.external(async function () {
-				let user_with_username = await User.findOne({
+				let user_with_username = await models.User.findOne({
 					where: {
 						username: {
 							[Op.eq]: username,
@@ -110,7 +101,7 @@ router.post("/register", async function (req, res) {
 		username: Joi.string()
 			.required()
 			.external(async function () {
-				let user_with_username = await User.findOne({
+				let user_with_username = await models.User.findOne({
 					where: {
 						username: {
 							[Op.eq]: username,
@@ -127,7 +118,7 @@ router.post("/register", async function (req, res) {
 			.email()
 			.required()
 			.external(async function () {
-				let user_with_email = await User.findOne({
+				let user_with_email = await models.User.findOne({
 					where: {
 						email: {
 							[Op.eq]: email,
@@ -140,13 +131,13 @@ router.post("/register", async function (req, res) {
 			}),
 
 		role: Joi.number().valid(2, 3).required(),
-		phone_number: Joi.string().pattern(new RegExp("^[0-9]{10,12}$")).required(),
+		phone_number: Joi.string().pattern(new RegExp("^[0-9]{10,13}$")).required(),
 		tanggal_lahir: Joi.date().max("now").required().format("DD/MM/YYYY"),
 		id_card_number: Joi.string()
-			.pattern(new RegExp("^[0-9]{14}$"))
+			.pattern(new RegExp("^[0-9]{16}$"))
 			.required()
 			.external(async function () {
-				let user_with_id_card_number = await User.findOne({
+				let user_with_id_card_number = await models.User.findOne({
 					where: {
 						id_card_number: {
 							[Op.eq]: id_card_number,
@@ -181,7 +172,7 @@ router.put("/:id/edit", async function (req, res) {
 	const schema = Joi.object({
 		username: Joi.string()
 			.external(async function () {
-				let user_with_username = await User.findOne({
+				let user_with_username = await models.User.findOne({
 					where: {
 						username: {
 							[Op.eq]: username,
@@ -202,7 +193,7 @@ router.put("/:id/edit", async function (req, res) {
 		email: Joi.string()
 			.email()
 			.external(async function () {
-				let user_with_email = await User.findOne({
+				let user_with_email = await models.User.findOne({
 					where: {
 						email: {
 							[Op.eq]: email,
@@ -223,7 +214,7 @@ router.put("/:id/edit", async function (req, res) {
 		id_card_number: Joi.string()
 			.pattern(new RegExp("^[0-9]{14}$"))
 			.external(async function () {
-				let user_with_id_card_number = await User.findOne({
+				let user_with_id_card_number = await models.User.findOne({
 					where: {
 						id_card_number: {
 							[Op.eq]: id_card_number,
@@ -256,7 +247,7 @@ router.post("/:id/verify", async function (req, res) {
 		id: Joi.number()
 			.required()
 			.external(async function () {
-				let user_with_id = await User.findOne({
+				let user_with_id = await models.User.findOne({
 					where: {
 						id: {
 							[Op.eq]: id,
@@ -290,7 +281,7 @@ router.put("/:id/verify/confirm", [auth.authenticate("admin", "role tidak sesuai
 		.min(1)
 		.required()
 		.external(async function () {
-			let user_with_id = await User.findOne({
+			let user_with_id = await models.User.findOne({
 				where: {
 					id: {
 						[Op.eq]: id,
@@ -314,7 +305,7 @@ router.put("/:id/verify/confirm", [auth.authenticate("admin", "role tidak sesuai
 		});
 	}
 
-	const user = await User.findOne({
+	const user = await models.User.findOne({
 		where: {
 			id: id,
 		},

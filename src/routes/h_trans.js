@@ -1,24 +1,16 @@
-const database = require("../config/sequelize");
 const self = require("../controllers/h_trans.controller");
 const dtransController = require("../controllers/d_trans.controller");
 const { response } = require("express");
 const express = require("express");
 const { Op, DATE } = require("sequelize");
 const Joi = require("joi").extend(require("@joi/date"));
+const models = require("../models/models");
 const { now } = require("moment");
 
 const jwt = require("jsonwebtoken");
 const JWT_KEY = "secret_key";
 
 const auth = require("../controllers/auth.controller");
-
-//Models:
-const User = require("../models/user")(database);
-const Accomodation = require("../models/accomodation")(database);
-const Notification = require("../models/notification")(database);
-const D_trans = require("../models/d_trans")(database);
-const PriceList = require("../models/pricelist")(database);
-const Usage = require("../models/usage")(database);
 
 function formatRupiah(amount) {
 	let formattedAmount = amount.toLocaleString("id-ID", { style: "currency", currency: "IDR" });
@@ -29,7 +21,7 @@ const router = express.Router();
 router.get("/", [auth.authenticate(["developer", "admin", "provider"], "role tidak sesuai")], async function (req, res) {
 	const username = auth.payload.username;
 	console.log(username);
-	const user = await User.findOne({
+	const user = await models.User.findOne({
 		where: {
 			username: {
 				[Op.eq]: username,
