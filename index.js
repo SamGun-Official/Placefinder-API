@@ -35,13 +35,13 @@ const d_trans = require("./src/routes/d_trans");
 const pricelists = require("./src/routes/pricelist");
 const usage = require("./src/routes/usage");
 
-app.use("/api/users", users);
-app.use("/api/accomodations", accomodations);
-app.use("/api/notifications", notifications);
-app.use("/api/transactions", h_trans);
-app.use("/api/d_trans", d_trans);
-app.use("/api/pricelists", pricelists);
-app.use("/api/usages", usage);
+app.use(process.env.BASE_URL + "/api/users", users);
+app.use(process.env.BASE_URL + "/api/accomodations", accomodations);
+app.use(process.env.BASE_URL + "/api/notifications", notifications);
+app.use(process.env.BASE_URL + "/api/transactions", h_trans);
+app.use(process.env.BASE_URL + "/api/d_trans", d_trans);
+app.use(process.env.BASE_URL + "/api/pricelists", pricelists);
+app.use(process.env.BASE_URL + "/api/usages", usage);
 
 app.get(process.env.BASE_URL, (req, res) => {
 	return res.status(200).send({
