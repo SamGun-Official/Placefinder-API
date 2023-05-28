@@ -1,7 +1,6 @@
 /* ===== SETUP ===== */
 require("dotenv").config();
 
-const database = require("./src/config/sequelize");
 const express = require("express");
 const cors = require("cors");
 const app = express();
@@ -10,13 +9,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
 /* ===== ORM ===== */
-const User = require("./src/models/user")(database);
-const Accomodation = require("./src/models/accomodation")(database);
-const Notification = require("./src/models/notification")(database);
-const H_trans = require("./src/models/h_trans")(database);
-const D_trans = require("./src/models/d_trans")(database);
-const PriceList = require("./src/models/pricelist")(database);
-const Usage = require("./src/models/usage")(database);
+const { User, Accomodation, Notification, H_trans, D_trans, PriceList, Usage } = require("./src/models/models");
 
 User.associate({ Notification, Accomodation, H_trans, Usage });
 Accomodation.associate({ Notification, User });

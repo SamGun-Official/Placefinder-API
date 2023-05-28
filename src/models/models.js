@@ -1,12 +1,12 @@
 const database = require("../config/sequelize");
 
 let self = {};
-self.User = require("../models/user")(database);
-self.Accomodation = require("../models/accomodation")(database);
-self.Notification = require("../models/notification")(database);
-self.H_trans = require("../models/h_trans")(database);
-self.D_trans = require("../models/d_trans")(database);
-self.PriceList = require("../models/pricelist")(database);
-self.Usage = require("../models/usage")(database);
+self.User = require("./user")(database);
+self.Accomodation = require("./accomodation")(database);
+self.Notification = require("./notification")(database);
+self.H_trans = require("./h_trans")(database);
+self.D_trans = require("./d_trans")(database);
+self.PriceList = require("./pricelist")(database);
+self.Usage = require("./usage")(database);
 
 module.exports = self;
