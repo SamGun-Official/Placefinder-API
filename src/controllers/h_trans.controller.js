@@ -75,7 +75,7 @@ self.getByIdUser = async (id_user) => {
 				model: models.User,
 				attributes: ["id", "username", "phone_number", "email", "name"],
 				where: {
-					id_user: id_user,
+					id: id_user,
 				},
 			},
 		],
