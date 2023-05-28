@@ -14,7 +14,7 @@ async function checkAccomodationExistById(id) {
 	if (await models.Accomodation.findByPk(id)) {
 		return true;
 	}
-	throw Error("ID Accomodation not found!");
+	throw Error("ID Accomodation tidak ditemukan!");
 }
 
 const router = express.Router();

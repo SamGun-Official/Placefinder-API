@@ -36,7 +36,7 @@ function generateInvoiceNumber(h_trans, date) {
 		}
 	}
 
-	invoiceNumber = clear_date + (jumlah + 1 + "").padStart(3, "0");
+	invoiceNumber = clear_date + (jumlah + 1 + "").padStart(5, "0");
 
 	return invoiceNumber;
 }

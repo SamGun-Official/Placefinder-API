@@ -1,19 +1,43 @@
 const self = require("../controllers/usage.controller");
 const { response } = require("express");
 const express = require("express");
-const { Op, DATE } = require("sequelize");
+const { Op, DATE, Sequelize, DOUBLE } = require("sequelize");
 const Joi = require("joi").extend(require("@joi/date"));
 const models = require("../models/models");
+const { getNumberByCurrentDate } = require("../controllers/formatting.controller");
 
 const jwt = require("jsonwebtoken");
 const JWT_KEY = "secret_key";
 
 const auth = require("../controllers/auth.controller");
 
+const payment_status = {
+	unpaid: 0,
+	pending: 1,
+	verified: 2,
+	failed: 3,
+};
+
 function formatRupiah(amount) {
 	let formattedAmount = amount.toLocaleString("id-ID", { style: "currency", currency: "IDR" });
 	return formattedAmount;
 }
+
+async function checkUserExistById(id_user) {
+	let user = await models.User.findByPk(id_user);
+	if (!user) {
+		throw Error('Id User tidak ditemukan!');
+	}
+	return true;
+}
+
+const midtransClient = require('midtrans-client');
+// Create Core API instance
+let coreApi = new midtransClient.CoreApi({
+	isProduction: false,
+	serverKey: 'SB-Mid-server-vMhuJY92Ihr9yLQcbX0Nnn9u',
+	clientKey: 'SB-Mid-client-sNFHj-ePZOzmxetY'
+})
 
 const router = express.Router();
 router.get("/developer/total", [auth.authenticate("developer", "role tidak sesuai")], async function (req, res) {
@@ -112,6 +136,102 @@ router.get("/developer/:id?", [auth.authenticate("developer", "role tidak sesuai
 			});
 		}
 	}
+});
+
+router.post('/checkout', [auth.authenticate("developer", "role tidak sesuai")], async function (req, res) {
+	let user = await models.User.findOne({ where: { username: auth.payload.username } });
+	let h_trans = await models.H_trans.findAll({
+		where: {
+			number: {
+				[Op.like]: `%${getNumberByCurrentDate()}%`
+			}
+		}
+	});
+	// let usages = await models.Usage.findAll({
+	// 	attributes: [
+	// 		[Sequelize.literal('PriceList.id'), 'id_pricelist'],
+	// 		[Sequelize.literal('PriceList.feature_name'), 'feature_name'],
+	// 		[Sequelize.literal('PriceList.url_endpoint'), 'url_endpoint'],
+	// 		[Sequelize.literal('PriceList.price'), 'price'],
+	// 		[Sequelize.literal('PriceList.status'), 'status'],
+	// 		[Sequelize.literal('PriceList.created_at'), 'created_at'],
+	// 		[Sequelize.literal('PriceList.updated_at'), 'updated_at'],
+	// 		[Sequelize.fn('COUNT', Sequelize.col('id_pricelist')), 'qty'],
+	// 		[Sequelize.fn('SUM', Sequelize.col('subtotal')), 'subtotal'],
+	// 	],
+	// 	include: [{
+	// 		model: models.PriceList,
+	// 		attributes: [],
+	// 	}],
+	// 	where: {
+	// 		status: 1,
+	// 		id_user: 38,
+	// 	},
+	// 	group: ['PriceList.id', 'Usage.id_pricelist'],
+	// });
+	let usages = await models.Usage.findAll({
+		where: {
+			id_user: 38,
+			status: 1
+		}
+	});
+	let total = 0;
+	for (const usage of usages) {
+		total += parseInt(usage.subtotal);
+	}
+	let number = getNumberByCurrentDate() + String(h_trans.length + 1).padStart(5, '0');
+	let parameter = {
+		"payment_type": "bank_transfer",
+		"transaction_details": {
+			"gross_amount": total,
+			"order_id": number
+		},
+		"bank_transfer": {
+			"bank": "bca"
+		},
+		"customer_details": {
+			"first_name": user.name,
+			"last_name": "",
+			"email": user.email,
+			"phone": user.phone_number
+		},
+		// "usages": usages
+	}
+	console.log(parameter);
+	coreApi.charge(parameter)
+		.then(async (checkoutResponse) => {
+			console.log('checkoutResponse', JSON.stringify(checkoutResponse));
+			try {
+				const h_trans = await models.H_trans.create({
+					number: number,
+					id_user: user.id,
+					date: new Date(),
+					total: total,
+					payment_status: payment_status["pending"],
+					status: 1
+				});
+				for (const usage of usages) {
+					const d_trans = await models.D_trans.create({
+						id_htrans: h_trans.id,
+						id_usage: usage.id,
+						subtotal: usage.subtotal,
+						status: payment_status["pending"]
+					});
+				}
+				return res.status(201).send({
+					usages: usages,
+					checkoutResponse: checkoutResponse
+				});
+			} catch (e) {
+				return res.status(500).send({
+					message: e.message
+				});
+			}
+		}).catch((e) => {
+			return res.status(500).send({
+				message: e.message
+			});
+		});
 });
 
 module.exports = router;
