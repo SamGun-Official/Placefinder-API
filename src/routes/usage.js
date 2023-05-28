@@ -87,6 +87,7 @@ router.get("/developer/total", [auth.authenticate("developer", "role tidak sesua
 router.get("/developer/:id?", [auth.authenticate("developer", "role tidak sesuai")], async function (req, res) {
 	const id = req.params.id;
 	const username = auth.payload.username;
+	console.log(username);
 
 	const user = await models.User.findOne({
 		where: {
