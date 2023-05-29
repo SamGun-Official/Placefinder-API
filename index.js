@@ -42,24 +42,6 @@ app.get(process.env.BASE_URL, (req, res) => {
 		url: {
 			documentation: "-",
 		},
-		members: [
-			{
-				nrp: "220116905",
-				name: "Angelita Jesslyn",
-			},
-			{
-				nrp: "220116910",
-				name: "Clarissa Gracienne",
-			},
-			{
-				nrp: "220116923",
-				name: "Jonathan Theja",
-			},
-			{
-				nrp: "220116928",
-				name: "Samuel Gunawan",
-			},
-		],
 	});
 });
 
