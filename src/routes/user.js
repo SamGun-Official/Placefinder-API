@@ -240,7 +240,7 @@ router.put("/:id/edit", async function (req, res) {
 		});
 	}
 });
-router.post("/:id/verify", async function (req, res) {
+router.post("/:id/verify",[auth.authenticate(["developer","provider"], "role tidak sesuai")], async function (req, res) {
 	let id = req.params.id;
 	console.log(id);
 	const schema = Joi.object({
