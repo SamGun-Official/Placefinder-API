@@ -1,4 +1,5 @@
 const express = require("express");
+const models = require("../models/models");
 const self = {};
 
 const ROLE = ["admin", "developer", "provider"];
@@ -9,12 +10,25 @@ self.ROLE = ROLE;
 self.payload = null;
 
 self.authenticate = (role, message = "Unauthorized") => {
-	return (req, res, next) => {
+	return async (req, res, next) => {
 		const token = req.header("x-auth-token");
 		if (!token) {
 			return res.status(401).send("Unauthorized");
 		}
 		try {
+
+			const user = await models.User.findOne({
+				where: {
+					token: token,
+				},
+			});
+
+			if(!user){
+				return res.status(404).send({
+					message: "token tidak dapat ditemukan!"
+				});
+			}
+
 			self.payload = jwt.verify(token, JWT_KEY);
 		} catch (error) {
 			return res.status(401).send("Unauthorized");
