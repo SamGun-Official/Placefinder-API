@@ -189,7 +189,7 @@ router.get("/", [auth.authenticate(["provider", "developer"], "role tidak sesuai
 		});
 	}
 	return res.status(200).send({
-		notification: notif_result,
+		notifications: notif_result,
 	});
 });
 
