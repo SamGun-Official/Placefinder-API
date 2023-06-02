@@ -75,7 +75,7 @@ router.post("/admin/create", [auth.authenticate("admin", "role tidak sesuai")], 
 
 	const insert_new_notification = await self.post(description, id_user, id_accomodation);
 	if (insert_new_notification == "success") {
-		return res.status(200).send({
+		return res.status(201).send({
 			message: `berhasil membuat notifikasi untuk ${user.username}`,
 			description: description,
 			id_user: id_user,
