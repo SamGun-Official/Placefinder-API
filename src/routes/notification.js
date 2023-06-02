@@ -27,8 +27,10 @@ router.post("/admin/create", [auth.authenticate("admin", "role tidak sesuai")], 
 			.min(1)
 			.required()
 			.external(async function () {
-				let [result, metadata] = await database.sequelize.query("SELECT * FROM USERS WHERE id = ?", {
-					replacements: [id_user],
+				const result = await models.User.findOne({
+					where:{
+						id: id_user
+					}
 				});
 				if (result.length <= 0) {
 					throw Error("id user tidak ditemukan!");
@@ -42,8 +44,10 @@ router.post("/admin/create", [auth.authenticate("admin", "role tidak sesuai")], 
 			.min(1)
 			.required()
 			.external(async function () {
-				let [result, metadata] = await database.sequelize.query("SELECT * FROM ACCOMODATIONS where id = ?", {
-					replacements: [id_accomodation],
+				const result = await models.Accomodation.findOne({
+					where:{
+						id: id_accomodation
+					}
 				});
 				if (result.length <= 0) {
 					throw Error("id accomodation tidak ditemukan");
@@ -63,7 +67,11 @@ router.post("/admin/create", [auth.authenticate("admin", "role tidak sesuai")], 
 		});
 	}
 
-	const user = await models.User.findByPk(id_user, {
+	const user = await models.User.findOne({
+		where:{
+			id: id_user
+		}
+	}, {
 		attributes: ["id", "username"],
 	});
 
@@ -155,7 +163,7 @@ router.get("/admin/:id?", [auth.authenticate("admin", "role tidak sesuai")], asy
 	});
 });
 
-//untuk penyedia tempat tinggal
+//untuk penyedia tempat tinggal dan developer
 router.get("/", [auth.authenticate(["provider", "developer"], "role tidak sesuai")], async function (req, res) {
 	const username = auth.payload.username;
 	const user = await userController.getByUsername(username);
