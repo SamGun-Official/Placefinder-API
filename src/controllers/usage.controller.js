@@ -123,7 +123,7 @@ self.getUsagePaid = async (id) => {
 	return usages_result;
 };
 self.getUsageUnpaid = async (id) => {
-	let usages = await Usage.findAll({
+	let usages = await models.Usage.findAll({
 		attributes: ["id", "id_pricelist", "id_user", "date", "subtotal", "status"],
 		include: [
 			{
