@@ -126,11 +126,11 @@ router.get("/developer/:id?", [auth.authenticate("developer", "role tidak sesuai
 		});
 	} else {
 		const usage = await self.getUsageById(id, user.id);
-		if (usage) {
+		if (usage.id!=undefined) {
 			return res.status(200).send({
 				usage: usage,
 			});
-		} else {
+		}else{
 			return res.status(404).send({
 				message: "tidak ada hasil pencarian",
 			});
