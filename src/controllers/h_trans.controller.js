@@ -8,6 +8,13 @@ app.use(express.urlencoded({ extended: true }));
 const dtransController = require("../controllers/d_trans.controller");
 const moment = require("moment");
 
+const PAYMENT_STATUS = [
+	"unpaid",
+	"pending",
+	"verified",
+	"failed"
+]
+
 function formattedStringDate(ts) {
 	let date_ob = new Date(ts);
 	let date = date_ob.getDate();
@@ -43,14 +50,6 @@ function formatRupiah(amount) {
 	let formattedAmount = amount.toLocaleString("id-ID", { style: "currency", currency: "IDR" });
 	return formattedAmount;
 }
-
-const PAYMENT_STATUS = {
-	0: "unpaid",
-	1: "pending",
-	2: "verified",
-	3: "failed",
-};
-
 let self = {};
 self.getAll = async () => {
 	let h_trans = await models.H_trans.findAll({
@@ -66,7 +65,7 @@ self.getAll = async () => {
 	//nb: total dihitung lagi karena di table itu berbeda
 	return await formattedH_trans(h_trans);
 };
-self.getById = async () => {};
+self.getById = async () => { };
 self.getByIdUser = async (id_user) => {
 	let h_trans = await models.H_trans.findAll({
 		attributes: ["id", "number", "id_user", "date", "total", "payment_status", "status"],
@@ -101,6 +100,22 @@ self.getByNumber = async (number) => {
 	});
 	return await formattedH_trans(h_trans);
 };
+self.getByPaymentStatus = async (payment_status) => {
+	let status = PAYMENT_STATUS.findIndex(p => p == payment_status.toLowerCase());
+	let h_trans = await models.H_trans.findAll({
+		attributes: ["id", "number", "id_user", "date", "total", "payment_status", "status"],
+		include: [
+			{
+				model: models.User,
+				attributes: ["id", "username", "phone_number", "email", "name"],
+			},
+		],
+		where: {
+			payment_status: status
+		},
+	});
+	return await formattedH_trans(h_trans);
+}
 self.getByDate = async (start, end) => {
 	let start_date, end_date;
 	start_date = start ? moment(start, "DD/MM/YYYY").format("YYYY-MM-DD") : "2000-01-01";

@@ -17,7 +17,7 @@ async function checkUrlEndpointExistInPricelist(url_endpoint) {
 		},
 	});
 	if (pricelist) {
-		throw Error("url_endpoint exist");
+		throw Error("url_endpoint sudah ada!");
 	}
 	return true;
 }
@@ -27,7 +27,7 @@ async function checkIdExistInPricelist(id) {
 	if (pricelist) {
 		return true;
 	}
-	throw Error("id pricelist doesn't exist");
+	throw Error("id pricelist tidak ditemukan!");
 }
 
 async function checkUrlEndpointAndIdInPricelist({ url_endpoint, id }) {

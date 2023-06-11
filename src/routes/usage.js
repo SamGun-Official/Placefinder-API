@@ -152,7 +152,7 @@ router.post('/checkout', [auth.authenticate("developer", "role tidak sesuai")], 
 	// 		[Sequelize.literal('PriceList.id'), 'id_pricelist'],
 	// 		[Sequelize.literal('PriceList.feature_name'), 'feature_name'],
 	// 		[Sequelize.literal('PriceList.url_endpoint'), 'url_endpoint'],
-	// 		[Sequelize.literal('PriceList.price'), 'price'],
+	// 		[Sequelize.literal('PriceList.price'), 	'price'],
 	// 		[Sequelize.literal('PriceList.status'), 'status'],
 	// 		[Sequelize.literal('PriceList.created_at'), 'created_at'],
 	// 		[Sequelize.literal('PriceList.updated_at'), 'updated_at'],
@@ -179,7 +179,7 @@ router.post('/checkout', [auth.authenticate("developer", "role tidak sesuai")], 
 	for (const usage of usages) {
 		total += parseInt(usage.subtotal);
 	}
-	let number = getNumberByCurrentDate() + String(h_trans.length + 1).padStart(5, '0');
+	let number = getNumberByCurrentDate() + String(h_trans.length + 1).padStart(3, '0');
 	let parameter = {
 		"payment_type": "bank_transfer",
 		"transaction_details": {
@@ -195,6 +195,7 @@ router.post('/checkout', [auth.authenticate("developer", "role tidak sesuai")], 
 			"email": user.email,
 			"phone": user.phone_number
 		},
+		// "order_id": number
 		// "usages": usages
 	}
 	console.log(parameter);
@@ -232,6 +233,10 @@ router.post('/checkout', [auth.authenticate("developer", "role tidak sesuai")], 
 				message: e.message
 			});
 		});
+});
+
+router.post("/notifikasi/", async function (req, res) {
+	return res.status(200).send(req.body);
 });
 
 module.exports = router;
