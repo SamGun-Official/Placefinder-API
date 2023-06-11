@@ -69,9 +69,6 @@ router.get("/", [auth.authenticate(["developer", "admin", "provider"], "role tid
 		}
 	}
 });
-router.get('/services', [auth.authenticate(["provider"])], async function (req, res) {
-
-});
 router.get("/search/", [auth.authenticate(["admin", "developer", 'provider'])], async function (req, res) {
 	const validator = Joi.object({
 		number: Joi.string().allow("", null),

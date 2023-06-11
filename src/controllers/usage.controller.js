@@ -198,5 +198,18 @@ self.getUsageById = async (id, id_user) => {
 
 	return usages_result;
 };
+self.getAllUsagesByIdUser = async (id_user) => {
+	return usages = await models.Usage.findAll({
+		where: {
+			id_user: id_user
+		},
+		include: [
+			{
+				model: models.PriceList,
+				attributes: ['feature_name', 'url_endpoint', 'price']
+			}
+		]
+	});
+}
 
 module.exports = self;

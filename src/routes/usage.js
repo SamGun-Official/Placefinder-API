@@ -126,11 +126,11 @@ router.get("/developer/:id?", [auth.authenticate("developer", "role tidak sesuai
 		});
 	} else {
 		const usage = await self.getUsageById(id, user.id);
-		if (usage.id!=undefined) {
+		if (usage.id != undefined) {
 			return res.status(200).send({
 				usage: usage,
 			});
-		}else{
+		} else {
 			return res.status(404).send({
 				message: "tidak ada hasil pencarian",
 			});
@@ -237,6 +237,11 @@ router.post('/checkout', [auth.authenticate("developer", "role tidak sesuai")], 
 
 router.post("/notifikasi/", async function (req, res) {
 	return res.status(200).send(req.body);
+});
+
+router.get('/', [auth.authenticate(["provider"])], async function (req, res) {
+	let user = await models.User.findOne({ where: { username: auth.payload.username } });
+	return res.status(200).send(await self.getAllUsagesByIdUser(user.id));
 });
 
 module.exports = router;
