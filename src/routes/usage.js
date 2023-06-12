@@ -26,18 +26,18 @@ function formatRupiah(amount) {
 async function checkUserExistById(id_user) {
 	let user = await models.User.findByPk(id_user);
 	if (!user) {
-		throw Error('Id User tidak ditemukan!');
+		throw Error("Id User tidak ditemukan!");
 	}
 	return true;
 }
 
-const midtransClient = require('midtrans-client');
+const midtransClient = require("midtrans-client");
 // Create Core API instance
 let coreApi = new midtransClient.CoreApi({
 	isProduction: false,
-	serverKey: 'SB-Mid-server-vMhuJY92Ihr9yLQcbX0Nnn9u',
-	clientKey: 'SB-Mid-client-sNFHj-ePZOzmxetY'
-})
+	serverKey: "SB-Mid-server-vMhuJY92Ihr9yLQcbX0Nnn9u",
+	clientKey: "SB-Mid-client-sNFHj-ePZOzmxetY",
+});
 
 const router = express.Router();
 router.get("/developer/total", [auth.authenticate("developer", "role tidak sesuai")], async function (req, res) {
@@ -138,14 +138,14 @@ router.get("/developer/:id?", [auth.authenticate("developer", "role tidak sesuai
 	}
 });
 
-router.post('/checkout', [auth.authenticate("developer", "role tidak sesuai")], async function (req, res) {
+router.post("/checkout", [auth.authenticate("developer", "role tidak sesuai")], async function (req, res) {
 	let user = await models.User.findOne({ where: { username: auth.payload.username } });
 	let h_trans = await models.H_trans.findAll({
 		where: {
 			number: {
-				[Op.like]: `%${getNumberByCurrentDate()}%`
-			}
-		}
+				[Op.like]: `%${getNumberByCurrentDate()}%`,
+			},
+		},
 	});
 	// let usages = await models.Usage.findAll({
 	// 	attributes: [
@@ -172,36 +172,37 @@ router.post('/checkout', [auth.authenticate("developer", "role tidak sesuai")], 
 	let usages = await models.Usage.findAll({
 		where: {
 			id_user: 38,
-			status: 1
-		}
+			status: 1,
+		},
 	});
 	let total = 0;
 	for (const usage of usages) {
 		total += parseInt(usage.subtotal);
 	}
-	let number = getNumberByCurrentDate() + String(h_trans.length + 1).padStart(3, '0');
+	let number = getNumberByCurrentDate() + String(h_trans.length + 1).padStart(3, "0");
 	let parameter = {
-		"payment_type": "bank_transfer",
-		"transaction_details": {
-			"gross_amount": total,
-			"order_id": number
+		payment_type: "bank_transfer",
+		transaction_details: {
+			gross_amount: total,
+			order_id: number,
 		},
-		"bank_transfer": {
-			"bank": "bca"
+		bank_transfer: {
+			bank: "bca",
 		},
-		"customer_details": {
-			"first_name": user.name,
-			"last_name": "",
-			"email": user.email,
-			"phone": user.phone_number
+		customer_details: {
+			first_name: user.name,
+			last_name: "",
+			email: user.email,
+			phone: user.phone_number,
 		},
 		// "order_id": number
 		// "usages": usages
-	}
+	};
 	console.log(parameter);
-	coreApi.charge(parameter)
+	coreApi
+		.charge(parameter)
 		.then(async (checkoutResponse) => {
-			console.log('checkoutResponse', JSON.stringify(checkoutResponse));
+			console.log("checkoutResponse", JSON.stringify(checkoutResponse));
 			try {
 				const h_trans = await models.H_trans.create({
 					number: number,
@@ -209,28 +210,29 @@ router.post('/checkout', [auth.authenticate("developer", "role tidak sesuai")], 
 					date: new Date(),
 					total: total,
 					payment_status: payment_status["pending"],
-					status: 1
+					status: 1,
 				});
 				for (const usage of usages) {
 					const d_trans = await models.D_trans.create({
 						id_htrans: h_trans.id,
 						id_usage: usage.id,
 						subtotal: usage.subtotal,
-						status: payment_status["pending"]
+						status: payment_status["pending"],
 					});
 				}
 				return res.status(201).send({
 					usages: usages,
-					checkoutResponse: checkoutResponse
+					checkoutResponse: checkoutResponse,
 				});
 			} catch (e) {
 				return res.status(500).send({
-					message: e.message
+					message: e.message,
 				});
 			}
-		}).catch((e) => {
+		})
+		.catch((e) => {
 			return res.status(500).send({
-				message: e.message
+				message: e.message,
 			});
 		});
 });
@@ -239,7 +241,7 @@ router.post("/notifikasi/", async function (req, res) {
 	return res.status(200).send(req.body);
 });
 
-router.get('/', [auth.authenticate(["provider"])], async function (req, res) {
+router.get("/", [auth.authenticate(["provider"])], async function (req, res) {
 	let user = await models.User.findOne({ where: { username: auth.payload.username } });
 	return res.status(200).send(await self.getAllUsagesByIdUser(user.id));
 });

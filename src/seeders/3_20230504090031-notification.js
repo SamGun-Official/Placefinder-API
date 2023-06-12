@@ -10,7 +10,7 @@ module.exports = {
 			notifications.push({
 				description: "This is a dummy notification!",
 				id_user: faker.datatype.number({ min: 1, max: 10 }),
-				id_accomodation: faker.datatype.number({ min: 1, max: 10 }),
+				id_accommodation: faker.datatype.number({ min: 1, max: 10 }),
 				status: 1,
 				created_at: new Date(),
 				updated_at: new Date(),

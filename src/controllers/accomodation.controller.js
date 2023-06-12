@@ -7,14 +7,14 @@ app.use(express.urlencoded({ extended: true }));
 
 let self = {};
 self.getAll = async (req, res) => {
-	let accomodations = await models.Accomodation.findAll();
-	return accomodations;
+	let accommodations = await models.Accommodation.findAll();
+	return accommodations;
 };
-self.getAccomodationById = async (id) => {
-	return await models.Accomodation.findByPk(id);
+self.getAccommodationById = async (id) => {
+	return await models.Accommodation.findByPk(id);
 };
-self.getAccomodationsByName = async (name) => {
-	return await models.Accomodation.findAll({
+self.getAccommodationsByName = async (name) => {
+	return await models.Accommodation.findAll({
 		where: {
 			name: {
 				[Op.like]: `%${name}%`,
@@ -22,8 +22,8 @@ self.getAccomodationsByName = async (name) => {
 		},
 	});
 };
-self.getAccomoddationsByAddress = async (address) => {
-	return await models.Accomodation.findAll({
+self.getAccommodationsByAddress = async (address) => {
+	return await models.Accommodation.findAll({
 		where: {
 			address: {
 				[Op.like]: `%${address}%`,

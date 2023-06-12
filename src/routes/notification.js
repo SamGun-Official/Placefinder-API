@@ -17,7 +17,7 @@ const router = express.Router();
 router.post("/admin/create", [auth.authenticate("admin", "role tidak sesuai")], async function (req, res) {
 	const description = req.body.description;
 	const id_user = req.body.id_user;
-	const id_accomodation = req.body.id_accomodation;
+	const id_accommodation = req.body.id_accommodation;
 
 	const validator = Joi.object({
 		description: Joi.string().required().messages({
@@ -40,17 +40,17 @@ router.post("/admin/create", [auth.authenticate("admin", "role tidak sesuai")], 
 				"any.required": "{{#label}} harus diisi",
 				"number.min": "{{#label}} minimal 1",
 			}),
-		id_accomodation: Joi.number()
+		id_accommodation: Joi.number()
 			.min(1)
 			.required()
 			.external(async function () {
-				const result = await models.Accomodation.findOne({
+				const result = await models.Accommodation.findOne({
 					where:{
-						id: id_accomodation
+						id: id_accommodation
 					}
 				});
 				if (result.length <= 0) {
-					throw Error("id accomodation tidak ditemukan");
+					throw Error("id accommodation tidak ditemukan");
 				}
 			})
 			.messages({
@@ -60,7 +60,7 @@ router.post("/admin/create", [auth.authenticate("admin", "role tidak sesuai")], 
 	});
 
 	try {
-		await validator.validateAsync({ description, id_user, id_accomodation });
+		await validator.validateAsync({ description, id_user, id_accommodation });
 	} catch (e) {
 		return res.status(400).send({
 			message: e.message.toString().replace(/['"]/g, ""),
@@ -81,13 +81,13 @@ router.post("/admin/create", [auth.authenticate("admin", "role tidak sesuai")], 
 		});
 	}
 
-	const insert_new_notification = await self.post(description, id_user, id_accomodation);
+	const insert_new_notification = await self.post(description, id_user, id_accommodation);
 	if (insert_new_notification == "success") {
 		return res.status(201).send({
 			message: `berhasil membuat notifikasi untuk ${user.username}`,
 			description: description,
 			id_user: id_user,
-			id_accomodation: id_accomodation,
+			id_accommodation: id_accommodation,
 		});
 	} else {
 		return res.status(500).send({
@@ -105,10 +105,10 @@ router.get("/admin", [auth.authenticate("admin", "role tidak sesuai")], async fu
 			username: p.User.username,
 		},
 		message: p.description,
-		accomodation: {
-			id: p.id_accomodation,
-			name: p.Accomodation.name,
-			address: p.Accomodation.address,
+		accommodation: {
+			id: p.id_accommodation,
+			name: p.Accommodation.name,
+			address: p.Accommodation.address,
 		},
 	}));
 	return res.status(200).send({
@@ -129,10 +129,10 @@ router.get("/admin/user/:id_user?", [auth.authenticate("admin", "role tidak sesu
 				username: notifs[i].User.username,
 			},
 			message: notifs[i].description,
-			accomodation: {
-				id: notifs[i].id_accomodation,
-				name: notifs[i].Accomodation.name,
-				address: notifs[i].Accomodation.address,
+			accommodation: {
+				id: notifs[i].id_accommodation,
+				name: notifs[i].Accommodation.name,
+				address: notifs[i].Accommodation.address,
 			},
 		});
 	}
@@ -152,10 +152,10 @@ router.get("/admin/:id?", [auth.authenticate("admin", "role tidak sesuai")], asy
 			username: notification.User.username,
 		},
 		message: notification.description,
-		accomodation: {
-			id: notification.id_accomodation,
-			name: notification.Accomodation.name,
-			address: notification.Accomodation.address,
+		accommodation: {
+			id: notification.id_accommodation,
+			name: notification.Accommodation.name,
+			address: notification.Accommodation.address,
 		},
 	};
 	return res.status(200).send({
@@ -181,10 +181,10 @@ router.get("/", [auth.authenticate(["provider", "developer"], "role tidak sesuai
 				username: notifs[i].User.username,
 			},
 			message: notifs[i].description,
-			accomodation: {
-				id: notifs[i].Accomodation.id,
-				name: notifs[i].Accomodation.name,
-				address: notifs[i].Accomodation.address,
+			accommodation: {
+				id: notifs[i].Accommodation.id,
+				name: notifs[i].Accommodation.name,
+				address: notifs[i].Accommodation.address,
 			},
 		});
 	}
@@ -210,10 +210,10 @@ router.get("/", [auth.authenticate(["provider", "developer"], "role tidak sesuai
 //                 username: notifs[i].User.username
 //             },
 //             message: notifs[i].description,
-//             accomodation: {
-//                 id: notifs[i].Accomodation.id,
-//                 name: notifs[i].Accomodation.name,
-//                 address: notifs[i].Accomodation.address
+//             accommodation: {
+//                 id: notifs[i].Accommodation.id,
+//                 name: notifs[i].Accommodation.name,
+//                 address: notifs[i].Accommodation.address
 //             }
 //         });
 //     }

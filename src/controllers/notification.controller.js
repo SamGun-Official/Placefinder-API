@@ -6,12 +6,12 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 let self = {};
-self.post = async (description, id_user, id_accomodation) => {
+self.post = async (description, id_user, id_accommodation) => {
 	try {
 		await models.Notification.create({
 			description: description,
 			id_user: id_user,
-			id_accomodation: id_accomodation,
+			id_accommodation: id_accommodation,
 		});
 		return "success";
 	} catch (e) {
@@ -20,10 +20,10 @@ self.post = async (description, id_user, id_accomodation) => {
 };
 self.getAll = async (req, res) => {
 	let notifications = await models.Notification.findAll({
-		attributes: ["id", "description", "id_user", "id_accomodation", "status"],
+		attributes: ["id", "description", "id_user", "id_accommodation", "status"],
 		include: [
 			{
-				model: models.Accomodation,
+				model: models.Accommodation,
 				attributes: ["name", "address", "id"],
 			},
 			{
@@ -36,10 +36,10 @@ self.getAll = async (req, res) => {
 };
 self.get = async (id) => {
 	let notif = await models.Notification.findByPk(id, {
-		attributes: ["id", "description", "id_user", "id_accomodation", "status"],
+		attributes: ["id", "description", "id_user", "id_accommodation", "status"],
 		include: [
 			{
-				model: models.Accomodation,
+				model: models.Accommodation,
 				attributes: ["name", "address", "id"],
 			},
 			{
@@ -52,10 +52,10 @@ self.get = async (id) => {
 };
 self.getByUser = async (id_user) => {
 	let notif = await models.Notification.findAll({
-		attributes: ["id", "description", "id_user", "id_accomodation", "status"],
+		attributes: ["id", "description", "id_user", "id_accommodation", "status"],
 		include: [
 			{
-				model: models.Accomodation,
+				model: models.Accommodation,
 				attributes: ["name", "address", "id"],
 			},
 			{

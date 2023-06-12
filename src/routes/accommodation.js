@@ -1,4 +1,4 @@
-const self = require("../controllers/accomodation.controller");
+const self = require("../controllers/accommodation.controller");
 const { response } = require("express");
 const express = require("express");
 const { Op, DATE } = require("sequelize");
@@ -10,34 +10,34 @@ const JWT_KEY = "secret_key";
 
 const auth = require("../controllers/auth.controller");
 
-async function checkAccomodationExistById(id) {
-	if (await models.Accomodation.findByPk(id)) {
+async function checkAccommodationExistById(id) {
+	if (await models.Accommodation.findByPk(id)) {
 		return true;
 	}
-	throw Error("ID Accomodation tidak ditemukan!");
+	throw Error("ID Accommodation tidak ditemukan!");
 }
 
 const router = express.Router();
 router.get("/", async function (req, res) {
-	let accomodations = await self.getAll();
-	return res.status(200).send(accomodations);
+	let accommodations = await self.getAll();
+	return res.status(200).send(accommodations);
 });
 router.get("/search", auth.authenticate(["admin"]), async function (req, res) {
 	let { id, name, address } = req.query;
 	if (id) {
 		const schema = Joi.object({
-			id: Joi.number().external(checkAccomodationExistById),
+			id: Joi.number().external(checkAccommodationExistById),
 		});
 		try {
 			await schema.validateAsync({ id });
-			return res.status(200).send(await self.getAccomodationById(id));
+			return res.status(200).send(await self.getAccommodationById(id));
 		} catch (e) {
 			return res.status(404).send({ message: e.message });
 		}
 	} else if (name) {
-		return res.status(200).send(await self.getAccomodationsByName(name));
+		return res.status(200).send(await self.getAccommodationsByName(name));
 	} else if (address) {
-		return res.status(200).send(await self.getAccomoddationsByAddress(address));
+		return res.status(200).send(await self.getAccommodationsByAddress(address));
 	}
 	return res.status(400).send({ message: "Harap isi field id or name or address!" });
 });

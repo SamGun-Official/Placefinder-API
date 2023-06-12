@@ -22,11 +22,11 @@ module.exports = {
 					key: "id",
 				},
 			},
-			id_accomodation: {
+			id_accommodation: {
 				type: Sequelize.INTEGER,
 				allowNull: false,
 				references: {
-					model: "accomodations",
+					model: "accommodations",
 					key: "id",
 				},
 			},

@@ -2,7 +2,7 @@
 
 const { DataTypes, Model } = require("sequelize");
 const User = require("../models/user");
-const Accomodation = require("../models/accomodation");
+const Accommodation = require("./accommodation");
 
 module.exports = (sequelize) => {
 	class Notification extends Model {
@@ -11,8 +11,8 @@ module.exports = (sequelize) => {
 				foreignKey: "id_user",
 			});
 
-			this.belongsTo(models.Accomodation, {
-				foreignKey: "id_accomodation",
+			this.belongsTo(models.Accommodation, {
+				foreignKey: "id_accommodation",
 			});
 		}
 	}
@@ -37,11 +37,11 @@ module.exports = (sequelize) => {
 					key: "id",
 				},
 			},
-			id_accomodation: {
+			id_accommodation: {
 				type: DataTypes.INTEGER,
 				allowNull: false,
 				references: {
-					model: Accomodation,
+					model: Accommodation,
 					key: "id",
 				},
 			},

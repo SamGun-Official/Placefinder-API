@@ -27,9 +27,9 @@ module.exports = {
 			});
 		}
 
-		await queryInterface.bulkInsert("accomodations", accommodations, {});
+		await queryInterface.bulkInsert("accommodations", accommodations, {});
 	},
 	async down(queryInterface, Sequelize) {
-		await queryInterface.bulkDelete("accomodations", null, {});
+		await queryInterface.bulkDelete("accommodations", null, {});
 	},
 };

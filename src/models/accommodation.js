@@ -4,19 +4,19 @@ const { DataTypes, Model } = require("sequelize");
 const User = require("./user");
 
 module.exports = (sequelize) => {
-	class Accomodation extends Model {
+	class Accommodation extends Model {
 		static associate(models) {
 			this.belongsTo(models.User, {
 				foreignKey: "owner",
 			});
 
 			this.hasMany(models.Notification, {
-				foreignKey: "id_accomodation",
+				foreignKey: "id_accommodation",
 			});
 		}
 	}
 
-	Accomodation.init(
+	Accommodation.init(
 		{
 			id: {
 				type: DataTypes.INTEGER,
@@ -76,8 +76,8 @@ module.exports = (sequelize) => {
 		},
 		{
 			sequelize: sequelize,
-			modelName: "Accomodation",
-			tableName: "accomodations",
+			modelName: "Accommodation",
+			tableName: "accommodations",
 			paranoid: false,
 			underscored: false,
 			timestamps: true,
@@ -86,5 +86,5 @@ module.exports = (sequelize) => {
 		}
 	);
 
-	return Accomodation;
+	return Accommodation;
 };

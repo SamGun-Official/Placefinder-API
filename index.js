@@ -9,11 +9,11 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
 /* ===== ORM ===== */
-const { User, Accomodation, Notification, H_trans, D_trans, PriceList, Usage } = require("./src/models/models");
+const { User, Accommodation, Notification, H_trans, D_trans, PriceList, Usage } = require("./src/models/models");
 
-User.associate({ Notification, Accomodation, H_trans, Usage });
-Accomodation.associate({ Notification, User });
-Notification.associate({ User, Accomodation });
+User.associate({ Notification, Accommodation, H_trans, Usage });
+Accommodation.associate({ Notification, User });
+Notification.associate({ User, Accommodation });
 H_trans.associate({ User, D_trans });
 D_trans.associate({ H_trans, Usage });
 PriceList.associate({ Usage });
@@ -21,7 +21,7 @@ Usage.associate({ D_trans, PriceList, User });
 
 /* ===== ROUTES ===== */
 const users = require("./src/routes/user");
-const accomodations = require("./src/routes/accomodation");
+const accommodations = require("./src/routes/accommodation");
 const notifications = require("./src/routes/notification");
 const h_trans = require("./src/routes/h_trans");
 const d_trans = require("./src/routes/d_trans");
@@ -29,7 +29,7 @@ const pricelists = require("./src/routes/pricelist");
 const usage = require("./src/routes/usage");
 
 app.use(process.env.BASE_URL + "/api/users", users);
-app.use(process.env.BASE_URL + "/api/accomodations", accomodations);
+app.use(process.env.BASE_URL + "/api/accommodations", accommodations);
 app.use(process.env.BASE_URL + "/api/notifications", notifications);
 app.use(process.env.BASE_URL + "/api/transactions", h_trans);
 app.use(process.env.BASE_URL + "/api/d_trans", d_trans);
