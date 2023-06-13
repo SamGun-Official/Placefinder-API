@@ -9,7 +9,7 @@
 		"migrate": "npx sequelize-cli db:migrate && npx sequelize-cli db:seed:all",
 		"undo": "npx sequelize-cli db:migrate:undo:all",
 		"reset": "npx sequelize-cli db:drop && npx sequelize-cli db:create",
-		"reinstall": "rm -rf node_modules && npm cache clean --force"
+		"remove": "rm -rf node_modules && npm cache clean --force"
 	},
 	"engines": {
 		"node": "16.x"
