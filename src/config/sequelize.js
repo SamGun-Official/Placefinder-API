@@ -14,6 +14,7 @@ const connection = new sequelize(process.env.DB_DATABASE, process.env.DB_USERNAM
 		collate: "utf8mb4_general_ci",
 	},
 	timezone: process.env.DB_TIMEZONE,
+	logging: process.env.ENVIRONMENT === "development" ? console.log : false,
 });
 
 module.exports = connection;

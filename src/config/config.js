@@ -15,4 +15,5 @@ module.exports = {
 		collate: "utf8mb4_general_ci",
 	},
 	timezone: process.env.DB_TIMEZONE,
+	logging: process.env.ENVIRONMENT === "development" ? console.log : false,
 };
