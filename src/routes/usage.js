@@ -209,22 +209,22 @@ router.post("/checkout", [auth.authenticate("developer", "role tidak sesuai")], 
 		.then(async (checkoutResponse) => {
 			console.log("checkoutResponse", JSON.stringify(checkoutResponse));
 			try {
-				// const h_trans = await models.H_trans.create({
-				// 	number: number,
-				// 	id_user: user.id,
-				// 	date: new Date(),
-				// 	total: total,
-				// 	payment_status: payment_status["pending"],
-				// 	status: 1,
-				// });
-				// for (const usage of usages) {
-				// 	const d_trans = await models.D_trans.create({
-				// 		id_htrans: h_trans.id,
-				// 		id_usage: usage.id,
-				// 		subtotal: usage.subtotal,
-				// 		status: payment_status["pending"],
-				// 	});
-				// }
+				const h_trans = await models.H_trans.create({
+					number: number,
+					id_user: user.id,
+					date: new Date(),
+					total: total,
+					payment_status: payment_status["pending"],
+					status: 1,
+				});
+				for (const usage of usages) {
+					const d_trans = await models.D_trans.create({
+						id_htrans: h_trans.id,
+						id_usage: usage.id,
+						subtotal: usage.subtotal,
+						status: payment_status["pending"],
+					});
+				}
 				return res.status(201).send({
 					usages: usages,
 					checkoutResponse: checkoutResponse,
@@ -236,6 +236,9 @@ router.post("/checkout", [auth.authenticate("developer", "role tidak sesuai")], 
 			}
 		})
 		.catch((e) => {
+			return res.status(500).send({
+				message: parameter,
+			});
 			return res.status(500).send({
 				message: e.message,
 			});
