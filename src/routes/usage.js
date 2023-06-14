@@ -171,10 +171,15 @@ router.post("/checkout", [auth.authenticate("developer", "role tidak sesuai")], 
 	// });
 	let usages = await models.Usage.findAll({
 		where: {
-			id_user: 38,
+			id_user: user.id,
 			status: 1,
 		},
 	});
+	if(usages.length == 0){
+		return res.status(404).send({
+			message: 'Belum pernah menggunakan service!'
+		});
+	}
 	let total = 0;
 	for (const usage of usages) {
 		total += parseInt(usage.subtotal);
@@ -237,8 +242,9 @@ router.post("/checkout", [auth.authenticate("developer", "role tidak sesuai")], 
 		});
 });
 
-router.post("/notifikasi/", async function (req, res) {
-	return res.status(200).send(req.body);
+router.post("/notification/", async function (req, res) {
+	console.log(req.body);
+	return res.status(200).send('OK');
 });
 
 router.get("/", [auth.authenticate(["provider"])], async function (req, res) {
