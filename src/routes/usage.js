@@ -175,7 +175,7 @@ router.post("/checkout", [auth.authenticate("developer", "role tidak sesuai")], 
 			status: 1,
 		},
 	});
-	if(usages.length == 0){
+	if (usages.length == 0) {
 		return res.status(404).send({
 			message: 'Belum pernah menggunakan service!'
 		});
@@ -209,22 +209,22 @@ router.post("/checkout", [auth.authenticate("developer", "role tidak sesuai")], 
 		.then(async (checkoutResponse) => {
 			console.log("checkoutResponse", JSON.stringify(checkoutResponse));
 			try {
-				const h_trans = await models.H_trans.create({
-					number: number,
-					id_user: user.id,
-					date: new Date(),
-					total: total,
-					payment_status: payment_status["pending"],
-					status: 1,
-				});
-				for (const usage of usages) {
-					const d_trans = await models.D_trans.create({
-						id_htrans: h_trans.id,
-						id_usage: usage.id,
-						subtotal: usage.subtotal,
-						status: payment_status["pending"],
-					});
-				}
+				// const h_trans = await models.H_trans.create({
+				// 	number: number,
+				// 	id_user: user.id,
+				// 	date: new Date(),
+				// 	total: total,
+				// 	payment_status: payment_status["pending"],
+				// 	status: 1,
+				// });
+				// for (const usage of usages) {
+				// 	const d_trans = await models.D_trans.create({
+				// 		id_htrans: h_trans.id,
+				// 		id_usage: usage.id,
+				// 		subtotal: usage.subtotal,
+				// 		status: payment_status["pending"],
+				// 	});
+				// }
 				return res.status(201).send({
 					usages: usages,
 					checkoutResponse: checkoutResponse,
@@ -243,7 +243,31 @@ router.post("/checkout", [auth.authenticate("developer", "role tidak sesuai")], 
 });
 
 router.post("/notification/", async function (req, res) {
-	console.log(req.body);
+	coreApi.transaction.notification(req.body)
+		.then((statusResponse) => {
+			let order_id = statusResponse.order_id;
+			let transactionStatus = statusResponse.transaction_status;
+			// Sample transactionStatus handling logic
+
+			if (transactionStatus == 'capture') {
+				// capture only applies to card transaction, which you need to check for the fraudStatus
+				if (fraudStatus == 'challenge') {
+					// TODO set transaction status on your databaase to 'challenge'
+				} else if (fraudStatus == 'accept') {
+					// TODO set transaction status on your databaase to 'success'
+				}
+			} else if (transactionStatus == 'settlement') {
+				// TODO set transaction status on your databaase to 'success'
+			} else if (transactionStatus == 'deny') {
+				// TODO you can ignore 'deny', because most of the time it allows payment retries
+				// and later can become success
+			} else if (transactionStatus == 'cancel' ||
+				transactionStatus == 'expire') {
+				// TODO set transaction status on your databaase to 'failure'
+			} else if (transactionStatus == 'pending') {
+				
+			}
+		});
 	return res.status(200).send('OK');
 });
 
