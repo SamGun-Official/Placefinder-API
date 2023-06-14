@@ -204,6 +204,9 @@ router.post("/checkout", [auth.authenticate("developer", "role tidak sesuai")], 
 		// "usages": usages
 	};
 	console.log(parameter);
+	return res.status(500).send({
+		message: parameter,
+	});
 	coreApi
 		.charge(parameter)
 		.then(async (checkoutResponse) => {
@@ -236,9 +239,6 @@ router.post("/checkout", [auth.authenticate("developer", "role tidak sesuai")], 
 			}
 		})
 		.catch((e) => {
-			return res.status(500).send({
-				message: parameter,
-			});
 			return res.status(500).send({
 				message: e.message,
 			});
