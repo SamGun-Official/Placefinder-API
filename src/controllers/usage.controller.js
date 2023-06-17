@@ -19,25 +19,11 @@ function formatRupiah(amount) {
 	return formattedAmount;
 }
 
-let self = {};
-self.getAllUserUsage = async (id) => {
-	let usages = await models.Usage.findAll({
-		attributes: ["id", "id_pricelist", "id_user", "date", "subtotal", "status"],
-		include: [
-			{
-				model: models.PriceList,
-				attributes: ["id", "price", "url_endpoint", "feature_name"],
-			},
-			{
-				model: models.User,
-				attributes: ["id", "username"],
-			},
-		],
-	});
-
+//							id_user
+function formatUsage(usages, id) {
 	let usages_result = [];
 	for (let i = 0; i < usages.length; i++) {
-		if (usages[i].id_user == id) {
+		if (usages[i].id_user == id || id == undefined) {
 			usages_result.push({
 				id: usages[i].id,
 				user: {
@@ -57,6 +43,39 @@ self.getAllUserUsage = async (id) => {
 	}
 
 	return usages_result;
+}
+
+let self = {};
+self.getAllUsages = async (id) => {
+	return formatUsage(await models.Usage.findAll({
+		include: [
+			{
+				model: models.PriceList,
+				attributes: ["id", "price", "url_endpoint", "feature_name"],
+			},
+			{
+				model: models.User,
+				attributes: ["id", "username"],
+			},
+		],
+	}), undefined);
+}
+self.getAllUserUsage = async (id) => {
+	let usages = await models.Usage.findAll({
+		attributes: ["id", "id_pricelist", "id_user", "date", "subtotal", "status"],
+		include: [
+			{
+				model: models.PriceList,
+				attributes: ["id", "price", "url_endpoint", "feature_name"],
+			},
+			{
+				model: models.User,
+				attributes: ["id", "username"],
+			},
+		],
+	});
+
+	return formatUsage(usages, id);
 };
 self.getUsageTotal = async (id) => {
 	let usages = await models.Usage.sum("subtotal", {
@@ -99,28 +118,7 @@ self.getUsagePaid = async (id) => {
 		],
 	});
 
-	let usages_result = [];
-	for (let i = 0; i < usages.length; i++) {
-		if (usages[i].id_user == id && usages[i].status == 0) {
-			usages_result.push({
-				id: usages[i].id,
-				user: {
-					id: usages[i].User.id,
-					username: usages[i].User.username,
-				},
-				date: formattedStringDate(usages[i].date),
-				pricelist: {
-					id: usages[i].id_pricelist,
-					feature_name: usages[i].Pricelist.feature_name,
-					url_endpoint: usages[i].Pricelist.url_endpoint,
-					price: formatRupiah(usages[i].Pricelist.price),
-				},
-				subtotal: formatRupiah(usages[i].subtotal),
-			});
-		}
-	}
-
-	return usages_result;
+	return formatUsage(usages, id);
 };
 self.getUsageUnpaid = async (id) => {
 	let usages = await models.Usage.findAll({
@@ -137,28 +135,7 @@ self.getUsageUnpaid = async (id) => {
 		],
 	});
 
-	let usages_result = [];
-	for (let i = 0; i < usages.length; i++) {
-		if (usages[i].id_user == id && usages[i].status == 1) {
-			usages_result.push({
-				id: usages[i].id,
-				user: {
-					id: usages[i].User.id,
-					username: usages[i].User.username,
-				},
-				date: formattedStringDate(usages[i].date),
-				pricelist: {
-					id: usages[i].id_pricelist,
-					feature_name: usages[i].Pricelist.feature_name,
-					url_endpoint: usages[i].Pricelist.url_endpoint,
-					price: formatRupiah(usages[i].Pricelist.price),
-				},
-				subtotal: formatRupiah(usages[i].subtotal),
-			});
-		}
-	}
-
-	return usages_result;
+	return formatUsage(usages, id);
 };
 self.getUsageById = async (id, id_user) => {
 	let usages = await models.Usage.findAll({
