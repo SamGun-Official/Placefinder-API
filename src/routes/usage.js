@@ -175,14 +175,14 @@ router.post("/checkout", [auth.authenticate("developer", "role tidak sesuai")], 
 			status: 1,
 		},
 	});
-	if (usages.length == 0) {
-		return res.status(404).send({
-			message: 'Belum pernah menggunakan service!'
-		});
-	}
 	let total = 0;
 	for (const usage of usages) {
 		total += parseInt(usage.subtotal);
+	}
+	if (usages.length == 0 || total == 0) {
+		return res.status(404).send({
+			message: 'Belum pernah menggunakan service!'
+		});
 	}
 	let number = getNumberByCurrentDate() + String(h_trans.length + 1).padStart(3, "0");
 	let parameter = {
@@ -204,7 +204,7 @@ router.post("/checkout", [auth.authenticate("developer", "role tidak sesuai")], 
 		// "usages": usages
 	};
 	console.log(parameter);
-	return res.status(500).send({
+	return res.status(400).send({
 		message: parameter,
 	});
 	coreApi
@@ -268,7 +268,7 @@ router.post("/notification/", async function (req, res) {
 				transactionStatus == 'expire') {
 				// TODO set transaction status on your databaase to 'failure'
 			} else if (transactionStatus == 'pending') {
-				
+
 			}
 		});
 	return res.status(200).send('OK');
