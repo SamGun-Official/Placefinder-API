@@ -13,29 +13,28 @@ self.authenticate = (role, message = "Unauthorized") => {
 	return async (req, res, next) => {
 		const token = req.header("x-auth-token");
 		if (!token) {
-			return res.status(401).send("Unauthorized");
+			return res.status(401).send({ message: "Unauthorized" });
 		}
 		try {
-
 			const user = await models.User.findOne({
 				where: {
 					token: token,
 				},
 			});
-
-			if(!user){
+			if (!user) {
 				return res.status(404).send({
-					message: "token tidak dapat ditemukan!"
+					message: "token tidak dapat ditemukan!",
 				});
 			}
+
 			self.payload = jwt.verify(token, JWT_KEY);
 		} catch (error) {
-			return res.status(401).send("Unauthorized");
+			return res.status(400).send({ message: "Invalid JWT Key" });
 		}
 		if (role.includes("all") || role.includes(self.ROLE[self.payload.role])) {
 			next();
 		} else {
-			return res.status(401).send(message);
+			return res.status(401).send({ message });
 		}
 	};
 };
