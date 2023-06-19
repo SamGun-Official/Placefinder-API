@@ -282,30 +282,30 @@ router.post("/checkout", [auth.authenticate("developer", "role tidak sesuai")], 
 
 router.post("/notification/", async function (req, res) {
 	return res.status(200).send({ message: req.body });
-	coreApi.transaction.notification(req.body)
-		.then((statusResponse) => {
-			let order_id = statusResponse.order_id;
-			let transactionStatus = statusResponse.transaction_status;
-			// Sample transactionStatus handling logic
+	// coreApi.transaction.notification(req.body)
+	// 	.then((statusResponse) => {
+	// 		let order_id = statusResponse.order_id;
+	// 		let transactionStatus = statusResponse.transaction_status;
+	// 		// Sample transactionStatus handling logic
 
-			if (transactionStatus == "capture") {
-				// capture only applies to card transaction, which you need to check for the fraudStatus
-				if (fraudStatus == "challenge") {
-					// TODO set transaction status on your databaase to 'challenge'
-				} else if (fraudStatus == "accept") {
-					// TODO set transaction status on your databaase to 'success'
-				}
-			} else if (transactionStatus == "settlement") {
-				// TODO set transaction status on your databaase to 'success'
-			} else if (transactionStatus == "deny") {
-				// TODO you can ignore 'deny', because most of the time it allows payment retries
-				// and later can become success
-			} else if (transactionStatus == "cancel" || transactionStatus == "expire") {
-				// TODO set transaction status on your databaase to 'failure'
-			} else if (transactionStatus == "pending") {
-			}
-		});
-	return res.status(200).send("OK");
+	// 		if (transactionStatus == "capture") {
+	// 			// capture only applies to card transaction, which you need to check for the fraudStatus
+	// 			if (fraudStatus == "challenge") {
+	// 				// TODO set transaction status on your databaase to 'challenge'
+	// 			} else if (fraudStatus == "accept") {
+	// 				// TODO set transaction status on your databaase to 'success'
+	// 			}
+	// 		} else if (transactionStatus == "settlement") {
+	// 			// TODO set transaction status on your databaase to 'success'
+	// 		} else if (transactionStatus == "deny") {
+	// 			// TODO you can ignore 'deny', because most of the time it allows payment retries
+	// 			// and later can become success
+	// 		} else if (transactionStatus == "cancel" || transactionStatus == "expire") {
+	// 			// TODO set transaction status on your databaase to 'failure'
+	// 		} else if (transactionStatus == "pending") {
+	// 		}
+	// 	});
+	// return res.status(200).send("OK");
 });
 
 router.get("/", [auth.authenticate(["provider"])], async function (req, res) {
