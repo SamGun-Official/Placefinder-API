@@ -28,7 +28,6 @@ self.authenticate = (role, message = "Unauthorized") => {
 					message: "token tidak dapat ditemukan!"
 				});
 			}
-
 			self.payload = jwt.verify(token, JWT_KEY);
 		} catch (error) {
 			return res.status(401).send("Unauthorized");

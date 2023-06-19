@@ -18,7 +18,9 @@ const upload = multer({
   dest: "./uploads",
   limits: { fileSize: 1000000 },
   fileFilter: function (req, file, cb) {
-    if (file.mimetype != "image/png") {
+    const allowedExtensions = [".png", ".jpg", ".jpeg"];
+    const fileExtension = path.extname(file.originalname);
+    if (!allowedExtensions.includes(fileExtension)) {
       return cb(new Error("Wrong file type"), null);
     }
     cb(null, true);
@@ -69,20 +71,18 @@ self.register = async (req, res) => {
     JWT_KEY
   );
 
-  const newUser = await models.User.create(
-    {
-      username: username,
-      password: password,
-      name: name,
-      role: role,
-      email: email,
-      phone_number: phone_number,
-      tanggal_lahir: moment(tanggal_lahir, "DD/MM/YYYY").format("YYYY-MM-DD"),
-      id_card_number: id_card_number,
-      is_id_card_verified: 0,
-      token: token,
-    }
-  );
+  const newUser = await models.User.create({
+    username: username,
+    password: password,
+    name: name,
+    role: role,
+    email: email,
+    phone_number: phone_number,
+    tanggal_lahir: moment(tanggal_lahir, "DD/MM/YYYY").format("YYYY-MM-DD"),
+    id_card_number: id_card_number,
+    is_id_card_verified: 0,
+    token: token,
+  });
 
   if (newUser) {
     newUser.password = undefined;
@@ -126,7 +126,7 @@ self.verify = async (id, req, res) => {
         id: id,
       },
     });
-    
+
     const fileExtension = path.extname(req.file.originalname);
     const newFilename = `${user.username}${fileExtension}`;
     fs.renameSync(`./uploads/${req.file.filename}`, `./uploads/${newFilename}`);

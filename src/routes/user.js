@@ -243,12 +243,15 @@ router.put("/:id/edit",[auth.authenticate(["admin","developer","provider"],"role
 });
 router.post("/:id/verify", [auth.authenticate(["developer", "provider"], "role tidak sesuai")], async function (req, res) {
   let id = req.params.id;
+  let {id_card_number} = req.body;
+  console.log("id "+id_card_number);
+  let user_with_id;
   console.log(id);
   const schema = Joi.object({
     id: Joi.number()
       .required()
       .external(async function () {
-        let user_with_id = await models.User.findOne({
+        user_with_id = await models.User.findOne({
           where: {
             id: {
               [Op.eq]: id,
@@ -265,6 +268,9 @@ router.post("/:id/verify", [auth.authenticate(["developer", "provider"], "role t
     await schema.validateAsync(req.params);
     let verifyResult = await self.verify(id, req, res);
     if (verifyResult) {
+	  user_with_id.id_card_number = id_card_number;
+	  user_with_id.save();
+
       return res.status(201).send({ message: "Berhasil upload!" });
     }
     return res.status(400).send({
