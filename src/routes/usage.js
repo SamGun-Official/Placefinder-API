@@ -13,7 +13,6 @@ const JWT_KEY = "secret_key";
 
 const auth = require("../controllers/auth.controller");
 
-let usage_transactions = [];
 const serverKey = "SB-Mid-server-vMhuJY92Ihr9yLQcbX0Nnn9u";
 const clientKey = "SB-Mid-client-sNFHj-ePZOzmxetY";
 
@@ -60,23 +59,6 @@ let coreApi = new midtransClient.CoreApi({
 	serverKey: serverKey,
 	clientKey: clientKey,
 });
-
-function formatItemDetails(usages) {
-	let result = [];
-	for (const usage of usages) {
-		result.push({
-			id: usage.dataValues.id,
-			price: usage.dataValues.price,
-			quantity: usage.dataValues.qty,
-			name: usage.dataValues.feature_name,
-			brand: 'placefinder',
-			category: 'service',
-			merchant_name: 'placefinder',
-			url: usage.dataValues.Pricelist.url_endpoint
-		});
-	}
-	return result;
-}
 
 const router = express.Router();
 router.get("/developer/total", [auth.authenticate("developer", "role tidak sesuai")], async function (req, res) {
@@ -175,152 +157,6 @@ router.get("/developer/:id?", [auth.authenticate("developer", "role tidak sesuai
 			});
 		}
 	}
-});
-
-router.post("/checkout", [auth.authenticate("developer", "role tidak sesuai")], async function (req, res) {
-	let user = await models.User.findOne({ where: { username: auth.payload.username } });
-	let h_trans = await models.H_trans.findAll({
-		where: {
-			number: {
-				[Op.like]: `%${getNumberByCurrentDate()}%`,
-			},
-		},
-	});
-	let usages = await models.Usage.findAll({
-		attributes: [
-			'id',
-			[Sequelize.literal('PriceList.id'), 'id_pricelist'],
-			[Sequelize.literal('PriceList.feature_name'), 'feature_name'],
-			[Sequelize.literal('PriceList.url_endpoint'), 'url_endpoint'],
-			[Sequelize.literal('PriceList.price'), 'price'],
-			[Sequelize.literal('PriceList.status'), 'status'],
-			[Sequelize.literal('PriceList.created_at'), 'created_at'],
-			[Sequelize.literal('PriceList.updated_at'), 'updated_at'],
-			[Sequelize.fn('COUNT', Sequelize.col('id_pricelist')), 'qty'],
-			[Sequelize.fn('SUM', Sequelize.col('subtotal')), 'subtotal'],
-		],
-		include: [{
-			model: models.PriceList,
-			attributes: [
-				'url_endpoint'
-			],
-		}],
-		where: {
-			id_user: user.id,
-			status: 1,
-		},
-		group: ['PriceList.id', 'Usage.id_pricelist'],
-	});
-	let total = 0;
-	for (const usage of usages) {
-		total += parseInt(usage.dataValues.subtotal);
-	}
-	if (usages.length == 0 || total == 0) {
-		return res.status(404).send({
-			message: "Belum pernah menggunakan service!",
-		});
-	}
-	let number = getNumberByCurrentDate() + String(h_trans.length + 1).padStart(3, "0");
-	let parameter = {
-		payment_type: "bank_transfer",
-		transaction_details: {
-			gross_amount: total,
-			order_id: number,
-		},
-		bank_transfer: {
-			bank: "bca",
-		},
-		customer_details: {
-			first_name: user.name,
-			last_name: "",
-			email: user.email,
-			phone: user.phone_number,
-		},
-		item_details: formatItemDetails(usages)
-	};
-	usages = await models.Usage.findAll({
-		where: {
-			id_user: user.id,
-			status: 1,
-		},
-	});
-	coreApi
-		.charge(parameter)
-		.then(async (checkoutResponse) => {
-			console.log("checkoutResponse", JSON.stringify(checkoutResponse));
-			try {
-				let old_h_trans = await models.H_trans.findOne({
-					where: {
-						[Op.and]: {
-							id_user: user.id,
-							payment_status: 1 //pending
-						}
-					}
-				});
-				if (old_h_trans) {
-					await removePreviousVirtualAccount(old_h_trans.number);
-					old_h_trans.payment_status = 3; //failed
-					await old_h_trans.save();
-				}
-				const h_trans = await models.H_trans.create({
-					number: number,
-					id_user: user.id,
-					date: new Date(),
-					total: total,
-					payment_status: payment_status["pending"],
-					status: 1,
-				});
-				for (const usage of usages) {
-					const d_trans = await models.D_trans.create({
-						id_htrans: h_trans.id,
-						id_usage: usage.id,
-						subtotal: usage.subtotal,
-						status: payment_status["pending"],
-					});
-				}
-				return res.status(201).send({
-					// usages: usages,
-					checkoutResponse: checkoutResponse,
-				});
-			} catch (e) {
-				return res.status(500).send({
-					message: e.message,
-				});
-			}
-		})
-		.catch((e) => {
-			return res.status(500).send({
-				message: e.message,
-			});
-		});
-});
-
-router.post("/notification/", async function (req, res) {
-	// return res.status(200).send({ message: req.body });
-	coreApi.transaction.notification(req.body)
-		.then((statusResponse) => {
-			let order_id = statusResponse.order_id;
-			let transactionStatus = statusResponse.transaction_status;
-			// Sample transactionStatus handling logic
-
-			if (transactionStatus == "capture") {
-				// capture only applies to card transaction, which you need to check for the fraudStatus
-				if (fraudStatus == "challenge") {
-					// TODO set transaction status on your databaase to 'challenge'
-				} else if (fraudStatus == "accept") {
-					// TODO set transaction status on your databaase to 'success'
-				}
-			} else if (transactionStatus == "settlement") {
-				// TODO set transaction status on your databaase to 'success'
-			} else if (transactionStatus == "deny") {
-				// TODO you can ignore 'deny', because most of the time it allows payment retries
-				// and later can become success
-			} else if (transactionStatus == "cancel" || transactionStatus == "expire") {
-				// TODO set transaction status on your databaase to 'failure'
-			} else if (transactionStatus == "pending") {
-			}
-		});
-	return res.status(200).send("OK");
 });
 
 router.get("/", [auth.authenticate(["provider"])], async function (req, res) {
