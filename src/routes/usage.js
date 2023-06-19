@@ -4,12 +4,34 @@ const express = require("express");
 const { Op, DATE, Sequelize, DOUBLE } = require("sequelize");
 const Joi = require("joi").extend(require("@joi/date"));
 const models = require("../models/models");
+const axios = require('axios');
+const fetch = require('node-fetch');
 const { getNumberByCurrentDate } = require("../controllers/formatting.controller");
 
 const jwt = require("jsonwebtoken");
 const JWT_KEY = "secret_key";
 
 const auth = require("../controllers/auth.controller");
+
+let usage_transactions = [];
+const serverKey = "SB-Mid-server-vMhuJY92Ihr9yLQcbX0Nnn9u";
+const clientKey = "SB-Mid-client-sNFHj-ePZOzmxetY";
+
+const removePreviousVirtualAccount = async (orderId) => {
+	const url = `https://api.sandbox.midtrans.com/v2/${orderId}/cancel`;
+	const options = {
+		method: 'POST',
+		headers: {
+			accept: 'application/json',
+			authorization: 'Basic U0ItTWlkLXNlcnZlci12TWh1Slk5Mklocjl5TFFjYlgwTm5uOXU6'
+		}
+	};
+
+	fetch(url, options)
+		.then(res => res.json())
+		.then(json => console.log(json))
+		.catch(err => console.error('error:' + err));
+};
 
 const payment_status = {
 	unpaid: 0,
@@ -35,8 +57,8 @@ const midtransClient = require("midtrans-client");
 // Create Core API instance
 let coreApi = new midtransClient.CoreApi({
 	isProduction: false,
-	serverKey: "SB-Mid-server-vMhuJY92Ihr9yLQcbX0Nnn9u",
-	clientKey: "SB-Mid-client-sNFHj-ePZOzmxetY",
+	serverKey: serverKey,
+	clientKey: clientKey,
 });
 
 const router = express.Router();
@@ -203,15 +225,28 @@ router.post("/checkout", [auth.authenticate("developer", "role tidak sesuai")], 
 		// "order_id": number
 		// "usages": usages
 	};
-	console.log(parameter);
-	return res.status(400).send({
-		message: parameter,
-	});
+	// console.log(parameter);
+	// return res.status(400).send({
+	// 	message: parameter,
+	// });
 	coreApi
 		.charge(parameter)
 		.then(async (checkoutResponse) => {
 			console.log("checkoutResponse", JSON.stringify(checkoutResponse));
 			try {
+				let old_h_trans = await models.H_trans.findOne({
+					where: {
+						[Op.and]: {
+							id_user: user.id,
+							payment_status: 1 //pending
+						}
+					}
+				});
+				if (old_h_trans) {
+					await removePreviousVirtualAccount(old_h_trans.number);
+					old_h_trans.payment_status = 3; //failed
+					await old_h_trans.save();
+				}
 				const h_trans = await models.H_trans.create({
 					number: number,
 					id_user: user.id,
@@ -246,29 +281,31 @@ router.post("/checkout", [auth.authenticate("developer", "role tidak sesuai")], 
 });
 
 router.post("/notification/", async function (req, res) {
-	coreApi.transaction.notification(req.body).then((statusResponse) => {
-		let order_id = statusResponse.order_id;
-		let transactionStatus = statusResponse.transaction_status;
-		// Sample transactionStatus handling logic
+	return res.status(200).send({ message: req.body });
+	// coreApi.transaction.notification(req.body)
+	// 	.then((statusResponse) => {
+	// 		let order_id = statusResponse.order_id;
+	// 		let transactionStatus = statusResponse.transaction_status;
+	// 		// Sample transactionStatus handling logic
 
-		if (transactionStatus == "capture") {
-			// capture only applies to card transaction, which you need to check for the fraudStatus
-			if (fraudStatus == "challenge") {
-				// TODO set transaction status on your databaase to 'challenge'
-			} else if (fraudStatus == "accept") {
-				// TODO set transaction status on your databaase to 'success'
-			}
-		} else if (transactionStatus == "settlement") {
-			// TODO set transaction status on your databaase to 'success'
-		} else if (transactionStatus == "deny") {
-			// TODO you can ignore 'deny', because most of the time it allows payment retries
-			// and later can become success
-		} else if (transactionStatus == "cancel" || transactionStatus == "expire") {
-			// TODO set transaction status on your databaase to 'failure'
-		} else if (transactionStatus == "pending") {
-		}
-	});
-	return res.status(200).send("OK");
+	// 		if (transactionStatus == "capture") {
+	// 			// capture only applies to card transaction, which you need to check for the fraudStatus
+	// 			if (fraudStatus == "challenge") {
+	// 				// TODO set transaction status on your databaase to 'challenge'
+	// 			} else if (fraudStatus == "accept") {
+	// 				// TODO set transaction status on your databaase to 'success'
+	// 			}
+	// 		} else if (transactionStatus == "settlement") {
+	// 			// TODO set transaction status on your databaase to 'success'
+	// 		} else if (transactionStatus == "deny") {
+	// 			// TODO you can ignore 'deny', because most of the time it allows payment retries
+	// 			// and later can become success
+	// 		} else if (transactionStatus == "cancel" || transactionStatus == "expire") {
+	// 			// TODO set transaction status on your databaase to 'failure'
+	// 		} else if (transactionStatus == "pending") {
+	// 		}
+	// 	});
+	// return res.status(200).send("OK");
 });
 
 router.get("/", [auth.authenticate(["provider"])], async function (req, res) {
