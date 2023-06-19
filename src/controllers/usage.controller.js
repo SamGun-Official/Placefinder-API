@@ -47,20 +47,23 @@ function formatUsage(usages, id) {
 
 let self = {};
 self.getAllUsages = async (id) => {
-	return formatUsage(await models.Usage.findAll({
-		include: [
-			{
-				model: models.PriceList,
-				attributes: ["id", "price", "url_endpoint", "feature_name"],
-			},
-			{
-				model: models.User,
-				attributes: ["id", "username"],
-			},
-		],
-	}), undefined);
-}
-self.getAllUserUsage = async (id) => {
+	return formatUsage(
+		await models.Usage.findAll({
+			include: [
+				{
+					model: models.PriceList,
+					attributes: ["id", "price", "url_endpoint", "feature_name"],
+				},
+				{
+					model: models.User,
+					attributes: ["id", "username"],
+				},
+			],
+		}),
+		undefined
+	);
+};
+self.getAllUserUsage = async (user_id) => {
 	let usages = await models.Usage.findAll({
 		attributes: ["id", "id_pricelist", "id_user", "date", "subtotal", "status"],
 		include: [
@@ -75,7 +78,7 @@ self.getAllUserUsage = async (id) => {
 		],
 	});
 
-	return formatUsage(usages, id);
+	return formatUsage(usages, user_id);
 };
 self.getUsageTotal = async (id) => {
 	let usages = await models.Usage.sum("subtotal", {

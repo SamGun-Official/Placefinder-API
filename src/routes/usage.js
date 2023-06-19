@@ -181,7 +181,7 @@ router.post("/checkout", [auth.authenticate("developer", "role tidak sesuai")], 
 	}
 	if (usages.length == 0 || total == 0) {
 		return res.status(404).send({
-			message: 'Belum pernah menggunakan service!'
+			message: "Belum pernah menggunakan service!",
 		});
 	}
 	let number = getNumberByCurrentDate() + String(h_trans.length + 1).padStart(3, "0");
@@ -253,26 +253,24 @@ router.post("/notification/", async function (req, res) {
 			let transactionStatus = statusResponse.transaction_status;
 			// Sample transactionStatus handling logic
 
-			if (transactionStatus == 'capture') {
-				// capture only applies to card transaction, which you need to check for the fraudStatus
-				if (fraudStatus == 'challenge') {
-					// TODO set transaction status on your databaase to 'challenge'
-				} else if (fraudStatus == 'accept') {
-					// TODO set transaction status on your databaase to 'success'
-				}
-			} else if (transactionStatus == 'settlement') {
+		if (transactionStatus == "capture") {
+			// capture only applies to card transaction, which you need to check for the fraudStatus
+			if (fraudStatus == "challenge") {
+				// TODO set transaction status on your databaase to 'challenge'
+			} else if (fraudStatus == "accept") {
 				// TODO set transaction status on your databaase to 'success'
-			} else if (transactionStatus == 'deny') {
-				// TODO you can ignore 'deny', because most of the time it allows payment retries
-				// and later can become success
-			} else if (transactionStatus == 'cancel' ||
-				transactionStatus == 'expire') {
-				// TODO set transaction status on your databaase to 'failure'
-			} else if (transactionStatus == 'pending') {
-
 			}
-		});
-	return res.status(200).send('OK');
+		} else if (transactionStatus == "settlement") {
+			// TODO set transaction status on your databaase to 'success'
+		} else if (transactionStatus == "deny") {
+			// TODO you can ignore 'deny', because most of the time it allows payment retries
+			// and later can become success
+		} else if (transactionStatus == "cancel" || transactionStatus == "expire") {
+			// TODO set transaction status on your databaase to 'failure'
+		} else if (transactionStatus == "pending") {
+		}
+	});
+	return res.status(200).send("OK");
 });
 
 router.get("/", [auth.authenticate(["provider"])], async function (req, res) {
@@ -280,8 +278,13 @@ router.get("/", [auth.authenticate(["provider"])], async function (req, res) {
 	return res.status(200).send(await self.getAllUsagesByIdUser(user.id));
 });
 
-router.get("/all", [auth.authenticate(["admin"])], async function (req, res) {
+router.get("/admin/all", [auth.authenticate(["admin"])], async function (req, res) {
 	return res.status(200).send(await self.getAllUsages());
+});
+
+router.get("/admin/:user_id", [auth.authenticate(["admin"])], async function (req, res) {
+	const user_id = req.params.user_id;
+	return res.status(200).send(await self.getAllUserUsage(user_id));
 });
 
 module.exports = router;
