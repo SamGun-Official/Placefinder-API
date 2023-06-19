@@ -38,7 +38,7 @@ const IS_VERIFIED = {
 const ROLE = ["Admin", "Developer", "Penyedia tempat tinggal"];
 
 const router = express.Router();
-router.get("/", async function (req, res) {
+router.get("/",[auth.authenticate("admin","role tidak sesuai")], async function (req, res) {
   let name = req.query.name ?? "";
   const users = await self.getAll(name);
   return res.status(200).send(users);
@@ -69,7 +69,7 @@ router.post("/login", async function (req, res) {
     await schema.validateAsync(req.body);
     let user = await self.login(req, res);
     if (user) {
-      return res.status(201).send({
+      return res.status(200).send({
         message: "Berhasil login!",
         user: {
           username: user.username,
@@ -89,7 +89,7 @@ router.post("/login", async function (req, res) {
     });
   }
 });
-router.get("/:id", async function (req, res) {
+router.get("/:id",[auth.authenticate("admin","role tidak sesuai")], async function (req, res) {
   let id = req.params.id;
   let user = await self.getById(id);
   return res.status(200).send(user);
