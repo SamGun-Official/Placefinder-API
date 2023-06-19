@@ -203,10 +203,10 @@ router.post("/checkout", [auth.authenticate("developer", "role tidak sesuai")], 
 		// "order_id": number
 		// "usages": usages
 	};
-	console.log(parameter);
-	return res.status(400).send({
-		message: parameter,
-	});
+	// console.log(parameter);
+	// return res.status(400).send({
+	// 	message: parameter,
+	// });
 	coreApi
 		.charge(parameter)
 		.then(async (checkoutResponse) => {
@@ -246,6 +246,7 @@ router.post("/checkout", [auth.authenticate("developer", "role tidak sesuai")], 
 });
 
 router.post("/notification/", async function (req, res) {
+	return res.status(200).send({message: req.body});
 	coreApi.transaction.notification(req.body)
 		.then((statusResponse) => {
 			let order_id = statusResponse.order_id;
