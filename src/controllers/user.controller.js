@@ -33,11 +33,18 @@ self.getAll = async (name) => {
         [Op.substring]: name,
       },
     },
+    attributes: {
+      exclude: ["password"],
+    },
   });
   return users;
 };
 self.getById = async (id) => {
-  let user = await models.User.findByPk(id);
+  let user = await models.User.findByPk(id, {
+    attributes: {
+      exclude: ["password"],
+    },
+  });
   return user;
 };
 self.get = async (id) => {};
@@ -53,7 +60,7 @@ self.login = async (req, res) => {
 self.register = async (req, res) => {
   let { username, password, name, email, role, phone_number, tanggal_lahir, id_card_number } = req.body;
 
-  //sign
+  // Sign
   let token = jwt.sign(
     {
       username: username,
@@ -62,24 +69,30 @@ self.register = async (req, res) => {
     JWT_KEY
   );
 
-  const newUser = models.User.create({
-    username: username,
-    password: password,
-    name: name,
-    role: role,
-    email: email,
-    phone_number: phone_number,
-    tanggal_lahir: moment(tanggal_lahir, "DD/MM/YYYY").format("YYYY-MM-DD"),
-    id_card_number: id_card_number,
-    is_id_card_verified: 0,
-    token: token,
-  });
+  const newUser = await models.User.create(
+    {
+      username: username,
+      password: password,
+      name: name,
+      role: role,
+      email: email,
+      phone_number: phone_number,
+      tanggal_lahir: moment(tanggal_lahir, "DD/MM/YYYY").format("YYYY-MM-DD"),
+      id_card_number: id_card_number,
+      is_id_card_verified: 0,
+      token: token,
+    }
+  );
+
   if (newUser) {
-    return true;
+    newUser.password = undefined;
+    return newUser;
   }
+
   return false;
 };
-self.edit = async (id, req, res) => {
+
+self.edit = async (id, req) => {
   let { username, password, name, email, role, phone_number, tanggal_lahir, id_card_number } = req.body;
   let user = await models.User.findOne({
     where: {
@@ -87,11 +100,11 @@ self.edit = async (id, req, res) => {
     },
   });
 
-  user.username = username || user.username;
+  // user.username = username || user.username;
   user.password = password || user.password;
   user.name = name || user.name;
   user.email = email || user.email;
-  user.role = role || user.role;
+  // user.role = role || user.role;
   user.phone_number = phone_number || user.phone_number;
   user.tanggal_lahir = tanggal_lahir || user.tanggal_lahir;
   user.id_card_number = id_card_number || user.id_card_number;
@@ -113,8 +126,7 @@ self.verify = async (id, req, res) => {
         id: id,
       },
     });
-    console.log(req.file);
-
+    
     const fileExtension = path.extname(req.file.originalname);
     const newFilename = `${user.username}${fileExtension}`;
     fs.renameSync(`./uploads/${req.file.filename}`, `./uploads/${newFilename}`);
