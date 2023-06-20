@@ -339,6 +339,12 @@ router.put("/:id/verify/confirm", [auth.authenticate("admin", "role tidak sesuai
     });
   }
 
+  const ver = await models.User.findOne({
+	where: {
+		username:user.username
+	}
+  });
+ 
   //verify (update)
   await self.updateUserConfirm(user.username);
   return res.status(200).send({
@@ -353,7 +359,7 @@ router.put("/:id/verify/confirm", [auth.authenticate("admin", "role tidak sesuai
       tanggal_lahir: user.tanggal_lahir,
       id_card: {
         number: user.id_card_number,
-        status: IS_VERIFIED[user.is_id_card_verified],
+        status: IS_VERIFIED[ver.is_id_card_verified],
       },
       token: user.token,
       status: user.status,
