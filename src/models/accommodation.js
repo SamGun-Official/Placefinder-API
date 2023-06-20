@@ -69,10 +69,6 @@ module.exports = (sequelize) => {
 				type: DataTypes.INTEGER,
 				allowNull: true,
 			},
-			area: {
-				type: DataTypes.INTEGER,
-				allowNull: true,
-			},
 		},
 		{
 			sequelize: sequelize,

@@ -28,9 +28,9 @@ router.post("/admin/create", [auth.authenticate("admin", "role tidak sesuai")], 
 			.required()
 			.external(async function () {
 				const result = await models.User.findOne({
-					where:{
-						id: id_user
-					}
+					where: {
+						id: id_user,
+					},
 				});
 				if (result.length <= 0) {
 					throw Error("id user tidak ditemukan!");
@@ -45,9 +45,9 @@ router.post("/admin/create", [auth.authenticate("admin", "role tidak sesuai")], 
 			.required()
 			.external(async function () {
 				const result = await models.Accommodation.findOne({
-					where:{
-						id: id_accommodation
-					}
+					where: {
+						id: id_accommodation,
+					},
 				});
 				if (result.length <= 0) {
 					throw Error("id accommodation tidak ditemukan");
@@ -60,20 +60,23 @@ router.post("/admin/create", [auth.authenticate("admin", "role tidak sesuai")], 
 	});
 
 	try {
-		await validator.validateAsync({ description, id_user, id_accommodation});
+		await validator.validateAsync({ description, id_user, id_accommodation });
 	} catch (e) {
 		return res.status(400).send({
 			message: e.message.toString().replace(/['"]/g, ""),
 		});
 	}
 
-	const user = await models.User.findOne({
-		where:{
-			id: id_user
+	const user = await models.User.findOne(
+		{
+			where: {
+				id: id_user,
+			},
+		},
+		{
+			attributes: ["id", "username"],
 		}
-	}, {
-		attributes: ["id", "username"],
-	});
+	);
 
 	if (user.role == 0) {
 		return res.status(400).send({
