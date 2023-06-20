@@ -74,11 +74,12 @@ module.exports = (sequelize) => {
 			sequelize: sequelize,
 			modelName: "Accommodation",
 			tableName: "accommodations",
-			paranoid: false,
+			paranoid: true,
 			underscored: false,
 			timestamps: true,
 			createdAt: "created_at",
 			updatedAt: "updated_at",
+			deletedAt: "deleted_at",
 		}
 	);
 

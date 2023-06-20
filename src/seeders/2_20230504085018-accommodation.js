@@ -23,6 +23,7 @@ module.exports = {
 				capacity: faker.datatype.number({ min: 1, max: 5 }),
 				created_at: new Date(),
 				updated_at: new Date(),
+				deleted_at: null,
 			});
 		}
 

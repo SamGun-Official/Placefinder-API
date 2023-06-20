@@ -79,7 +79,7 @@ router.get("/search", auth.authenticate(["admin"]), async function (req, res) {
 	}
 	return res.status(200).send(await self.getAll());
 });
-router.post("/provider/add", auth.authenticate(["provider"]), async function (req, res) {
+router.post("/add", auth.authenticate(["provider"]), async function (req, res) {
 	try {
 		const schema = accommodationValidationSchema();
 		const { name, address, price, description, type, capacity } = await schema.validateAsync({
@@ -112,7 +112,7 @@ router.post("/provider/add", auth.authenticate(["provider"]), async function (re
 		return res.status(error.request ? error.request.res.statusCode : 400).send({ message: error.original ? error.original : error.message });
 	}
 });
-router.put("/provider/update/:id", auth.authenticate(["provider"]), async function (req, res) {
+router.put("/update/:id", auth.authenticate(["admin", "provider"]), async function (req, res) {
 	try {
 		const accommodation_id = req.params.id;
 		const schema = accommodationValidationSchema();
@@ -153,16 +153,16 @@ router.put("/provider/update/:id", auth.authenticate(["provider"]), async functi
 		return res.status(error.request ? error.request.res.statusCode : 400).send({ message: error.original ? error.original : error.message });
 	}
 });
-router.delete("/provider/delete/:id", auth.authenticate(["provider"]), async function (req, res) {
+router.delete("/delete/:id", auth.authenticate(["admin", "provider"]), async function (req, res) {
 	try {
 		await self.delete(req.params.id, auth.payload.username);
+
+		return res.status(200).send({
+			message: `Successfully delete accommodation data with ID ${req.params.id}!`,
+		});
 	} catch (error) {
 		return res.status(error.request ? error.request.res.statusCode : 400).send({ message: error.original ? error.original : error.message });
 	}
-
-	return res.status(200).send({
-		message: `Successfully delete accommodation data with ID ${req.params.id}!`,
-	});
 });
 router.get("/provider/detail/all", auth.authenticate(["provider"]), async function (req, res) {
 	try {
@@ -241,5 +241,6 @@ router.get("/developer/all", auth.authenticate(["developer"]), async function (r
 		return res.status(error.request ? error.request.res.statusCode : 400).send({ message: error.original ? error.original : error.message });
 	}
 });
+router.get("/admin/all", auth.authenticate(["developer"]), async function (req, res) {});
 
 module.exports = router;

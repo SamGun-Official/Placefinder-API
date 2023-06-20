@@ -162,14 +162,14 @@ self.update = async (accommodation_id, req, username) => {
 		};
 	}
 
-	const owner_data = await models.User.findOne({
+	const user_data = await models.User.findOne({
 		where: {
 			username: {
 				[Op.eq]: username,
 			},
 		},
 	});
-	if (parseInt(accommodation_data.owner) !== parseInt(owner_data.id)) {
+	if (parseInt(accommodation_data.owner) !== parseInt(user_data.id) && user_data.username !== "admin") {
 		throw {
 			request: {
 				res: {
@@ -185,19 +185,20 @@ self.update = async (accommodation_id, req, username) => {
 	let usage_data = null;
 	if (accommodation_data.address !== req.body.address) {
 		geocoding_data = await fetchAddressCoordinate(req.body.address);
-
-		const pricelist_data = await models.PriceList.findOne({
-			where: {
-				url_endpoint: "https://samgun-official.my.id/placefinder/api/accommodations/provider",
-			},
-		});
-		usage_data = await models.Usage.create({
-			id_pricelist: pricelist_data.id,
-			id_user: owner_data.id,
-			date: new Date(),
-			subtotal: pricelist_data.price,
-			status: 1,
-		});
+		if (user_data.username !== "admin") {
+			const pricelist_data = await models.PriceList.findOne({
+				where: {
+					url_endpoint: "https://samgun-official.my.id/placefinder/api/accommodations/provider",
+				},
+			});
+			usage_data = await models.Usage.create({
+				id_pricelist: pricelist_data.id,
+				id_user: user_data.id,
+				date: new Date(),
+				subtotal: pricelist_data.price,
+				status: 1,
+			});
+		}
 	}
 
 	const arguments = {
@@ -237,14 +238,14 @@ self.delete = async (accommodation_id, username) => {
 		};
 	}
 
-	const owner_data = await models.User.findOne({
+	const user_data = await models.User.findOne({
 		where: {
 			username: {
 				[Op.eq]: username,
 			},
 		},
 	});
-	if (parseInt(accommodation_data.owner) !== parseInt(owner_data.id)) {
+	if (parseInt(accommodation_data.owner) !== parseInt(user_data.id) && user_data.username !== "admin") {
 		throw {
 			request: {
 				res: {
