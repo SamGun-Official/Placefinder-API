@@ -406,7 +406,7 @@ router.post("/notification/", async function (req, res) {
 			} else if (transactionStatus == "cancel" || transactionStatus == "expire") {
 				// TODO set transaction status on your databaase to 'failure'
 				await models.H_trans.update({
-					status: 3 //settlement
+					payment_status: 3 //settlement
 				}, {
 					where: {
 						number: order_id
