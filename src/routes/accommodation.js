@@ -40,7 +40,7 @@ router.get("/search", auth.authenticate(["admin"]), async function (req, res) {
 	} else if (address) {
 		return res.status(200).send(await self.getAccommodationsByAddress(address));
 	}
-	return res.status(200).send(accommodations);
+	return res.status(200).send(await self.getAll());
 });
 
 module.exports = router;
