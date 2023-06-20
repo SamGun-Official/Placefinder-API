@@ -187,9 +187,6 @@ router.post("/checkout", [auth.authenticate("developer", "role tidak sesuai")], 
 			},
 		},
 	});
-	return res.status(201).send({
-		item_details: h_trans,
-	});
 	let item_details = await models.Usage.findAll({
 		attributes: [
 			'id',
@@ -214,6 +211,9 @@ router.post("/checkout", [auth.authenticate("developer", "role tidak sesuai")], 
 			status: 1,
 		},
 		group: ['PriceList.id', 'Usage.id_pricelist'],
+	});
+	return res.status(201).send({
+		item_details: user,
 	});
 	let total = 0;
 	for (const item_detail of item_details) {
