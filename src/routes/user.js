@@ -339,14 +339,16 @@ router.put("/:id/verify/confirm", [auth.authenticate("admin", "role tidak sesuai
     });
   }
 
+  //verify (update)
+  await self.updateUserConfirm(user.username);
+
   const ver = await models.User.findOne({
 	where: {
 		username:user.username
 	}
   });
  
-  //verify (update)
-  await self.updateUserConfirm(user.username);
+
   return res.status(200).send({
     message: `berhasil mengkonfirmasi pengguna dengan username ${user.username}`,
     user: {
