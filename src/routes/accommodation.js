@@ -40,7 +40,7 @@ router.get("/search", auth.authenticate(["admin"]), async function (req, res) {
 	} else if (address) {
 		return res.status(200).send(await self.getAccommodationsByAddress(address));
 	}
-	return res.status(400).send({ message: "Harap isi field id or name or address!" });
+	return res.status(200).send(accommodations);
 });
 
 module.exports = router;
