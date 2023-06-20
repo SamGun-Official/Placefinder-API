@@ -149,6 +149,7 @@ router.get("/", [auth.authenticate(["developer", "admin", "provider"], "role tid
 	}
 });
 router.get("/search/", [auth.authenticate(["admin", "developer", 'provider'])], async function (req, res) {
+	const user = await models.User.findOne({where: {username: auth.payload.username}});
 	const validator = Joi.object({
 		number: Joi.string().allow("", null),
 		start_date: Joi.date().max("now").format("DD/MM/YYYY").allow("", null),
@@ -187,11 +188,11 @@ router.get("/search/", [auth.authenticate(["admin", "developer", 'provider'])], 
 		}
 		if (payment_status) {
 			// return res.status(200).send(payment_status);
-			return res.status(200).send(await self.getByPaymentStatus(payment_status));
+			return res.status(200).send(await self.getByPaymentStatus(payment_status, user.id));
 		} else if (start_date || end_date) {
-			return res.status(200).send(await self.getByDate(start_date, end_date));
+			return res.status(200).send(await self.getByDate(start_date, end_date, user.id));
 		} else {
-			return res.status(200).send(await self.getAll());
+			return res.status(200).send(await self.getAll(user.id));
 		}
 	}
 });

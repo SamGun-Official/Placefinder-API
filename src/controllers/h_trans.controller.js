@@ -51,7 +51,7 @@ function formatRupiah(amount) {
 	return formattedAmount;
 }
 let self = {};
-self.getAll = async () => {
+self.getAll = async (id_user) => {
 	let h_trans = await models.H_trans.findAll({
 		attributes: ["id", "number", "id_user", "date", "total", "payment_status", "status"],
 		include: [
@@ -61,7 +61,7 @@ self.getAll = async () => {
 			},
 		],
 	});
-
+	h_trans = h_trans.filter(h => h.id_user == id_user) || h_trans;
 	//nb: total dihitung lagi karena di table itu berbeda
 	return await formattedH_trans(h_trans);
 };
@@ -100,7 +100,7 @@ self.getByNumber = async (number) => {
 	});
 	return await formattedH_trans(h_trans);
 };
-self.getByPaymentStatus = async (payment_status) => {
+self.getByPaymentStatus = async (payment_status, id_user) => {
 	let status = PAYMENT_STATUS.findIndex(p => p == payment_status.toLowerCase());
 	let h_trans = await models.H_trans.findAll({
 		attributes: ["id", "number", "id_user", "date", "total", "payment_status", "status"],
@@ -111,12 +111,13 @@ self.getByPaymentStatus = async (payment_status) => {
 			},
 		],
 		where: {
-			payment_status: status
+			payment_status: status,
 		},
 	});
+	h_trans = h_trans.filter(h => h.id_user == id_user) || h_trans;
 	return await formattedH_trans(h_trans);
 }
-self.getByDate = async (start, end) => {
+self.getByDate = async (start, end, id_user) => {
 	let start_date, end_date;
 	start_date = start ? moment(start, "DD/MM/YYYY").format("YYYY-MM-DD") : "2000-01-01";
 	end_date = end ? moment(end, "DD/MM/YYYY").format("YYYY-MM-DD") : new Date();
@@ -134,6 +135,7 @@ self.getByDate = async (start, end) => {
 			},
 		},
 	});
+	// h_trans = h_trans.filter(h => h.id_user == id_user) || h_trans;
 	return await formattedH_trans(h_trans);
 };
 
