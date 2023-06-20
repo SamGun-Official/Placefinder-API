@@ -387,7 +387,7 @@ router.post("/notification/", async function (req, res) {
 			} else if (transactionStatus == "settlement") {
 				// TODO set transaction status on your databaase to 'success'
 				await models.H_trans.update({
-					status: 2 //settlement
+					payment_status: 2 //settlement
 				}, {
 					where: {
 						number: order_id
@@ -396,7 +396,7 @@ router.post("/notification/", async function (req, res) {
 				let h_trans = await models.H_trans.findOne({ where: { number: order_id } });
 				let d_trans = await models.D_trans.findOne({ where: { id_htrans: h_trans.id } });
 				for(const d of d_trans){
-					let usage = await models.H_trans.findByPk(d.id_usage);
+					let usage = await models.Usage.findByPk(d.id_usage);
 					usage.status = 0;
 					await usage.save();
 				}
