@@ -180,9 +180,6 @@ router.get("/search/", [auth.authenticate(["admin", "developer", 'provider'])], 
 
 router.post("/checkout", [auth.authenticate("developer", "role tidak sesuai")], async function (req, res) {
 	let user = await models.User.findOne({ where: { username: auth.payload.username } });
-	return res.status(200).send({
-		message: user
-	})
 	let h_trans = await models.H_trans.findAll({
 		where: {
 			number: {
