@@ -394,8 +394,8 @@ router.post("/notification/", async function (req, res) {
 					}
 				});
 				let h_trans = await models.H_trans.findOne({ where: { number: order_id } });
-				let d_trans = await models.D_trans.findOne({ where: { id_htrans: h_trans.id } });
-				for(const d of d_trans.dataValues){
+				let d_trans = await models.D_trans.findAll({ where: { id_htrans: h_trans.id } });
+				for(const d of d_trans){
 					let usage = await models.Usage.findByPk(d.id_usage);
 					usage.status = 0;
 					await usage.save();
