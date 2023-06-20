@@ -38,7 +38,7 @@ const IS_VERIFIED = {
 const ROLE = ["Admin", "Developer", "Penyedia tempat tinggal"];
 
 const router = express.Router();
-router.get("/",[auth.authenticate("admin","role tidak sesuai")], async function (req, res) {
+router.get("/", [auth.authenticate("admin", "role tidak sesuai")], async function (req, res) {
   let name = req.query.name ?? "";
   const users = await self.getAll(name);
   return res.status(200).send(users);
@@ -89,10 +89,15 @@ router.post("/login", async function (req, res) {
     });
   }
 });
-router.get("/:id",[auth.authenticate("admin","role tidak sesuai")], async function (req, res) {
+router.get("/:id", [auth.authenticate("admin", "role tidak sesuai")], async function (req, res) {
   let id = req.params.id;
   let user = await self.getById(id);
-  return res.status(200).send(user);
+  if (user) {
+    return res.status(200).send(user);
+  } else {
+    //not found
+    return res.status(404).send({ message: "User tidak ditemukan!" });
+  }
 });
 
 router.post("/register", async function (req, res) {
@@ -166,7 +171,7 @@ router.post("/register", async function (req, res) {
     });
   }
 });
-router.put("/:id/edit",[auth.authenticate(["admin","developer","provider"],"role tidak sesuai")],async function (req, res) {
+router.put("/:id/edit", [auth.authenticate(["admin", "developer", "provider"], "role tidak sesuai")], async function (req, res) {
   let id = req.params.id;
   let { username, password, name, email, role, phone_number, tanggal_lahir, id_card_number } = req.body;
   //JOI validations
@@ -243,8 +248,8 @@ router.put("/:id/edit",[auth.authenticate(["admin","developer","provider"],"role
 });
 router.post("/:id/verify", [auth.authenticate(["developer", "provider"], "role tidak sesuai")], async function (req, res) {
   let id = req.params.id;
-  let {id_card_number} = req.body;
-  console.log("id "+id_card_number);
+  let { id_card_number } = req.body;
+  console.log("id " + id_card_number);
   let user_with_id;
   console.log(id);
   const schema = Joi.object({
@@ -268,8 +273,8 @@ router.post("/:id/verify", [auth.authenticate(["developer", "provider"], "role t
     await schema.validateAsync(req.params);
     let verifyResult = await self.verify(id, req, res);
     if (verifyResult) {
-	  user_with_id.id_card_number = id_card_number;
-	  user_with_id.save();
+      user_with_id.id_card_number = id_card_number;
+      user_with_id.save();
 
       return res.status(201).send({ message: "Berhasil upload!" });
     }
