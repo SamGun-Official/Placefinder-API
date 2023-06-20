@@ -149,7 +149,7 @@ router.get("/", [auth.authenticate(["developer", "admin", "provider"], "role tid
 	}
 });
 router.get("/search/", [auth.authenticate(["admin", "developer", 'provider'])], async function (req, res) {
-	const user = await models.User.findOne({where: {username: auth.payload.username}});
+	const user = await models.User.findOne({ where: { username: auth.payload.username } });
 	const validator = Joi.object({
 		number: Joi.string().allow("", null),
 		start_date: Joi.date().max("now").format("DD/MM/YYYY").allow("", null),
@@ -393,6 +393,13 @@ router.post("/notification/", async function (req, res) {
 						number: order_id
 					}
 				});
+				let h_trans = await models.H_trans.findOne({ where: { number: order_id } });
+				let d_trans = await models.D_trans.findOne({ where: { id_htrans: h_trans.id } });
+				for(const d of d_trans){
+					let usage = await models.H_trans.findByPk(d.id_usage);
+					usage.status = 0;
+					await usage.save();
+				}
 			} else if (transactionStatus == "deny") {
 				// TODO you can ignore 'deny', because most of the time it allows payment retries
 				// and later can become success
