@@ -144,7 +144,7 @@ self.getByUsername = async (username) => {
 };
 
 self.updateUserConfirm = async(username) =>{
-  await User.update({
+  await models.User.update({
     is_id_card_verified: 1
   },{
     where:{
