@@ -67,6 +67,11 @@ router.post("/add", auth.authenticate("admin"), async function (req, res) {
 router.put("/update/:id", auth.authenticate("admin"), async function (req, res) {
 	let { id } = req.params;
 	let { feature_name, url_endpoint, price } = req.body;
+	if(!!feature_name && !!url_endpoint && !!price){
+		return res.status(400).send({
+			message: 'Harap isi field minimal satu dari feature_name, url_endpoint, dan price'
+		});
+	}
 	feature_name = feature_name == undefined ? null : feature_name;
 	url_endpoint = url_endpoint == undefined ? null : url_endpoint;
 	price = price == undefined ? null : price;
