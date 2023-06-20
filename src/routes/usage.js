@@ -109,8 +109,6 @@ router.get("/developer/total", [auth.authenticate("developer", "role tidak sesua
 						usages: result_usages,
 					});
 				}
-			
-			
 		} else if (status == "unpaid") {
 			const usages = await self.getUsageUnpaid(user.id);
 			const subtotal = await self.getUsageTotalUnpaid(user.id);
