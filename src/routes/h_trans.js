@@ -96,6 +96,9 @@ const PAYMENT_STATUS = [
 ]
 
 function checkPaymentStatusExist(payment_status) {
+	if (!payment_status) {
+		return true;
+	}
 	if (PAYMENT_STATUS.find(p => p == payment_status.toLowerCase())) {
 		return true;
 	}
