@@ -116,7 +116,7 @@ self.edit = async (id, req) => {
 self.delete = async (req, res) => {};
 self.deleteAll = async (req, res) => {};
 self.verify = async (id, req, res) => {
-  const uploadFunc = upload.single("pp");
+  const uploadFunc = upload.single("id_card_pic");
   uploadFunc(req, res, async function (err) {
     if (err) {
       return err;

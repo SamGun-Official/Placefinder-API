@@ -218,7 +218,7 @@ router.put("/:id/edit", [auth.authenticate(["admin", "developer", "provider"], "
     phone_number: Joi.string().pattern(new RegExp("^[0-9]{10,12}$")).allow("", null),
     tanggal_lahir: Joi.date().max("now").format("DD/MM/YYYY").allow("", null),
     id_card_number: Joi.string()
-      .pattern(new RegExp("^[0-9]{14}$"))
+      .pattern(new RegExp("^[0-9]{16}$"))
       .external(async function () {
         let user_with_id_card_number = await models.User.findOne({
           where: {
@@ -248,10 +248,8 @@ router.put("/:id/edit", [auth.authenticate(["admin", "developer", "provider"], "
 });
 router.post("/:id/verify", [auth.authenticate(["developer", "provider"], "role tidak sesuai")], async function (req, res) {
   let id = req.params.id;
-  let { id_card_number } = req.body;
-  console.log("id " + id_card_number);
+  let id_card_number = req.body.id_card_number;
   let user_with_id;
-  console.log(id);
   const schema = Joi.object({
     id: Joi.number()
       .required()
@@ -267,16 +265,16 @@ router.post("/:id/verify", [auth.authenticate(["developer", "provider"], "role t
           throw Error("ID tidak ditemukan");
         }
       }),
+    id_card_number: Joi.string().required().pattern(new RegExp("^[0-9]{16}$")),
   });
 
   try {
-    await schema.validateAsync(req.params);
+    await schema.validateAsync({id,id_card_number});
     let verifyResult = await self.verify(id, req, res);
     if (verifyResult) {
-      user_with_id.id_card_number = id_card_number;
-      user_with_id.save();
-
-      return res.status(201).send({ message: "Berhasil upload!" });
+      if(user_with_id.id_card_number == id_card_number){
+        return res.status(200).send({ message: "Berhasil upload!" });
+      }
     }
     return res.status(400).send({
       message: "Gagal upload!",
