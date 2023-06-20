@@ -187,6 +187,9 @@ router.post("/checkout", [auth.authenticate("developer", "role tidak sesuai")], 
 			},
 		},
 	});
+	return res.status(201).send({
+		item_details: h_trans,
+	});
 	let item_details = await models.Usage.findAll({
 		attributes: [
 			'id',
@@ -244,9 +247,6 @@ router.post("/checkout", [auth.authenticate("developer", "role tidak sesuai")], 
 			id_user: user.id,
 			status: 1,
 		},
-	});
-	return res.status(201).send({
-		item_details: usages,
 	});
 	coreApi
 		.charge(parameter)
