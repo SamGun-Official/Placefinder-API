@@ -120,6 +120,11 @@ router.get("/admin", [auth.authenticate("admin", "role tidak sesuai")], async fu
 router.get("/admin/user/:id_user?", [auth.authenticate("admin", "role tidak sesuai")], async function (req, res) {
 	const id_user = req.params.id_user;
 	let notifs = await self.getByUser(id_user);
+	if(notifs.length==0){
+		return res.status(404).send({
+			message: "notif tidak ditemukan!"
+		});
+	}
 	const notif_result = [];
 	for (let i = 0; i < notifs.length; i++) {
 		notif_result.push({
@@ -147,7 +152,7 @@ router.get("/admin/:id?", [auth.authenticate("admin", "role tidak sesuai")], asy
 	let notification = await self.get(id);
 	if(!notification){
 		return res.status(404).send({
-			message: "id tidak ditemukan!"
+			message: "notif tidak ditemukan!"
 		});
 	}
 	const notif_result = {
@@ -176,6 +181,12 @@ router.get("/", [auth.authenticate(["provider", "developer"], "role tidak sesuai
 	console.log("USER: " + username);
 	console.log("ID:" + user.id);
 	let notifs = await self.getByUser(user.id);
+
+	if(notifs.length==0){
+		return res.status(404).send({
+			message: "notif tidak ditemukan!"
+		});
+	}
 
 	const notif_result = [];
 	for (let i = 0; i < notifs.length; i++) {
