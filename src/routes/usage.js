@@ -75,7 +75,7 @@ router.get("/developer/total", [auth.authenticate("developer", "role tidak sesua
 		const usages = await self.getAllUserUsage(user.id);
 		const subtotal = await self.getUsageTotal(user.id);
 		return res.status(200).send({
-			subtotal: subtotal,
+			subtotal: formatRupiah(subtotal),
 			usages: usages,
 		});
 	} else {
@@ -88,28 +88,33 @@ router.get("/developer/total", [auth.authenticate("developer", "role tidak sesua
 			});
 		}
 
+		
 		if (status == "paid") {
-			const usages = await self.getUsagePaid(user.id);
-			const subtotal = await self.getUsageTotalPaid(user.id);
-			const result_usages = [];
-			for (let i = 0; i < usages.length; i++) {
-				result_usages.push(usages[i]);
-			}
-
-			if (result_usages.length > 0) {
-				return res.status(200).send({
-					subtotal: formatRupiah(subtotal),
-					usages: result_usages,
-				});
-			} else {
-				return res.status(200).send({
-					subtotal: formatRupiah(0),
-					usages: result_usages,
-				});
-			}
+				const usages = await self.getUsagePaid(user.id);
+				const subtotal = await self.getUsageTotalPaid(user.id);
+				
+				const result_usages = [];
+				for (let i = 0; i < usages.length; i++) {
+					result_usages.push(usages[i]);
+				}
+	
+				if (result_usages.length > 0) {
+					return res.status(200).send({
+						subtotal: formatRupiah(subtotal),
+						usages: result_usages,
+					});
+				} else {
+					return res.status(200).send({
+						subtotal: formatRupiah(0),
+						usages: result_usages,
+					});
+				}
+			
+			
 		} else if (status == "unpaid") {
 			const usages = await self.getUsageUnpaid(user.id);
 			const subtotal = await self.getUsageTotalUnpaid(user.id);
+			
 			const result_usages = [];
 			for (let i = 0; i < usages.length; i++) {
 				result_usages.push(usages[i]);
