@@ -49,22 +49,39 @@ let coreApi = new midtransClient.CoreApi({
 	clientKey: clientKey,
 });
 
-function formatItemDetails(item_details) {
+function formatitem_details(item_details) {
 	let result = [];
 	for (const item_detail of item_details) {
 		result.push({
-			id: item_detail.dataValues.id_pricelist,
-			price: item_detail.dataValues.price,
-			quantity: item_detail.dataValues.qty,
-			name: item_detail.dataValues.feature_name,
+			id: item_detail.id_pricelist,
+			price: item_detail.price,
+			quantity: item_detail.qty,
+			name: item_detail.feature_name,
 			brand: 'placefinder',
 			category: 'service',
 			merchant_name: 'placefinder',
-			url: item_detail.dataValues.Pricelist.url_endpoint
+			url: item_detail.Pricelist.url_endpoint
 		});
 	}
 	return result;
 }
+
+// function formatitem_details(item_details) {
+// 	let result = [];
+// 	for (const item_detail of item_details) {
+// 		result.push({
+// 			id: item_detail.dataValues.id_pricelist,
+// 			price: item_detail.dataValues.price,
+// 			quantity: item_detail.dataValues.qty,
+// 			name: item_detail.dataValues.feature_name,
+// 			brand: 'placefinder',
+// 			category: 'service',
+// 			merchant_name: 'placefinder',
+// 			url: item_detail.dataValues.Pricelist.url_endpoint
+// 		});
+// 	}
+// 	return result;
+// }
 
 function formatRupiah(amount) {
 	let formattedAmount = amount.toLocaleString("id-ID", { style: "currency", currency: "IDR" });
@@ -187,34 +204,86 @@ router.post("/checkout", [auth.authenticate("developer", "role tidak sesuai")], 
 			},
 		},
 	});
+	// let item_details = await models.Usage.findAll({
+	// 	attributes: [
+	// 		'id',
+	// 		[Sequelize.literal('PriceList.id'), 'id_pricelist'],
+	// 		[Sequelize.literal('PriceList.feature_name'), 'feature_name'],
+	// 		[Sequelize.literal('PriceList.url_endpoint'), 'url_endpoint'],
+	// 		[Sequelize.literal('PriceList.price'), 'price'],
+	// 		[Sequelize.literal('PriceList.status'), 'status'],
+	// 		[Sequelize.literal('PriceList.created_at'), 'created_at'],
+	// 		[Sequelize.literal('PriceList.updated_at'), 'updated_at'],
+	// 		[Sequelize.fn('COUNT', Sequelize.col('id_pricelist')), 'qty'],
+	// 		[Sequelize.fn('SUM', Sequelize.col('subtotal')), 'subtotal'],
+	// 	],
+	// 	include: [{
+	// 		model: models.PriceList,
+	// 		attributes: [
+	// 			'url_endpoint'
+	// 		],
+	// 	}],
+	// 	where: {
+	// 		id_user: user.id,
+	// 		status: 1,
+	// 	},
+	// 	group: ['PriceList.id', 'Usage.id_pricelist'],
+	// });
+
 	let item_details = await models.Usage.findAll({
-		attributes: [
-			'id',
-			[Sequelize.literal('PriceList.id'), 'id_pricelist'],
-			[Sequelize.literal('PriceList.feature_name'), 'feature_name'],
-			[Sequelize.literal('PriceList.url_endpoint'), 'url_endpoint'],
-			[Sequelize.literal('PriceList.price'), 'price'],
-			[Sequelize.literal('PriceList.status'), 'status'],
-			[Sequelize.literal('PriceList.created_at'), 'created_at'],
-			[Sequelize.literal('PriceList.updated_at'), 'updated_at'],
-			[Sequelize.fn('COUNT', Sequelize.col('id_pricelist')), 'qty'],
-			[Sequelize.fn('SUM', Sequelize.col('subtotal')), 'subtotal'],
-		],
 		include: [{
 			model: models.PriceList,
 			attributes: [
-				'url_endpoint'
+				'feature_name',
+				'url_endpoint',
+				'price',
+				'status',
+				'created_at',
+				'updated_at'
 			],
 		}],
 		where: {
 			id_user: user.id,
 			status: 1,
 		},
-		group: ['PriceList.id', 'Usage.id_pricelist'],
 	});
+	const transformedData = item_details.reduce((result, item) => {
+		const existingItem = result.find(
+			(resultItem) => resultItem.id_pricelist === item.id_pricelist
+		);
+
+		if (existingItem) {
+			existingItem.qty += 1;
+			existingItem.subtotal = (existingItem.qty * existingItem.price).toString();
+		} else {
+			const newItem = {
+				id: item.id,
+				id_pricelist: item.id_pricelist,
+				feature_name: item.Pricelist.feature_name,
+				url_endpoint: item.Pricelist.url_endpoint,
+				price: item.Pricelist.price,
+				status: item.Pricelist.status,
+				created_at: item.Pricelist.created_at,
+				updated_at: item.Pricelist.updated_at,
+				qty: 1,
+				subtotal: item.subtotal.toString(),
+				Pricelist: {
+					url_endpoint: item.Pricelist.url_endpoint
+				}
+			};
+
+			result.push(newItem);
+		}
+
+		return result;
+	}, []);
+
+	console.log(transformedData);
+	item_details = transformedData;
+
 	let total = 0;
 	for (const item_detail of item_details) {
-		total += parseInt(item_detail.dataValues.subtotal);
+		total += parseInt(item_detail.subtotal);
 	}
 	if (item_details.length == 0 || total == 0) {
 		return res.status(404).send({
@@ -237,7 +306,7 @@ router.post("/checkout", [auth.authenticate("developer", "role tidak sesuai")], 
 			email: user.email,
 			phone: user.phone_number,
 		},
-		item_details: formatItemDetails(item_details)
+		item_details: formatitem_details(item_details)
 	};
 	let usages = await models.Usage.findAll({
 		where: {
@@ -280,7 +349,7 @@ router.post("/checkout", [auth.authenticate("developer", "role tidak sesuai")], 
 					});
 				}
 				return res.status(201).send({
-					item_details: usages,
+					item_details: item_details,
 					checkoutResponse: checkoutResponse,
 				});
 			} catch (e) {

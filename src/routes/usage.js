@@ -148,6 +148,11 @@ router.get("/developer/:id?", [auth.authenticate("developer", "role tidak sesuai
 	} else {
 		const usage = await self.getUsageById(id, user.id);
 		if (usage.id != undefined) {
+			if(usage.id_user!=user.id){
+				return res.status(404).send({
+					message: "usage bukan milik developer yang sedang login!"
+				});
+			}
 			return res.status(200).send({
 				usage: usage,
 			});
