@@ -195,7 +195,7 @@ router.get("/search/", [auth.authenticate(["admin", "developer", 'provider'])], 
 
 
 
-router.post("/checkout", [auth.authenticate("developer", "role tidak sesuai")], async function (req, res) {
+router.post("/checkout", [auth.authenticate(["developer", 'provider'], "role tidak sesuai")], async function (req, res) {
 	let user = await models.User.findOne({ where: { username: auth.payload.username } });
 	let h_trans = await models.H_trans.findAll({
 		where: {
