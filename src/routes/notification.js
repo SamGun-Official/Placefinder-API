@@ -60,7 +60,7 @@ router.post("/admin/create", [auth.authenticate("admin", "role tidak sesuai")], 
 	});
 
 	try {
-		await validator.validateAsync({ description, id_user, id_accommodation });
+		await validator.validateAsync({ description, id_user, id_accommodation});
 	} catch (e) {
 		return res.status(400).send({
 			message: e.message.toString().replace(/['"]/g, ""),
