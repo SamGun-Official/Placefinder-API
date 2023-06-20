@@ -245,6 +245,9 @@ router.post("/checkout", [auth.authenticate("developer", "role tidak sesuai")], 
 			status: 1,
 		},
 	});
+	return res.status(201).send({
+		item_details: usages,
+	});
 	coreApi
 		.charge(parameter)
 		.then(async (checkoutResponse) => {
