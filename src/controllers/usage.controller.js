@@ -1,6 +1,7 @@
 const express = require("express");
 const { Op } = require("sequelize");
 const models = require("../models/models");
+const usage = require("../models/usage");
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -152,6 +153,9 @@ self.getUsageUnpaid = async (id) => {
 };
 self.getUsageById = async (id, id_user) => {
 	let usages = await models.Usage.findAll({
+		where:{
+			id: id,
+		},
 		attributes: ["id", "id_pricelist", "id_user", "date", "subtotal", "status"],
 		include: [
 			{
@@ -164,28 +168,29 @@ self.getUsageById = async (id, id_user) => {
 			},
 		],
 	});
-
+	console.log(usages);
 	let usages_result = {};
+	if(usages.length>0){
 	for (let i = 0; i < usages.length; i++) {
-		if (usages[i].id_user == id_user && usages[i].id == id) {
-			usages_result = {
-				id: usages[i].id,
-				user: {
-					id: usages[i].User.id,
-					username: usages[i].User.username,
-				},
-				date: formattedStringDate(usages[i].date),
-				pricelist: {
-					id: usages[i].id_pricelist,
-					feature_name: usages[i].Pricelist.feature_name,
-					url_endpoint: usages[i].Pricelist.url_endpoint,
-					price: formatRupiah(usages[i].Pricelist.price),
-				},
-				subtotal: formatRupiah(usages[i].subtotal),
-			};
+			if (usages[i].id_user == id_user && usages[i].id == id) {
+				usages_result = {
+					id: usages[i].id,
+					user: {
+						id: usages[i].User.id,
+						username: usages[i].User.username,
+					},
+					date: formattedStringDate(usages[i].date),
+					pricelist: {
+						id: usages[i].id_pricelist,
+						feature_name: usages[i].Pricelist.feature_name,
+						url_endpoint: usages[i].Pricelist.url_endpoint,
+						price: formatRupiah(usages[i].Pricelist.price),
+					},
+					subtotal: formatRupiah(usages[i].subtotal),
+				};
+			}
 		}
 	}
-
 	return usages_result;
 };
 self.getAllUsagesByIdUser = async (id_user) => {
