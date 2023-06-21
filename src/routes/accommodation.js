@@ -193,9 +193,6 @@ router.get("/provider/detail", auth.authenticate(["provider"]), async function (
 });
 router.get("/developer/all", auth.authenticate(["developer"]), async function (req, res) {
 	const messages = {
-		origin: {
-			"any.required": "Address is required!",
-		},
 		radius: {
 			"number.base": "Radius must be a number!",
 			"number.min": "Radius must be greater than or equal to 0.1!",
@@ -209,7 +206,7 @@ router.get("/developer/all", auth.authenticate(["developer"]), async function (r
 		},
 	};
 	const schema = Joi.object({
-		origin: Joi.string().required().messages(messages.origin),
+		origin: Joi.string(),
 		radius: Joi.number().min(1).max(10000).messages(messages.radius),
 		max_price: Joi.number().min(50000).messages(messages.radius),
 		type: Joi.string().valid("House", "Apartment", "Condominium", "Townhouse", "Villa", "Loft", "Duplex", "Cottage").messages(messages.type),

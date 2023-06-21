@@ -118,7 +118,6 @@ self.add = async (req, username) => {
 		},
 	});
 	const geocoding_data = await fetchAddressCoordinate(req.body.address);
-
 	const pricelist_data = await models.PriceList.findOne({
 		where: {
 			url_endpoint: "https://samgun-official.my.id/placefinder/api/accommodations/provider",

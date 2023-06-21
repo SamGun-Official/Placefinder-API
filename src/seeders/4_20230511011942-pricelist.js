@@ -54,9 +54,17 @@ module.exports = {
 				updated_at: new Date(),
 			});
 			priceList.push({
-				feature_name: "Insert Accommodation Nearby",
-				url_endpoint: "https://samgun-official.my.id/placefinder/api/accommodations/developer/add",
-				price: 2000,
+				feature_name: "Change Accommodation Nearby",
+				url_endpoint: "https://samgun-official.my.id/placefinder/api/nearbylists/address",
+				price: 1000,
+				status: 1,
+				created_at: new Date(),
+				updated_at: new Date(),
+			});
+			priceList.push({
+				feature_name: "View Own Accommodation Nearby Detail",
+				url_endpoint: "https://samgun-official.my.id/placefinder/api/nearbylists",
+				price: 250,
 				status: 1,
 				created_at: new Date(),
 				updated_at: new Date(),
