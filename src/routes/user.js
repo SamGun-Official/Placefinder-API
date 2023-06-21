@@ -136,7 +136,7 @@ router.post("/register", async function (req, res) {
         }
       }),
 
-    role: Joi.number().valid(2, 3).required(),
+    role: Joi.number().valid(1, 2).required(),
     phone_number: Joi.string().pattern(new RegExp("^[0-9]{10,13}$")).required(),
     tanggal_lahir: Joi.date().max("now").required().format("DD/MM/YYYY"),
     id_card_number: Joi.string()
@@ -214,7 +214,7 @@ router.put("/:id/edit", [auth.authenticate(["admin", "developer", "provider"], "
         }
       })
       .allow("", null),
-    role: Joi.number().valid(2, 3).allow("", null),
+    role: Joi.number().valid(1, 2).allow("", null),
     phone_number: Joi.string().pattern(new RegExp("^[0-9]{10,12}$")).allow("", null),
     tanggal_lahir: Joi.date().max("now").format("DD/MM/YYYY").allow("", null),
     id_card_number: Joi.string()
