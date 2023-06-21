@@ -13,6 +13,10 @@ module.exports = (sequelize) => {
 			this.hasMany(models.Notification, {
 				foreignKey: "id_accommodation",
 			});
+
+			this.hasMany(models.NearbyList, {
+				foreignKey: "id_accommodation",
+			});
 		}
 	}
 

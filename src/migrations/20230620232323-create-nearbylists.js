@@ -3,57 +3,24 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
 	async up(queryInterface, Sequelize) {
-		await queryInterface.createTable("accommodations", {
+		await queryInterface.createTable("nearbylists", {
 			id: {
 				type: Sequelize.INTEGER,
 				autoIncrement: true,
 				primaryKey: true,
 				allowNull: false,
 			},
-			name: {
-				type: Sequelize.STRING,
-				allowNull: false,
-			},
-			address: {
-				type: Sequelize.STRING,
-				allowNull: false,
-			},
-			price: {
+			id_user: {
 				type: Sequelize.INTEGER,
 				allowNull: false,
 			},
-			owner: {
+			id_accommodation: {
 				type: Sequelize.INTEGER,
 				allowNull: false,
-				references: {
-					model: "users",
-					key: "id",
-				},
 			},
-			description: {
+			center_coordinate: {
 				type: Sequelize.STRING,
-				allowNull: true,
-			},
-			rating: {
-				type: Sequelize.INTEGER,
-				allowNull: true,
-			},
-			coordinate: {
-				type: Sequelize.STRING,
-				allowNull: true,
-			},
-			status: {
-				type: Sequelize.INTEGER,
 				allowNull: false,
-				defaultValue: 1,
-			},
-			type: {
-				type: Sequelize.STRING,
-				allowNull: true,
-			},
-			capacity: {
-				type: Sequelize.INTEGER,
-				allowNull: true,
 			},
 			created_at: {
 				type: Sequelize.DATE,
@@ -73,6 +40,6 @@ module.exports = {
 		});
 	},
 	async down(queryInterface, Sequelize) {
-		await queryInterface.dropTable("accommodations");
+		await queryInterface.dropTable("nearbylists");
 	},
 };

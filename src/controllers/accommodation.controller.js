@@ -2,7 +2,6 @@ const express = require("express");
 const { Op } = require("sequelize");
 const models = require("../models/models");
 const axios = require("axios");
-const accommodation = require("../models/accommodation");
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
