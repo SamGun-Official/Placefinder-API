@@ -21,9 +21,9 @@ module.exports = {
 				status: 1,
 				type: types[faker.datatype.number({ min: 0, max: 7 })],
 				capacity: faker.datatype.number({ min: 1, max: 5 }),
-				area: faker.datatype.number({ min: 20, max: 100 }),
 				created_at: new Date(),
 				updated_at: new Date(),
+				deleted_at: null,
 			});
 		}
 

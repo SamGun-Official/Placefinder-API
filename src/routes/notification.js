@@ -28,9 +28,9 @@ router.post("/admin/create", [auth.authenticate("admin", "role tidak sesuai")], 
 			.required()
 			.external(async function () {
 				const result = await models.User.findOne({
-					where:{
-						id: id_user
-					}
+					where: {
+						id: id_user,
+					},
 				});
 				if (result.length <= 0) {
 					throw Error("id user tidak ditemukan!");
@@ -45,9 +45,9 @@ router.post("/admin/create", [auth.authenticate("admin", "role tidak sesuai")], 
 			.required()
 			.external(async function () {
 				const result = await models.Accommodation.findOne({
-					where:{
-						id: id_accommodation
-					}
+					where: {
+						id: id_accommodation,
+					},
 				});
 				if (result.length <= 0) {
 					throw Error("id accommodation tidak ditemukan");
@@ -67,13 +67,16 @@ router.post("/admin/create", [auth.authenticate("admin", "role tidak sesuai")], 
 		});
 	}
 
-	const user = await models.User.findOne({
-		where:{
-			id: id_user
+	const user = await models.User.findOne(
+		{
+			where: {
+				id: id_user,
+			},
+		},
+		{
+			attributes: ["id", "username"],
 		}
-	}, {
-		attributes: ["id", "username"],
-	});
+	);
 
 	if (user.role == 0) {
 		return res.status(400).send({
@@ -120,6 +123,11 @@ router.get("/admin", [auth.authenticate("admin", "role tidak sesuai")], async fu
 router.get("/admin/user/:id_user?", [auth.authenticate("admin", "role tidak sesuai")], async function (req, res) {
 	const id_user = req.params.id_user;
 	let notifs = await self.getByUser(id_user);
+	if(notifs.length==0){
+		return res.status(404).send({
+			message: "notif tidak ditemukan!"
+		});
+	}
 	const notif_result = [];
 	for (let i = 0; i < notifs.length; i++) {
 		notif_result.push({
@@ -145,6 +153,11 @@ router.get("/admin/user/:id_user?", [auth.authenticate("admin", "role tidak sesu
 router.get("/admin/:id?", [auth.authenticate("admin", "role tidak sesuai")], async function (req, res) {
 	const id = req.params.id;
 	let notification = await self.get(id);
+	if(!notification){
+		return res.status(404).send({
+			message: "notif tidak ditemukan!"
+		});
+	}
 	const notif_result = {
 		id: notification.id,
 		user: {
@@ -171,6 +184,12 @@ router.get("/", [auth.authenticate(["provider", "developer"], "role tidak sesuai
 	console.log("USER: " + username);
 	console.log("ID:" + user.id);
 	let notifs = await self.getByUser(user.id);
+
+	if(notifs.length==0){
+		return res.status(404).send({
+			message: "notif tidak ditemukan!"
+		});
+	}
 
 	const notif_result = [];
 	for (let i = 0; i < notifs.length; i++) {

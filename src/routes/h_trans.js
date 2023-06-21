@@ -96,6 +96,9 @@ const PAYMENT_STATUS = [
 ]
 
 function checkPaymentStatusExist(payment_status) {
+	if (!payment_status) {
+		return true;
+	}
 	if (PAYMENT_STATUS.find(p => p == payment_status.toLowerCase())) {
 		return true;
 	}
@@ -146,6 +149,7 @@ router.get("/", [auth.authenticate(["developer", "admin", "provider"], "role tid
 	}
 });
 router.get("/search/", [auth.authenticate(["admin", "developer", 'provider'])], async function (req, res) {
+	const user = await models.User.findOne({ where: { username: auth.payload.username } });
 	const validator = Joi.object({
 		number: Joi.string().allow("", null),
 		start_date: Joi.date().max("now").format("DD/MM/YYYY").allow("", null),
@@ -184,18 +188,18 @@ router.get("/search/", [auth.authenticate(["admin", "developer", 'provider'])], 
 		}
 		if (payment_status) {
 			// return res.status(200).send(payment_status);
-			return res.status(200).send(await self.getByPaymentStatus(payment_status));
+			return res.status(200).send(await self.getByPaymentStatus(payment_status, user.id));
 		} else if (start_date || end_date) {
-			return res.status(200).send(await self.getByDate(start_date, end_date));
+			return res.status(200).send(await self.getByDate(start_date, end_date, user.id));
 		} else {
-			return res.status(200).send(await self.getAll());
+			return res.status(200).send(await self.getAll(user.id));
 		}
 	}
 });
 
 
 
-router.post("/checkout", [auth.authenticate("developer", "role tidak sesuai")], async function (req, res) {
+router.post("/checkout", [auth.authenticate(["developer", 'provider'], "role tidak sesuai")], async function (req, res) {
 	let user = await models.User.findOne({ where: { username: auth.payload.username } });
 	let h_trans = await models.H_trans.findAll({
 		where: {
@@ -383,19 +387,26 @@ router.post("/notification/", async function (req, res) {
 			} else if (transactionStatus == "settlement") {
 				// TODO set transaction status on your databaase to 'success'
 				await models.H_trans.update({
-					status: 2 //settlement
+					payment_status: 2 //settlement
 				}, {
 					where: {
 						number: order_id
 					}
 				});
+				let h_trans = await models.H_trans.findOne({ where: { number: order_id } });
+				let d_trans = await models.D_trans.findAll({ where: { id_htrans: h_trans.id } });
+				for(const d of d_trans){
+					let usage = await models.Usage.findByPk(d.id_usage);
+					usage.status = 0;
+					await usage.save();
+				}
 			} else if (transactionStatus == "deny") {
 				// TODO you can ignore 'deny', because most of the time it allows payment retries
 				// and later can become success
 			} else if (transactionStatus == "cancel" || transactionStatus == "expire") {
 				// TODO set transaction status on your databaase to 'failure'
 				await models.H_trans.update({
-					status: 3 //settlement
+					payment_status: 3 //failed
 				}, {
 					where: {
 						number: order_id

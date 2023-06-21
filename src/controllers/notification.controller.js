@@ -35,7 +35,10 @@ self.getAll = async (req, res) => {
 	return notifications;
 };
 self.get = async (id) => {
-	let notif = await models.Notification.findByPk(id, {
+	let notif = await models.Notification.findOne({
+		where:{
+			id: id
+		},
 		attributes: ["id", "description", "id_user", "id_accommodation", "status"],
 		include: [
 			{

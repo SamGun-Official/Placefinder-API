@@ -39,36 +39,36 @@ app.use(process.env.BASE_URL + "/api/pricelists", pricelists);
 app.use(process.env.BASE_URL + "/api/usages", usage);
 
 app.get(process.env.BASE_URL, (req, res) => {
-  return res.status(200).send({
-    message: "This request has been made successfully!",
-    url: {
-      documentation: "-",
-    },
-    members: [
-      {
-        nrp: "220116905",
-        name: "Angelita Jesslyn",
-      },
-      {
-        nrp: "220116910",
-        name: "Clarissa Gracienne",
-      },
-      {
-        nrp: "220116923",
-        name: "Jonathan Theja",
-      },
-      {
-        nrp: "220116928",
-        name: "Samuel Gunawan",
-      },
-    ],
-  });
+	return res.status(200).send({
+		message: "This request has been made successfully!",
+		url: {
+			documentation: "-",
+		},
+		members: [
+			{
+				nrp: "220116905",
+				name: "Angelita Jesslyn",
+			},
+			{
+				nrp: "220116910",
+				name: "Clarissa Gracienne",
+			},
+			{
+				nrp: "220116923",
+				name: "Jonathan Theja",
+			},
+			{
+				nrp: "220116928",
+				name: "Samuel Gunawan",
+			},
+		],
+	});
 });
 
 /* ===== DEFAULT ===== */
 const port = 3000;
 app.listen(port, function () {
-  console.log(`Connected! Server running on http://localhost:${port}`);
+	console.log(`Connected! Server running on http://localhost:${port}`);
 });
 
 module.exports = app;

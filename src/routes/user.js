@@ -341,6 +341,7 @@ router.put("/:id/verify/confirm", [auth.authenticate("admin", "role tidak sesuai
 
   //verify (update)
   await self.updateUserConfirm(user.username);
+
   return res.status(200).send({
     message: `berhasil mengkonfirmasi pengguna dengan username ${user.username}`,
     user: {
@@ -353,7 +354,7 @@ router.put("/:id/verify/confirm", [auth.authenticate("admin", "role tidak sesuai
       tanggal_lahir: user.tanggal_lahir,
       id_card: {
         number: user.id_card_number,
-        status: IS_VERIFIED[user.is_id_card_verified],
+        status: "verified",
       },
       token: user.token,
       status: user.status,

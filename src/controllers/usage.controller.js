@@ -89,13 +89,17 @@ self.getUsageTotal = async (id) => {
 	return usages;
 };
 self.getUsageTotalPaid = async (id) => {
-	let usages = await models.Usage.sum("subtotal", {
+	let usages = await models.Usage.findAll({
 		where: {
 			id_user: id,
 			status: 0,
 		},
 	});
-	return usages;
+	let total = 0;
+	for(let i=0;i<usages.length;i++){
+		total = total + usages[i].subtotal;
+	}
+	return total;
 };
 self.getUsageTotalUnpaid = async (id) => {
 	let usages = await models.Usage.sum("subtotal", {
@@ -108,6 +112,9 @@ self.getUsageTotalUnpaid = async (id) => {
 };
 self.getUsagePaid = async (id) => {
 	let usages = await models.Usage.findAll({
+		where:{
+			status: 0
+		},
 		attributes: ["id", "id_pricelist", "id_user", "date", "subtotal", "status"],
 		include: [
 			{
@@ -125,6 +132,9 @@ self.getUsagePaid = async (id) => {
 };
 self.getUsageUnpaid = async (id) => {
 	let usages = await models.Usage.findAll({
+		where:{
+			status:1
+		},
 		attributes: ["id", "id_pricelist", "id_user", "date", "subtotal", "status"],
 		include: [
 			{
