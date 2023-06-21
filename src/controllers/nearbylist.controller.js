@@ -54,7 +54,30 @@ self.getAllById = async (username) => {
 		},
 	});
 
-	return nearbylists;
+	const pricelist_data = await models.PriceList.findOne({
+		where: {
+			url_endpoint: "https://samgun-official.my.id/placefinder/api/nearbylists",
+		},
+	});
+	const new_usage = await models.Usage.create({
+		id_pricelist: pricelist_data.id,
+		id_user: user_data.id,
+		date: new Date(),
+		subtotal: pricelist_data.price,
+		status: 1,
+	});
+
+	return {
+		nearbylist_data: nearbylists,
+		usage_data: await models.Usage.findOne({
+			attributes: {
+				exclude: ["created_at", "updated_at", "deleted_at"],
+			},
+			where: {
+				id: new_usage.id,
+			},
+		}),
+	};
 };
 self.add = async (body, username) => {
 	const user_data = await models.User.findOne({

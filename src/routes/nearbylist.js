@@ -31,7 +31,11 @@ function accommodationValidationSchema() {
 
 const router = express.Router();
 router.get("/", auth.authenticate(["developer"]), async function (req, res) {
-	return res.status(200).send(await self.getAllById(auth.payload.username));
+	const nearbylist_data = await self.getAllById(auth.payload.username);
+
+	return res.status(200).send({
+		data: nearbylist_data,
+	});
 });
 router.post("/add", auth.authenticate(["developer"]), async function (req, res) {
 	try {
