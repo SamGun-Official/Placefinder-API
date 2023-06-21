@@ -59,7 +59,6 @@ router.get("/", async function (req, res) {
 	let accommodations = await self.getAll();
 	return res.status(200).send(accommodations);
 });
-
 router.get("/search", auth.authenticate(["admin"]), async function (req, res) {
 	let { id, name, address } = req.query;
 	if (id) {

@@ -20,6 +20,10 @@ module.exports = (sequelize) => {
 			this.hasMany(models.Usage, {
 				foreignKey: "id_user",
 			});
+
+			this.hasMany(models.NearbyList, {
+				foreignKey: "id_user",
+			});
 		}
 	}
 

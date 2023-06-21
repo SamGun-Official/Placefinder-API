@@ -4,22 +4,23 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const app = express();
+const expressBusboy = require("express-busboy");
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-var expressBusboy = require("express-busboy");
 expressBusboy.extend(app);
 app.use(cors());
 
 /* ===== ORM ===== */
-const { User, Accommodation, Notification, H_trans, D_trans, PriceList, Usage } = require("./src/models/models");
+const { User, Accommodation, Notification, H_trans, D_trans, PriceList, Usage, NearbyList } = require("./src/models/models");
 
-User.associate({ Notification, Accommodation, H_trans, Usage });
-Accommodation.associate({ Notification, User });
+User.associate({ Notification, Accommodation, H_trans, Usage, NearbyList });
+Accommodation.associate({ Notification, User, NearbyList });
 Notification.associate({ User, Accommodation });
 H_trans.associate({ User, D_trans });
 D_trans.associate({ H_trans, Usage });
 PriceList.associate({ Usage });
 Usage.associate({ D_trans, PriceList, User });
+NearbyList.associate({ User, Accommodation });
 
 /* ===== ROUTES ===== */
 const users = require("./src/routes/user");
@@ -29,6 +30,7 @@ const h_trans = require("./src/routes/h_trans");
 const d_trans = require("./src/routes/d_trans");
 const pricelists = require("./src/routes/pricelist");
 const usage = require("./src/routes/usage");
+const nearbylists = require("./src/routes/nearbylist");
 
 app.use(process.env.BASE_URL + "/api/users", users);
 app.use(process.env.BASE_URL + "/api/accommodations", accommodations);
@@ -37,6 +39,7 @@ app.use(process.env.BASE_URL + "/api/transactions", h_trans);
 app.use(process.env.BASE_URL + "/api/d_trans", d_trans);
 app.use(process.env.BASE_URL + "/api/pricelists", pricelists);
 app.use(process.env.BASE_URL + "/api/usages", usage);
+app.use(process.env.BASE_URL + "/api/nearbylists", nearbylists);
 
 app.get(process.env.BASE_URL, (req, res) => {
 	return res.status(200).send({
