@@ -144,7 +144,14 @@ router.put("/update/:id", auth.authenticate(["admin", "provider"]), async functi
 		return res.status(200).send({
 			message: `Successfully update accommodation data with ID ${accommodation_id}!`,
 			data: {
-				accommodation_data: await models.Accommodation.findByPk(accommodation_id),
+				accommodation_data: await models.Accommodation.findOne({
+					attributes: {
+						exclude: ["created_at", "updated_at", "deleted_at"],
+					},
+					where: {
+						id: accommodation_id,
+					},
+				}),
 				usage_data: new_usage,
 			},
 		});

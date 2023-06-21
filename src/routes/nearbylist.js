@@ -57,7 +57,7 @@ router.post("/add", auth.authenticate(["developer"]), async function (req, res) 
 		return res.status(error.request ? error.request.res.statusCode : 400).send({ message: error.original ? error.original : error.message });
 	}
 });
-router.get("/update/:id", auth.authenticate(["developer"]), async function (req, res) {
+router.put("/update/:id", auth.authenticate(["developer"]), async function (req, res) {
 	try {
 		const nearbylist_id = req.params.id;
 		const schema = accommodationValidationSchema();
@@ -76,9 +76,16 @@ router.get("/update/:id", auth.authenticate(["developer"]), async function (req,
 		);
 
 		return res.status(200).send({
-			message: `Successfully update accommodation data with ID ${accommodation_id}!`,
+			message: `Successfully update nearbylist data with ID ${nearbylist_id}!`,
 			data: {
-				accommodation_data: await models.Accommodation.findByPk(accommodation_id),
+				nearbylist_data: await models.NearbyList.findOne({
+					attributes: {
+						exclude: ["created_at", "updated_at", "deleted_at"],
+					},
+					where: {
+						id: nearbylist_id,
+					},
+				}),
 				usage_data: new_usage,
 			},
 		});
@@ -86,6 +93,16 @@ router.get("/update/:id", auth.authenticate(["developer"]), async function (req,
 		return res.status(error.request ? error.request.res.statusCode : 400).send({ message: error.original ? error.original : error.message });
 	}
 });
-router.get("/delete/:id", auth.authenticate(["developer"]), async function (req, res) {});
+router.delete("/delete/:id", auth.authenticate(["developer"]), async function (req, res) {
+	try {
+		await self.delete(req.params.id, auth.payload.username);
+
+		return res.status(200).send({
+			message: `Successfully delete nearbylist data with ID ${req.params.id}!`,
+		});
+	} catch (error) {
+		return res.status(error.request ? error.request.res.statusCode : 400).send({ message: error.original ? error.original : error.message });
+	}
+});
 
 module.exports = router;

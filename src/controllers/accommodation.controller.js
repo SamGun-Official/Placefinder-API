@@ -74,13 +74,23 @@ async function insertUsageOnFilter(user_data, url) {
 		},
 	});
 
-	return await models.Usage.create({
+	const new_usage = await models.Usage.create({
 		id_pricelist: pricelist_data.id,
 		id_user: user_data.id,
 		date: new Date(),
 		subtotal: pricelist_data.price,
 		status: 1,
 	});
+	const usage_data = await models.Usage.findOne({
+		attributes: {
+			exclude: ["created_at", "updated_at", "deleted_at"],
+		},
+		where: {
+			id: new_usage.id,
+		},
+	});
+
+	return usage_data;
 }
 
 let self = {};
@@ -124,25 +134,42 @@ self.add = async (req, username) => {
 		},
 	});
 
+	const new_accommodation = await models.Accommodation.create({
+		name: req.body.name,
+		address: req.body.address,
+		price: parseInt(req.body.price),
+		owner: parseInt(owner_data.id),
+		description: !req.body.description ? null : req.body.description,
+		rating: null,
+		coordinate: geocoding_data,
+		status: 1,
+		type: req.body.type,
+		capacity: parseInt(req.body.capacity),
+	});
+	const new_usage = await models.Usage.create({
+		id_pricelist: pricelist_data.id,
+		id_user: owner_data.id,
+		date: new Date(),
+		subtotal: pricelist_data.price,
+		status: 1,
+	});
+
 	return {
-		accommodation_data: await models.Accommodation.create({
-			name: req.body.name,
-			address: req.body.address,
-			price: parseInt(req.body.price),
-			owner: parseInt(owner_data.id),
-			description: !req.body.description ? null : req.body.description,
-			rating: null,
-			coordinate: geocoding_data,
-			status: 1,
-			type: req.body.type,
-			capacity: parseInt(req.body.capacity),
+		accommodation_data: await models.Accommodation.findOne({
+			attributes: {
+				exclude: ["created_at", "updated_at", "deleted_at"],
+			},
+			where: {
+				id: new_accommodation.id,
+			},
 		}),
-		usage_data: await models.Usage.create({
-			id_pricelist: pricelist_data.id,
-			id_user: owner_data.id,
-			date: new Date(),
-			subtotal: pricelist_data.price,
-			status: 1,
+		usage_data: await models.Usage.findOne({
+			attributes: {
+				exclude: ["created_at", "updated_at", "deleted_at"],
+			},
+			where: {
+				id: new_usage.id,
+			},
 		}),
 	};
 };
@@ -189,12 +216,20 @@ self.update = async (accommodation_id, req, username) => {
 					url_endpoint: "https://samgun-official.my.id/placefinder/api/accommodations/provider",
 				},
 			});
-			usage_data = await models.Usage.create({
+			const new_usage = await models.Usage.create({
 				id_pricelist: pricelist_data.id,
 				id_user: user_data.id,
 				date: new Date(),
 				subtotal: pricelist_data.price,
 				status: 1,
+			});
+			usage_data = await models.Usage.findOne({
+				attributes: {
+					exclude: ["created_at", "updated_at", "deleted_at"],
+				},
+				where: {
+					id: new_usage.id,
+				},
 			});
 		}
 	}
@@ -270,6 +305,9 @@ self.getAllOwnAccommodations = async (username) => {
 		},
 	});
 	const own_accommodations = await models.Accommodation.findAll({
+		attributes: {
+			exclude: ["created_at", "updated_at", "deleted_at"],
+		},
 		where: {
 			owner: {
 				[Op.eq]: owner_data.id,
@@ -288,6 +326,9 @@ self.getOwnAccommodationsByAvailability = async (username, status) => {
 		},
 	});
 	const own_accommodations = await models.Accommodation.findAll({
+		attributes: {
+			exclude: ["created_at", "updated_at", "deleted_at"],
+		},
 		where: {
 			owner: owner_data.id,
 			status: status === "Open" ? 1 : 0,
@@ -298,7 +339,11 @@ self.getOwnAccommodationsByAvailability = async (username, status) => {
 };
 self.getAccommodationsByFilter = async (query, username) => {
 	const { origin, radius, max_price, type } = query;
-	let accommodation_data = await models.Accommodation.findAll();
+	let accommodation_data = await models.Accommodation.findAll({
+		attributes: {
+			exclude: ["created_at", "updated_at", "deleted_at"],
+		},
+	});
 	const user_data = await models.User.findOne({
 		where: {
 			username: {
