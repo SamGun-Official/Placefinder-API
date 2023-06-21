@@ -7,7 +7,7 @@ const app = express();
 const expressBusboy = require("express-busboy");
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-expressBusboy.extend(app);
+// expressBusboy.extend(app);
 app.use(cors());
 
 /* ===== ORM ===== */

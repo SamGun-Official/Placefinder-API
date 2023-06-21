@@ -117,8 +117,10 @@ self.delete = async (req, res) => {};
 self.deleteAll = async (req, res) => {};
 self.verify = async (id, req, res) => {
   const uploadFunc = upload.single("id_card_pic");
+  console.log("masuk");
   uploadFunc(req, res, async function (err) {
     if (err) {
+      console.log(err);
       return err;
     }
     let user = await models.User.findOne({
@@ -126,7 +128,7 @@ self.verify = async (id, req, res) => {
         id: id,
       },
     });
-
+    console.log("masuk");
     const fileExtension = path.extname(req.file.originalname);
     const newFilename = `${user.username}${fileExtension}`;
     fs.renameSync(`./uploads/${req.file.filename}`, `./uploads/${newFilename}`);

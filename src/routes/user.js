@@ -248,7 +248,7 @@ router.put("/:id/edit", [auth.authenticate(["admin", "developer", "provider"], "
 });
 router.post("/:id/verify", [auth.authenticate(["developer", "provider"], "role tidak sesuai")], async function (req, res) {
 	let id = req.params.id;
-	let id_card_number = req.body.id_card_number;
+	// let id_card_number = req.body.id_card_number;
 	let user_with_id;
 	const schema = Joi.object({
 		id: Joi.number()
@@ -265,16 +265,16 @@ router.post("/:id/verify", [auth.authenticate(["developer", "provider"], "role t
 					throw Error("ID tidak ditemukan");
 				}
 			}),
-		id_card_number: Joi.string().required().pattern(new RegExp("^[0-9]{16}$")),
+		// id_card_number: Joi.string().required().pattern(new RegExp("^[0-9]{16}$")),
 	});
 
 	try {
-		await schema.validateAsync({ id, id_card_number });
+		await schema.validateAsync({ id});
 		let verifyResult = await self.verify(id, req, res);
 		if (verifyResult) {
-			if (user_with_id.id_card_number == id_card_number) {
+			// if (user_with_id.id_card_number == id_card_number) {
 				return res.status(200).send({ message: "Berhasil upload!" });
-			}
+			// }
 		}
 		return res.status(400).send({
 			message: "Gagal upload!",
