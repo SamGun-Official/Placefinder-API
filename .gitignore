@@ -109,3 +109,6 @@ dist
 # Custom files
 .tmp
 *postman_collection.json
+*.pdf
+*.txt
+*.sql
