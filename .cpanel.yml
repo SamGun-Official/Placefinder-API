@@ -1,7 +1,7 @@
 ---
 deployment:
   tasks:
-    - export DEPLOYPATH=/home/samgunof/nodejs/web_service_project/
+    - export DEPLOYPATH=/home/samgunof/nodejs/placefinder_api/
     - /bin/cp -R src $DEPLOYPATH
     - /bin/cp -R uploads $DEPLOYPATH
     - /bin/cp .sequelizerc $DEPLOYPATH
