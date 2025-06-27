@@ -12,7 +12,7 @@
 		"remove": "rm -rf node_modules && npm cache clean --force"
 	},
 	"engines": {
-		"node": "16.x"
+		"node": "22.x"
 	},
 	"repository": {
 		"type": "git",
