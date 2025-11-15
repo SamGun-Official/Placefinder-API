@@ -27,7 +27,7 @@
 	"homepage": "https://github.com/SamGun-Official/Web-Service-Project#readme",
 	"dependencies": {
 		"@joi/date": "^2.1.0",
-		"axios": "^1.10.0",
+		"axios": "^1.13.2",
 		"cors": "^2.8.5",
 		"dotenv": "^16.0.3",
 		"express": "^4.21.2",
